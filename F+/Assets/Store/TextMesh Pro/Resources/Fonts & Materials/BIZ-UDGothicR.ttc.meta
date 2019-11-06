@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: f2d9821a997afe44d9c9c59f079da6e0
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: BIZ UDGothic
+  fontNames:
+  - BIZ UDGothic
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: da492d3533284334b9889142af02465a, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

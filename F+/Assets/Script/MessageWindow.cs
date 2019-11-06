@@ -15,10 +15,10 @@ public class MessageWindow : MonoBehaviour
     }
    
     // =--------- SerializeField ---------= //
-    [SerializeField] TextMeshProUGUI TextMeshPrefab;    // テキストの基
-    [SerializeField] private float   FallSpeed = 0.3f;  // テキストが流れる速度（秒）
-    [SerializeField] private float   TextSpace = 60.0f; // テキスト同士の間隔
-    [SerializeField] private int     MaxText = 4;       // 一度に表示されるテキストの最大数
+    [SerializeField] TextMeshProUGUI TextMeshPrefab = null; // テキストの基
+    [SerializeField] private float   FallSpeed = 0.3f;      // テキストが流れる速度（秒）
+    [SerializeField] private float   TextSpace = 60.0f;     // テキスト同士の間隔
+    [SerializeField] private int     MaxText = 4;           // 一度に表示されるテキストの最大数
 
     // =--------- 変数宣言 ---------= //
     // 表示しているテキスト
@@ -77,9 +77,11 @@ public class MessageWindow : MonoBehaviour
 
                 // 生成したテキストを初期位置の一行分下へ
                 textMesh.transform.localPosition = new Vector2(InitPos.x, InitPos.y - TextSpace);
+                textMesh.color = Color.clear;
 
                 // 初期位置へ動かす
                 textMesh.transform.DOLocalMoveY(InitPos.y, FallSpeed);
+                textMesh.DOColor(Color.white, FallSpeed);
 
                 // 生成したテキストをリストへ追加
                 texts.Add(textMesh);
