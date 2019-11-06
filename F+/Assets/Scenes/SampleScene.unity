@@ -631,6 +631,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TextMeshPrefab: {fileID: 6952280115173487190, guid: 9a0a57b2f713c8e42a8309f5c5cc9470,
     type: 3}
+  FallSpeed: 0.3
+  TextSpace: 70
+  MaxText: 6
 --- !u!4 &1751621049
 Transform:
   m_ObjectHideFlags: 0
