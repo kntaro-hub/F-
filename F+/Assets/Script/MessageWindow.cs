@@ -65,7 +65,9 @@ public class MessageWindow : MonoBehaviour
 
                 // 予約テキストからテキストを更新
                 textMesh.text = reserves[reserves.Count - 1].text;
-                textMesh.color = reserves[reserves.Count - 1].color;
+
+                // 予約テキスト色保存
+                Color setColor = reserves[reserves.Count - 1].color;
 
                 // 予約テキスト削除
                 reserves.RemoveAt(reserves.Count - 1);
@@ -79,9 +81,9 @@ public class MessageWindow : MonoBehaviour
                 textMesh.transform.localPosition = new Vector2(InitPos.x, InitPos.y - TextSpace);
                 textMesh.color = Color.clear;
 
-                // 初期位置へ動かす
+                // 初期位置へ動かす&色を変化
                 textMesh.transform.DOLocalMoveY(InitPos.y, FallSpeed);
-                textMesh.DOColor(Color.white, FallSpeed);
+                textMesh.DOColor(setColor, FallSpeed);
 
                 // 生成したテキストをリストへ追加
                 texts.Add(textMesh);

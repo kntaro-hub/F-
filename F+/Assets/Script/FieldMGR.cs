@@ -1,10 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 public class FieldMGR : MonoBehaviour
 {
-    FieldInformation.GridInfo[,] gridInfos = new FieldInformation.GridInfo[10,10];
+    public const int fieldMax = 10;
+
+    private float initPosY = 0.0f;
+
+    private struct SaveData
+    {
+        public FieldInformation.GridInfo[,] infos;
+    }
+    private SaveData saveData = new SaveData();
+
+    FieldInformation.GridInfo[,] gridInfos = new FieldInformation.GridInfo[fieldMax, fieldMax];
+
+
     public FieldInformation.GridInfo[,] GridInfos
     {
         get { return gridInfos; }
@@ -22,7 +35,31 @@ public class FieldMGR : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.GetKeyDown(KeyCode.S))
+        {
+            this.SaveField();
+        }
+    }
+
+    private void SaveField()
+    {
+        saveData.infos = new FieldInformation.GridInfo[fieldMax, fieldMax];
+        for (int i = 0; i < fieldMax; ++i)
+        {
+            for (int j = 0; j < fieldMax; ++j)
+            {
+                saveData.infos[i,j] = gridInfos[i, j];
+            }
+        }
+
+        StreamWriter writer;
+
+        string jsonstr = JsonUtility.ToJson(saveData);
+
+        writer = new StreamWriter(Application.dataPath + "/savedata.json", false);
+        writer.Write(jsonstr);
+        writer.Flush();
+        writer.Close();
     }
 
     /// <summary>
@@ -30,9 +67,9 @@ public class FieldMGR : MonoBehaviour
     /// </summary>
     private void CreateStage()
     {
-        for(int i = 0; i < 10; ++i)
+        for(int i = 0; i < fieldMax; ++i)
         {
-            for (int j = 0; j < 10; ++j)
+            for (int j = 0; j < fieldMax; ++j)
             {
                 gridInfos[i, j].GridNum = new Vector2Int(i, j);
                 gridInfos[i, j].Type = FieldInformation.FieldType.none;
@@ -40,15 +77,20 @@ public class FieldMGR : MonoBehaviour
             }
         }
 
-        gridInfos[6, 5].Type = FieldInformation.FieldType.wall;
-        Instantiate(wallPrefab, this.GridToWorld(new Vector2Int(6, 5)), Quaternion.identity);
+        gridInfos[1 + fieldMax / 2, 3 + fieldMax / 2].Type = FieldInformation.FieldType.wall;
+        Instantiate(wallPrefab, this.GridToWorld(new Vector2Int(1, 3)), Quaternion.identity);
+    }
+
+    public void SetInitY(float posY)
+    {
+        initPosY = posY;
     }
 
     public Vector3 GridToWorld(Vector2Int grid)
     {
         Vector3 world = new Vector3(
             (float)grid.x * FieldInformation.GridSize,
-            0.0f,
+            initPosY,
             (float)grid.y * FieldInformation.GridSize);
 
         return world;
