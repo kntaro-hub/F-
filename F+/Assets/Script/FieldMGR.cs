@@ -5,24 +5,34 @@ using System.IO;
 
 public class FieldMGR : MonoBehaviour
 {
+    // =--------- 定数定義 ---------= //
     public const int fieldMax = 10;
 
-    private float initPosY = 0.0f;
-
+    // =--------- 構造体定義 ---------= //
     private struct SaveData
     {
         public FieldInformation.GridInfo[,] infos;
     }
+
+    // =--------- 変数宣言 ---------= //
+    // グリッド座標→ワールド座標変換時のズレ
+    private float initPosY = 0.0f; 
+
+    // マップデータ保存用構造体
     private SaveData saveData = new SaveData();
 
-    FieldInformation.GridInfo[,] gridInfos = new FieldInformation.GridInfo[fieldMax, fieldMax];
+    // 生成したマップオブジェクトリスト
+    private List<GameObject> mapObjects = new List<GameObject>();
 
-
+    // マップデータ
+    private FieldInformation.GridInfo[,] gridInfos = new FieldInformation.GridInfo[fieldMax, fieldMax];
     public FieldInformation.GridInfo[,] GridInfos
     {
         get { return gridInfos; }
     }
 
+    // =--------- プレハブ ---------= //
+    // 壁
     [SerializeField] private GameObject wallPrefab;
     
 
@@ -43,23 +53,47 @@ public class FieldMGR : MonoBehaviour
 
     private void SaveField()
     {
+        StreamWriter writer;
+
+        writer = new StreamWriter(Application.dataPath + "/MapData.json", false);
+
         saveData.infos = new FieldInformation.GridInfo[fieldMax, fieldMax];
         for (int i = 0; i < fieldMax; ++i)
         {
             for (int j = 0; j < fieldMax; ++j)
             {
                 saveData.infos[i,j] = gridInfos[i, j];
+                string jsonstr = JsonUtility.ToJson(saveData.infos[i, j]);
+                jsonstr = jsonstr + "\n";
+                writer.Write(jsonstr);
+                writer.Flush();
             }
         }
 
-        StreamWriter writer;
-
-        string jsonstr = JsonUtility.ToJson(saveData);
-
-        writer = new StreamWriter(Application.dataPath + "/savedata.json", false);
-        writer.Write(jsonstr);
-        writer.Flush();
+        
         writer.Close();
+    }
+
+    private void LoadField()
+    {
+        string datastr = "";
+        StreamReader reader;
+        reader = new StreamReader(Application.dataPath + "/MapData.json");
+        datastr = reader.ReadToEnd();
+        reader.Close();
+
+        for (int i = 0; i < fieldMax; ++i)
+        {
+            for (int j = 0; j < fieldMax; ++j)
+            {
+                gridInfos[i, j] = JsonUtility.FromJson<FieldInformation.GridInfo>(datastr);
+            }
+        }
+        foreach(var itr in mapObjects)
+        {
+            Destroy(itr);
+        }
+        mapObjects.Clear();
     }
 
     /// <summary>
@@ -77,8 +111,8 @@ public class FieldMGR : MonoBehaviour
             }
         }
 
-        gridInfos[1 + fieldMax / 2, 3 + fieldMax / 2].Type = FieldInformation.FieldType.wall;
-        Instantiate(wallPrefab, this.GridToWorld(new Vector2Int(1, 3)), Quaternion.identity);
+        gridInfos[1, 3].Type = FieldInformation.FieldType.wall;
+        mapObjects.Add(Instantiate(wallPrefab, this.GridToWorld(new Point(1, 3)), Quaternion.identity));
     }
 
     public void SetInitY(float posY)
@@ -86,19 +120,19 @@ public class FieldMGR : MonoBehaviour
         initPosY = posY;
     }
 
-    public Vector3 GridToWorld(Vector2Int grid)
+    public Vector3 GridToWorld(Point grid)
     {
         Vector3 world = new Vector3(
-            (float)grid.x * FieldInformation.GridSize,
+            (float)(grid.x * FieldInformation.GridSize),
             initPosY,
-            (float)grid.y * FieldInformation.GridSize);
+            (float)(grid.y * FieldInformation.GridSize));
 
         return world;
     }
 
-    public Vector2Int WorldToGrid(Vector3 world)
+    public Point WorldToGrid(Vector3 world)
     {
-        Vector2Int grid = new Vector2Int(
+        Point grid = new Point(
             (int)(world.x / FieldInformation.GridSize),
             (int)(world.z / FieldInformation.GridSize));
 

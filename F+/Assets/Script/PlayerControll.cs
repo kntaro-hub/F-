@@ -2,45 +2,53 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using System.IO;
 
 /// <summary>
 /// プレイヤーキャラクターの操作を管理
 /// </summary>
-public class PlayerControll : MonoBehaviour
+public class PlayerControll : Actor
 {
-    // =--------- 列挙体定義 ---------= //
-    enum Direct
-    {
-        right = 0,
-        left,
-        forward,
-        back,
-        max
-    }
-
     // =--------- 変数宣言 ---------= //
-    // グリッド座標
-    protected Vector2Int gridPos = new Vector2Int(0,0);
 
-    // 移動中フラグ
-    bool IsInput = false;
+
+    // キー入力待ちフラグ
+    private bool IsInput = false;
 
     // 移動キー押下フラグ
-    bool IsLastMove = false;
+    private bool IsLastMove = false;
+
+    // プレイヤー行動中フラグ
+    private bool IsAct = false;
+
+    private bool IsInit = false;
+
+    public bool GetIsAct
+    {
+        get { return IsAct; }
+    }
+
 
     // アニメータ
     private Animator playerAnimator;
 
     private Vector3 toCameraVector = new Vector3();
 
+    public ActType GetAct
+    {
+        get { return actType; }
+        private set { actType = value; }
+    }
+
     // =--------- 定数定義 ---------= //
 
     // 移動にかかる時間
-    [SerializeField] const float MoveTime = 0.3f;
+    [SerializeField] const float MoveTime = 0.1f;
 
     // 初期Y座標
     [SerializeField] const float InitPosY = -0.5f;
 
+    // 
     [SerializeField] const float CameraDist = 10.0f;
 
     // =----------------------------= //
@@ -50,9 +58,17 @@ public class PlayerControll : MonoBehaviour
     void Start()
     {
         FieldMGR.instance.SetInitY(InitPosY);
-        this.transform.position = FieldMGR.instance.GridToWorld(gridPos);
+        this.transform.position = FieldMGR.instance.GridToWorld(status.gridPos);
 
         playerAnimator = this.GetComponent<Animator>();
+
+        status.gridPos = new Point();
+        status.direct = Direct.forward;
+    }
+
+    public void Init()
+    {
+
     }
 
     // Update is called once per frame
@@ -62,35 +78,134 @@ public class PlayerControll : MonoBehaviour
         this.Controll();
 
         Camera.main.transform.LookAt(this.transform.position);
+
+        //if(Input.GetKeyDown(KeyCode.G))
+        //{
+        //    this.status.gridPos = AStarSys.instance.A_StarProc_Single();
+        //    this.transform.DOMove(
+        //        FieldMGR.instance.GridToWorld(status.gridPos), MoveTime);
+        //}
+        //if (Input.GetKeyDown(KeyCode.J))
+        //{
+        //    AStarSys.instance.SetGoal(new Point(0,0));
+        //}
+    }
+
+    /// <summary>
+    /// キャラ一回分の更新
+    /// </summary>
+    override protected void UpdateProc()
+    {
+        if(actType == ActType.MoveBegin)
+        {// 移動開始
+            this.Move(status.direct);
+        }
+        else if(actType == ActType.ActBegin)
+        {// 行動開始
+
+        }
     }
 
     private void Controll()
     {
-        if (!IsInput)
+        
+
+        if (actType == ActType.Wait)
         {// 移動中でない場合移動できる
+
+            // Wait状態の場合は行動中フラグoff
+            IsAct = false;
+
             if (Input.GetKey(KeyCode.RightArrow))
             {// 右
-                this.Move(Direct.right);
+                status.direct = Direct.right;
+                actType = ActType.MoveBegin;
+                this.UpdateProc();
             }
             else if (Input.GetKey(KeyCode.LeftArrow))
             {// 左
-                this.Move(Direct.left);
+                status.direct = Direct.left;
+                actType = ActType.MoveBegin;
+                this.UpdateProc();
             }
             else if (Input.GetKey(KeyCode.UpArrow))
             {// 奥
-                this.Move(Direct.forward);
+                status.direct = Direct.forward;
+                actType = ActType.MoveBegin;
+                this.UpdateProc();
             }
             else if (Input.GetKey(KeyCode.DownArrow))
             {// 手前
-                this.Move(Direct.back);
+                status.direct = Direct.back;
+                actType = ActType.MoveBegin;
+                this.UpdateProc();
             }
             else
             {
                 // 立ちモーション
                 playerAnimator.Play("Standing@loop");
             }
-
         }
+        else
+        {
+            // Wait状態でない場合は行動中フラグon
+            IsAct = true;
+        }
+
+        if (Input.GetKey(KeyCode.S))
+        {// セーブ
+            this.SaveStatus();
+        }
+        if (Input.GetKey(KeyCode.L))
+        {// ロード
+            this.LoadStatus();
+        }
+    }
+   
+    private void SaveStatus()
+    {
+        StreamWriter writer;
+
+        writer = new StreamWriter(Application.dataPath + "/PlayerData.json", false);
+
+        string jsonstr = JsonUtility.ToJson(status);
+        jsonstr = jsonstr + "\n";
+        writer.Write(jsonstr);
+        writer.Flush();
+
+        writer.Close();
+    }
+
+    private void LoadStatus()
+    {
+        string datastr = "";
+        StreamReader reader;
+        reader = new StreamReader(Application.dataPath + "/PlayerData.json");
+        datastr = reader.ReadToEnd();
+        reader.Close();
+
+        status = JsonUtility.FromJson<Status>(datastr);
+
+        #region ステータス反映
+
+        this.transform.position = FieldMGR.instance.GridToWorld(status.gridPos);
+        float rotY = this.transform.rotation.y;
+
+        switch (status.direct)
+        {
+            case Direct.right:  rotY = 90.0f; break;
+            case Direct.left:   rotY = 270.0f; break;
+            case Direct.forward:rotY = 0.0f; break;
+            case Direct.back:   rotY = 180.0f; break;
+            default:  break;
+        }
+
+        this.transform.rotation = (Quaternion.Euler(
+               this.transform.rotation.x,
+               rotY,
+               this.transform.rotation.z));
+
+        #endregion
     }
 
     /// <summary>
@@ -100,16 +215,16 @@ public class PlayerControll : MonoBehaviour
     private void Move(Direct direct)
     {
         Vector3 moveValue = new Vector3();
-        Vector2Int movedGrid;
+        Point movedGrid;
         float rotY = this.transform.rotation.y;
 
         switch (direct)
         {
-            case Direct.right: movedGrid    = new Vector2Int(1, 0);  rotY = 90.0f;  break;
-            case Direct.left: movedGrid     = new Vector2Int(-1, 0); rotY = 270.0f; break;
-            case Direct.forward: movedGrid  = new Vector2Int(0, 1);  rotY = 0.0f;   break;
-            case Direct.back: movedGrid     = new Vector2Int(0, -1); rotY = 180.0f; break;
-            default: movedGrid = new Vector2Int(); break;
+            case Direct.right: movedGrid    = new Point(1, 0);  rotY = 90.0f;  break;
+            case Direct.left: movedGrid     = new Point(-1, 0); rotY = 270.0f; break;
+            case Direct.forward: movedGrid  = new Point(0, 1);  rotY = 0.0f;   break;
+            case Direct.back: movedGrid     = new Point(0, -1); rotY = 180.0f; break;
+            default: movedGrid = new Point(); break;
         }
 
         this.transform.DORotate(new Vector3(
@@ -117,19 +232,30 @@ public class PlayerControll : MonoBehaviour
                rotY,
                this.transform.rotation.z),
                0.1f);
+        status.direct = direct;
 
-        if (Mathf.Abs(gridPos.x + movedGrid.x) + FieldMGR.fieldMax / 2 > FieldMGR.fieldMax - 1 ||
-                   Mathf.Abs(gridPos.y + movedGrid.y) + FieldMGR.fieldMax / 2 > FieldMGR.fieldMax - 1)
+        if (status.gridPos.x + movedGrid.x < 0 ||
+            status.gridPos.x + movedGrid.x > MapData.instance.Width - 1 ||
+            status.gridPos.y + movedGrid.y < 0 ||
+            status.gridPos.y + movedGrid.y > MapData.instance.Height - 1)
         {// 範囲外
             MessageWindow.instance.AddMessage("範囲外です", Color.red);
+
+            // 移動中フラグon
+            IsInput = true;
+
+            // MoveTime秒経つまで次の入力を受け付けないようにする
+            StartCoroutine(MoveTimer());
             return;
         }
 
         if (FieldMGR.instance.GridInfos
-            [gridPos.x + movedGrid.x + FieldMGR.fieldMax / 2, 
-            gridPos.y + movedGrid.y + FieldMGR.fieldMax / 2]
+            [status.gridPos.x + movedGrid.x,
+            status.gridPos.y + movedGrid.y]
             .Type != FieldInformation.FieldType.wall) 
         {
+            actType = ActType.Move;
+
             if (IsLastMove)
             {
                 playerAnimator.Play("Walking@loop");
@@ -139,33 +265,25 @@ public class PlayerControll : MonoBehaviour
             {
                 case Direct.right:
                     moveValue = Vector3.right;
-                    gridPos.x++;
+                    status.gridPos.x++;
                     MessageWindow.instance.AddMessage("右に進みました", Color.white);
                     break;
                 case Direct.left:
                     moveValue = Vector3.left;
-                    gridPos.x--;
+                    status.gridPos.x--;
                     MessageWindow.instance.AddMessage("左に進みました", Color.white);
                     break;
                 case Direct.forward:
                     moveValue = Vector3.forward;
-                    gridPos.y++;
+                    status.gridPos.y++;
                     MessageWindow.instance.AddMessage("奥に進みました", Color.white);
                     break;
                 case Direct.back:
                     moveValue = Vector3.back;
-                    gridPos.y--;
+                    status.gridPos.y--;
                     MessageWindow.instance.AddMessage("手前に進みました", Color.white);
                     break;
             }
-
-            moveValue *= FieldInformation.GridSize;
-            // MoveTime秒かけて目的地へ
-            this.transform.DOMove(new Vector3(
-                    this.transform.position.x + moveValue.x,
-                    this.transform.position.y + moveValue.y,
-                    this.transform.position.z + moveValue.z),
-                    MoveTime).SetEase(Ease.Linear); 
 
             // キー入力フラグon
             IsInput = true;
@@ -174,6 +292,14 @@ public class PlayerControll : MonoBehaviour
 
             // MoveTime秒経つまで次の入力を受け付けないようにする
             StartCoroutine(MoveTimer());
+
+            moveValue *= FieldInformation.GridSize;
+            // MoveTime秒かけて目的地へ
+            this.transform.DOMove(new Vector3(
+                    this.transform.position.x + moveValue.x,
+                    this.transform.position.y + moveValue.y,
+                    this.transform.position.z + moveValue.z),
+                    MoveTime).SetEase(Ease.Linear);
         }
         else
         {
@@ -188,6 +314,11 @@ public class PlayerControll : MonoBehaviour
         }
     }
 
+    public Point GetPoint()
+    {
+        return FieldMGR.instance.WorldToGrid(this.transform.position);
+    }
+
     /// <summary>
     /// 指定の時間が経ったら入力を受け付けられるようにする
     /// </summary>
@@ -200,10 +331,18 @@ public class PlayerControll : MonoBehaviour
         // 再入力可能状態へ
         IsInput = false;
 
+        actType = ActType.TurnEnd;
+
         if (!IsLastMove)
         {
             // 立ちモーション
             playerAnimator.Play("Standing@loop");
+        } 
+        else
+        {
+
         }
+
+        actType = ActType.Wait;
     }
 }

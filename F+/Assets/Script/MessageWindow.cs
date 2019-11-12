@@ -16,7 +16,7 @@ public class MessageWindow : MonoBehaviour
    
     // =--------- SerializeField ---------= //
     [SerializeField] TextMeshProUGUI TextMeshPrefab = null; // テキストの基
-    [SerializeField] private float   FallSpeed = 0.3f;      // テキストが流れる速度（秒）
+    [SerializeField] private float   FallSpeed = 0.1f;      // テキストが流れる速度（秒）
     [SerializeField] private float   TextSpace = 60.0f;     // テキスト同士の間隔
     [SerializeField] private int     MaxText = 4;           // 一度に表示されるテキストの最大数
 
@@ -114,7 +114,7 @@ public class MessageWindow : MonoBehaviour
         TextInformation information = new TextInformation();
         information.text = text;
         information.color = color;
-        reserves.Add(information);
+        reserves.Insert(0,information);
     }
 
     private IEnumerator TextFadeTimer()
