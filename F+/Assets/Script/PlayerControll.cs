@@ -23,8 +23,9 @@ public class PlayerControll : Actor
 
     private bool IsInit = false;
 
-    // キー押下フラグ
-    bool[] keyInput = new bool[4];
+    int cntDirect = 0;          // 方向を決めるためのカウンタ
+    int cntInput = 0;           // 押されたキー数
+    bool IsRotButton = false;   // 回転キーが押されているか
 
     public bool GetIsAct
     {
@@ -124,9 +125,9 @@ public class PlayerControll : Actor
         if (actType == ActType.Wait)
         {// 待機中のみ移動できる
 
-            int cntDirect = 0;          // 方向を決めるためのカウンタ
-            int cntInput = 0;           // 押されたキー数
-            bool IsRotButton = false;   // 回転キーが押されているか
+            cntDirect = 0;          // 方向を決めるためのカウンタ
+            cntInput = 0;           // 押されたキー数
+            IsRotButton = false;    // 回転キーが押されているか
 
             IsAct = false;  // Wait状態の場合は行動中フラグoff
 
@@ -184,7 +185,7 @@ public class PlayerControll : Actor
                 }
             }
 
-            else if(cntDirect > 0)
+            if(cntDirect > 0)
                 this.MoveStart(IsRotButton);
         }
         else
@@ -294,6 +295,28 @@ public class PlayerControll : Actor
         Vector3 moveValue = new Vector3();
         Point movedGrid;
         float rotY = this.transform.rotation.y;
+
+        if (cntInput == 2)
+        {
+            switch (direct)
+            {
+                case Direct.right_forward:
+                    direct = Direct.right;
+                    break;
+
+                case Direct.left_forward:
+                    direct = Direct.left;
+                    break;
+
+                case Direct.right_back:
+                    direct = Direct.right;
+                    break;
+
+                case Direct.left_back:
+                    direct = Direct.left;
+                    break;
+            }
+        }
 
         switch (direct)
         {
