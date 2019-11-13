@@ -47,12 +47,7 @@ public class SequenceMGR : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Return))
         {
-            foreach (var itr in enemies)
-            {
-                itr.AStar.SetGoal(Player.GetPoint());
-                itr.status.gridPos = itr.AStar.A_StarProc_Single2();
-                itr.transform.DOMove(FieldMGR.GridToWorld(itr.status.gridPos), 0.1f);
-            }
+            this.MoveEnemy();
         }
     }
 
@@ -85,7 +80,7 @@ public class SequenceMGR : MonoBehaviour
         {
             itr.AStar.SetGoal(Player.GetPoint());
             itr.status.gridPos = itr.AStar.A_StarProc_Single();
-            itr.transform.DOMove(FieldMGR.GridToWorld(itr.status.gridPos), 0.1f);
+            itr.transform.DOMove(FieldMGR.GridToWorld(itr.status.gridPos), Actor.MoveTime).SetEase(Ease.Linear); ;
         }
     }
 

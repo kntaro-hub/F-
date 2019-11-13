@@ -314,10 +314,7 @@ public class AStarSys : MonoBehaviour
                     // スコアが同じときは実コストも比較する
                     continue;
                 }
-                //if(MapData.instance.GetGrid(node.GetPoint()).Type == FieldInformation.FieldType.wall)
-                //{
-                //    continue;
-                //}
+                
                     
                 // 最小値更新
                 min = score;

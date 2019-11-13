@@ -175,11 +175,11 @@ public class MapData : MonoBehaviour
                 }
                 if (i + 1 == width)
                 {
-                    mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(width + 1, j)), Quaternion.identity));
+                    mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(width, j)), Quaternion.identity));
                 }
                 if (j + 1 == height)
                 {
-                    mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(i, height + 1)), Quaternion.identity));
+                    mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(i, height)), Quaternion.identity));
                 }
             }
         }

@@ -23,16 +23,16 @@ public class PlayerControll : Actor
 
     private bool IsInit = false;
 
+    // キー押下フラグ
+    bool[] keyInput = new bool[4];
+
     public bool GetIsAct
     {
         get { return IsAct; }
     }
 
-
     // アニメータ
     private Animator playerAnimator;
-
-    private Vector3 toCameraVector = new Vector3();
 
     public ActType GetAct
     {
@@ -41,9 +41,6 @@ public class PlayerControll : Actor
     }
 
     // =--------- 定数定義 ---------= //
-
-    // 移動にかかる時間
-    [SerializeField] const float MoveTime = 0.1f;
 
     // 初期Y座標
     [SerializeField] const float InitPosY = -0.5f;
@@ -81,7 +78,8 @@ public class PlayerControll : Actor
         // プレイヤーキャラクターの操作を一括管理する
         this.Controll();
 
-        Camera.main.transform.LookAt(this.transform.position);
+        this.CalcCameraPos();
+        
 
         //if(Input.GetKeyDown(KeyCode.G))
         //{
@@ -93,6 +91,15 @@ public class PlayerControll : Actor
         //{
         //    AStarSys.instance.SetGoal(new Point(0,0));
         //}
+    }
+
+    private void CalcCameraPos()
+    {
+        Camera.main.transform.position = new Vector3(
+            this.transform.position.x,
+            this.transform.position.y + 7.0f,
+            this.transform.position.z - 4.0f);
+        Camera.main.transform.LookAt(this.transform.position);
     }
 
     /// <summary>
@@ -115,40 +122,70 @@ public class PlayerControll : Actor
         
 
         if (actType == ActType.Wait)
-        {// 移動中でない場合移動できる
+        {// 待機中のみ移動できる
 
-            // Wait状態の場合は行動中フラグoff
-            IsAct = false;
+            int cntDirect = 0;          // 方向を決めるためのカウンタ
+            int cntInput = 0;           // 押されたキー数
+            bool IsRotButton = false;   // 回転キーが押されているか
+
+            IsAct = false;  // Wait状態の場合は行動中フラグoff
+
+            if (Input.GetKey(KeyCode.F))
+            {
+                // 回転フラグon
+                IsRotButton = true;
+            }
 
             if (Input.GetKey(KeyCode.RightArrow))
             {// 右
                 status.direct = Direct.right;
-                actType = ActType.MoveBegin;
-                this.UpdateProc();
+                cntDirect += 1; ++cntInput;
             }
             else if (Input.GetKey(KeyCode.LeftArrow))
             {// 左
                 status.direct = Direct.left;
-                actType = ActType.MoveBegin;
-                this.UpdateProc();
+                cntDirect += 2; ++cntInput;
             }
-            else if (Input.GetKey(KeyCode.UpArrow))
+            if (Input.GetKey(KeyCode.UpArrow))
             {// 奥
                 status.direct = Direct.forward;
-                actType = ActType.MoveBegin;
-                this.UpdateProc();
+                cntDirect += 4; ++cntInput;
             }
             else if (Input.GetKey(KeyCode.DownArrow))
             {// 手前
                 status.direct = Direct.back;
-                actType = ActType.MoveBegin;
-                this.UpdateProc();
+                cntDirect += 6; ++cntInput;
             }
             else
             {
                 // 立ちモーション
                 playerAnimator.Play("Standing@loop");
             }
+
+            if (cntInput == 2)
+            {
+                switch(cntDirect)
+                {
+                    case (int)Direct.right_forward:
+                        status.direct = Direct.right_forward;
+                        break;
+
+                    case (int)Direct.left_forward:
+                        status.direct = Direct.left_forward;
+                        break;
+
+                    case (int)Direct.right_back:
+                        status.direct = Direct.right_back;
+                        break;
+
+                    case (int)Direct.left_back:
+                        status.direct = Direct.left_back;
+                        break;
+                }
+            }
+
+            else if(cntDirect > 0)
+                this.MoveStart(IsRotButton);
         }
         else
         {
@@ -164,6 +201,42 @@ public class PlayerControll : Actor
         {// ロード
             this.LoadStatus();
         }
+    }
+
+    private void MoveStart(bool IsRotButton)
+    {
+        if (!IsRotButton)
+        {
+            actType = ActType.MoveBegin;
+            this.UpdateProc();
+        }
+        else
+        {
+            this.ChangeRotate();
+        }
+    }
+
+    private void ChangeRotate()
+    {
+        float rotY = this.transform.rotation.y;
+
+        switch (status.direct)
+        {
+            case Direct.right:          rotY = 90.0f; break;
+            case Direct.left:           rotY = 270.0f; break;
+            case Direct.forward:        rotY = 0.0f; break;
+            case Direct.back:           rotY = 180.0f; break;
+            case Direct.right_forward:  rotY = 45.0f; break;
+            case Direct.left_forward:   rotY = 315.0f; break;
+            case Direct.right_back:     rotY = 135.0f; break;
+            case Direct.left_back:      rotY = 225.0f; break;
+            default: break;
+        }
+
+        this.transform.rotation = (Quaternion.Euler(
+               this.transform.rotation.x,
+               rotY,
+               this.transform.rotation.z));
     }
    
     private void SaveStatus()

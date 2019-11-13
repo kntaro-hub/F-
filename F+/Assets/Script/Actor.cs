@@ -7,10 +7,14 @@ public class Actor : MonoBehaviour
 
     public enum Direct
     {
-        right = 0,
+        right = 1,
         left,
         forward,
         back,
+        right_forward,
+        left_forward,
+        right_back,
+        left_back,
         max
     }
 
@@ -38,6 +42,9 @@ public class Actor : MonoBehaviour
         public Point gridPos;  // グリッド座標
     }
     public Status status;
+
+    // 移動にかかる時間
+    public const float MoveTime = 0.25f;
 
     protected virtual void UpdateProc()
     {// 行動時のアップデート
