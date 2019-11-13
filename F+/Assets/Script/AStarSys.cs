@@ -47,7 +47,10 @@ public class AStarSys : MonoBehaviour
     private void Start()
     {
         // スタート地点
-        startPoint = new Point(0, 0);
+        startPoint = new Point(UnityEngine.Random.Range(0, MapData.instance.Width), UnityEngine.Random.Range(0, MapData.instance.Height));
+
+
+
         // ゴール
         pGoal = SequenceMGR.instance.Player.GetPoint();
 
@@ -96,10 +99,7 @@ public class AStarSys : MonoBehaviour
         }
         public Point GetPoint()
         {// XY座標をまとめて返す
-            Point Ret = new Point();
-            Ret.x = this.X;
-            Ret.y = this.Y;
-            return Ret;
+            return new Point(this.X, this.Y);
         }
 
         public int Cost
@@ -117,6 +117,11 @@ public class AStarSys : MonoBehaviour
         // 総スコア計算＆返却
         public int GetGeneralCost()
         {
+            if (MapData.instance.GetGrid(new Point(X, Y)).Type == FieldInformation.FieldType.wall)
+            {
+                cost = 9999;
+            }
+
             // 実コストとヒューリスティックコストを足したものを総スコアとする
             return cost + heuristicCost;
         }
@@ -149,7 +154,7 @@ public class AStarSys : MonoBehaviour
         // ステータスをopenに変更
         public void Open(A_StarNode parent, int setCost)
         {
-            AdDebug.instance.Log(string.Format("Open: ({0},{1})", X, Y));
+            AdDebug.Log(string.Format("Open: ({0},{1})", X, Y));
             State = NodeState.open;
             cost = setCost;
             parentNode = parent;
@@ -158,7 +163,7 @@ public class AStarSys : MonoBehaviour
         // ステータスをclosedに変更
         public void Close()
         {
-            AdDebug.instance.Log(string.Format("Close: ({0},{1})", X, Y));
+            AdDebug.Log(string.Format("Close: ({0},{1})", X, Y));
             State = NodeState.closed;
         }
 
@@ -177,7 +182,7 @@ public class AStarSys : MonoBehaviour
 
         public void ShowData()
         {
-            AdDebug.instance.Log(
+            AdDebug.Log(
                 string.Format("({0},{1})[{2}] cost={3} heuris={4} score={5}", 
                                 X, Y, State, cost, heuristicCost, GetGeneralCost()));
         }
@@ -309,7 +314,11 @@ public class AStarSys : MonoBehaviour
                     // スコアが同じときは実コストも比較する
                     continue;
                 }
-
+                //if(MapData.instance.GetGrid(node.GetPoint()).Type == FieldInformation.FieldType.wall)
+                //{
+                //    continue;
+                //}
+                    
                 // 最小値更新
                 min = score;
                 minCost = node.Cost;
@@ -366,7 +375,7 @@ public class AStarSys : MonoBehaviour
                     if (node == null)
                     {
                         // 袋小路なのでおしまい
-                        AdDebug.instance.Log("囲", true);
+                        AdDebug.Log("囲", true);
                         return StartPoint;
                     }
                     if (node.X == pGoal.x && node.Y == pGoal.y)
@@ -378,7 +387,7 @@ public class AStarSys : MonoBehaviour
                         // 反転する
                         pointList.Reverse();
 
-                        AdDebug.instance.Log("経路探索終了", Color.cyan, 20, true);
+                        AdDebug.Log("経路探索終了", Color.cyan, 20, true);
 
                         nodeMGR.Reset();
 
@@ -392,7 +401,7 @@ public class AStarSys : MonoBehaviour
                 }
             }
             // 発見できなかった場合
-            AdDebug.instance.Log("経路探索失敗", Color.red, 20, true);
+            AdDebug.Log("経路探索失敗", Color.red, 20, true);
             
             return StartPoint;
         }
@@ -411,53 +420,42 @@ public class AStarSys : MonoBehaviour
         {
             List<Point> pointList = new List<Point>();
             // A-star実行.
+            // スタート地点のノード取得
+            // スタート地点なのでコストは「0」
+            nodeMGR.ClearOpenList();
+            A_StarNode node = nodeMGR.OpenNode(startPoint.x, startPoint.y, 0, null);
+
+            nodeMGR.RemoveOpenList(node);
+            // 周囲を開く
+            nodeMGR.OpenAround(node);
+            // 最小スコアのノードを探す
+            node = nodeMGR.SearchMinScoreNodeFromOpenList();
+            if (node == null)
             {
-                // スタート地点のノード取得
-                // スタート地点なのでコストは「0」
-                nodeMGR.Reset();
-                nodeMGR.ClearOpenList();
-                A_StarNode node = nodeMGR.OpenNode(startPoint.x, startPoint.y, 0, null);
-                nodeMGR.AddOpenList(node);
-
-                for (int i = 0; i < 2; i++)
-                {
-                    nodeMGR.RemoveOpenList(node);
-                    // 周囲を開く
-                    nodeMGR.OpenAround(node);
-                    // 最小スコアのノードを探す
-                    node = nodeMGR.SearchMinScoreNodeFromOpenList();
-                    if (node == null)
-                    {
-                        // 袋小路なのでおしまい
-                        AdDebug.instance.Log("囲", true);
-                        return StartPoint;
-                    }
-                    if (i == 1)
-                    {
-                        nodeMGR.RemoveOpenList(node);
-                        // パスを取得する
-                        node.GetPath(pointList);
-
-                        AdDebug.instance.Log("経路探索終了", Color.cyan, 20, true);
-
-                        nodeMGR.Reset();
-
-                        startPoint = pointList[0];
-
-                        return pointList[0];
-                    }
-                }
+                // 袋小路なのでおしまい
+                AdDebug.Log("囲", true);
+                return StartPoint;
             }
-            // 発見できなかった場合
-            AdDebug.instance.Log("経路探索失敗", Color.red, 20, true);
+            nodeMGR.RemoveOpenList(node);
+            // パスを取得する
+            node.GetPath(pointList);
 
+            AdDebug.Log("経路探索終了", Color.cyan, 20, true);
+
+            nodeMGR.Reset();
+
+            startPoint = node.GetPoint();
+
+            return node.GetPoint();
+        }
+        else
+        {
+            // すでに到着していた場合
+            AdDebug.Log("到着してるので動きません", Color.yellow, 20, true);
             return StartPoint;
         }
-        // 発見できなかった場合
-        AdDebug.instance.Log("到着してるので動きません", Color.yellow, 20, true);
-        return StartPoint;
     }
-
+            
     public void SetGoal(Point point)
     {
         pGoal = point;

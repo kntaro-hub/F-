@@ -8,80 +8,50 @@ using UnityEngine;
 public class AdDebug : MonoBehaviour
 {
 
-    public void Log(string text)
+    public static void Log(string text)
     {
 #if UNITY_EDITOR
         Debug.Log(text);
 #endif
     }
 
-    public void Log(string text, Color color)
+    public static void Log(string text, Color color)
     {
         // Color型の値を16進数の文字列に
         string stringColor = ColorUtility.ToHtmlStringRGB(color);
-        this.Log("<color=#" + stringColor + ">" + text + "</color>");
+        AdDebug.Log("<color=#" + stringColor + ">" + text + "</color>");
     }
 
-    public void Log(string text, int size)
+    public static void Log(string text, int size)
     {
-        this.Log("<size=" + size.ToString() + ">" + text + "</size>");
+        AdDebug.Log("<size=" + size.ToString() + ">" + text + "</size>");
     }
 
-    public void Log(string text, Color color, int size)
+    public static void Log(string text, Color color, int size)
     {
-        this.Log("<size=" + size.ToString() + ">" + text + "</size>", color);
+        AdDebug.Log("<size=" + size.ToString() + ">" + text + "</size>", color);
     }
 
-    public void Log(string text, bool Bold)
+    public static void Log(string text, bool Bold)
     {
-        this.Log("<b>" + text + "</b>");
+        AdDebug.Log("<b>" + text + "</b>");
     }
 
-    public void Log(string text, Color color, bool Bold)
+    public static void Log(string text, Color color, bool Bold)
     {
         // Color型の値を16進数の文字列に
         string stringColor = ColorUtility.ToHtmlStringRGB(color);
-        this.Log("<color=#" + stringColor + ">" + "<b>" + text + "</b>" + "</color>");
+        AdDebug.Log("<color=#" + stringColor + ">" + "<b>" + text + "</b>" + "</color>");
     }
 
-    public void Log(string text, int size, bool Bold)
+    public static void Log(string text, int size, bool Bold)
     {
-        this.Log("<size=" + size.ToString() + ">" + "<b>" + text + "</b>" + "</size>");
+        AdDebug.Log("<size=" + size.ToString() + ">" + "<b>" + text + "</b>" + "</size>");
     }
 
-    public void Log(string text, Color color, int size, bool Bold)
+    public static void Log(string text, Color color, int size, bool Bold)
     {
-        this.Log("<size=" + size.ToString() + ">" + "<b>" + text + "</b>" + "</size>", color);
+        AdDebug.Log("<size=" + size.ToString() + ">" + "<b>" + text + "</b>" + "</size>", color);
     }
 
-
-    #region Singleton
-
-    static AdDebug _instance;
-
-    public static AdDebug instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                var previous = FindObjectOfType(typeof(AdDebug));
-                if (previous)
-                {
-                    Debug.LogWarning("Initialized twice. Don't use MidiBridge in the scene hierarchy.");
-                    _instance = (AdDebug)previous;
-                }
-                else
-                {
-                    var go = new GameObject("Debug");
-                    _instance = go.AddComponent<AdDebug>();
-                    DontDestroyOnLoad(go);
-                    go.hideFlags = HideFlags.HideInHierarchy;
-                }
-            }
-            return _instance;
-        }
-    }
-
-    #endregion
 }

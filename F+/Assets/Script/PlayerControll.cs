@@ -57,8 +57,12 @@ public class PlayerControll : Actor
     // Start is called before the first frame update
     void Start()
     {
-        FieldMGR.instance.SetInitY(InitPosY);
-        this.transform.position = FieldMGR.instance.GridToWorld(status.gridPos);
+        MapData.instance.SetInitY(InitPosY);
+        this.transform.position = FieldMGR.GridToWorld(status.gridPos);
+        this.transform.position = new Vector3(
+            this.transform.position.x,
+            InitPosY,
+            this.transform.position.z);
 
         playerAnimator = this.GetComponent<Animator>();
 
@@ -188,7 +192,7 @@ public class PlayerControll : Actor
 
         #region ステータス反映
 
-        this.transform.position = FieldMGR.instance.GridToWorld(status.gridPos);
+        this.transform.position = FieldMGR.GridToWorld(status.gridPos);
         float rotY = this.transform.rotation.y;
 
         switch (status.direct)
@@ -249,7 +253,7 @@ public class PlayerControll : Actor
             return;
         }
 
-        if (FieldMGR.instance.GridInfos
+        if (MapData.instance.GridInfos
             [status.gridPos.x + movedGrid.x,
             status.gridPos.y + movedGrid.y]
             .Type != FieldInformation.FieldType.wall) 
@@ -260,6 +264,9 @@ public class PlayerControll : Actor
             {
                 playerAnimator.Play("Walking@loop");
             }
+
+            // 敵を動かす
+            SequenceMGR.instance.ActProc();
 
             switch (direct)
             {
@@ -316,7 +323,7 @@ public class PlayerControll : Actor
 
     public Point GetPoint()
     {
-        return FieldMGR.instance.WorldToGrid(this.transform.position);
+        return FieldMGR.WorldToGrid(this.transform.position);
     }
 
     /// <summary>

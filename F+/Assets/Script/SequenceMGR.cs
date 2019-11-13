@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class SequenceMGR : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class SequenceMGR : MonoBehaviour
         set { player = value; }
     }
 
-    private List<EnemyBase> enemies = null;
+    private List<EnemyBase> enemies = new List<EnemyBase>();
 
     public enum SeqType
     {
@@ -32,10 +33,27 @@ public class SequenceMGR : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        EnemyBase[] enemy = FindObjectsOfType<EnemyBase>();
+        foreach(var itr in enemy)
+        {
+            enemies.Add(itr);
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
-
+        if(Input.GetKeyDown(KeyCode.Return))
+        {
+            foreach (var itr in enemies)
+            {
+                itr.AStar.SetGoal(Player.GetPoint());
+                itr.status.gridPos = itr.AStar.A_StarProc_Single2();
+                itr.transform.DOMove(FieldMGR.GridToWorld(itr.status.gridPos), 0.1f);
+            }
+        }
     }
 
     // 敵はプレイヤーとの距離を測り、
@@ -51,13 +69,23 @@ public class SequenceMGR : MonoBehaviour
     {
         switch(player.GetAct)
         {
-            case Actor.ActType.ActBegin:    // プレイヤーが行動開始
-                
+            case Actor.ActType.Act:    // プレイヤーが行動開始
+                this.MoveEnemy();
                 break;
 
-            case Actor.ActType.MoveBegin:   // プレイヤーが移動開始
-                
+            case Actor.ActType.Move:   // プレイヤーが移動開始
+                this.MoveEnemy();
                 break;
+        }
+    }
+
+    private void MoveEnemy()
+    {
+        foreach(var itr in enemies)
+        {
+            itr.AStar.SetGoal(Player.GetPoint());
+            itr.status.gridPos = itr.AStar.A_StarProc_Single();
+            itr.transform.DOMove(FieldMGR.GridToWorld(itr.status.gridPos), 0.1f);
         }
     }
 

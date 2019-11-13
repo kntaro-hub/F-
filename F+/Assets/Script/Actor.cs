@@ -32,12 +32,12 @@ public class Actor : MonoBehaviour
     };
     protected ActType actType;
 
-    protected struct Status
+    public struct Status
     {
         public Direct direct;
         public Point gridPos;  // グリッド座標
     }
-    protected Status status;
+    public Status status;
 
     protected virtual void UpdateProc()
     {// 行動時のアップデート
