@@ -17,6 +17,10 @@ public class SequenceMGR : MonoBehaviour
     }
 
     private List<EnemyBase> enemies = new List<EnemyBase>();
+    public List<EnemyBase> Enemies
+    {
+        get { return enemies; }
+    }
 
     public enum SeqType
     {
@@ -45,9 +49,18 @@ public class SequenceMGR : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Return))
+        
+    }
+
+    public void CheckDestroy()
+    {
+        for (int i = enemies.Count - 1; i >= 0; i--)
         {
-            this.MoveEnemy();
+            if (enemies[i].IsDestroy)
+            {
+                Destroy(enemies[i].gameObject);
+                enemies.RemoveAt(i);
+            }
         }
     }
 
@@ -78,10 +91,48 @@ public class SequenceMGR : MonoBehaviour
     {
         foreach(var itr in enemies)
         {
-            itr.AStar.SetGoal(Player.GetPoint());
-            itr.status.gridPos = itr.AStar.A_StarProc_Single();
-            itr.transform.DOMove(FieldMGR.GridToWorld(itr.status.gridPos), Actor.MoveTime).SetEase(Ease.Linear); ;
+            itr.Move(player.GetPoint());
         }
+    }
+
+    // 全員がターンエンド状態か調べる
+    public bool IsTurnEnd()
+    {
+        if(player.status.actType != Actor.ActType.TurnEnd)
+        {
+            return false;
+        }
+
+        foreach(var itr in enemies)
+        {
+            if(itr.status.actType != Actor.ActType.TurnEnd)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void ResetAct()
+    {
+        player.status.actType = Actor.ActType.Wait;
+
+        foreach (var itr in enemies)
+        {
+            itr.status.actType = Actor.ActType.Wait;
+        }
+    }
+
+    public EnemyBase GetEnemyFromPoint(Point point)
+    {
+        foreach(var itr in enemies)
+        {
+            if(itr.status.gridPos == point)
+            {
+                return itr;
+            }
+        }
+        return null;
     }
 
     #region singleton

@@ -34,17 +34,17 @@ public class Actor : MonoBehaviour
 
         TurnEnd,   // ターン終了
     };
-    protected ActType actType;
 
     public struct Status
     {
         public Direct direct;
         public Point gridPos;  // グリッド座標
+        public ActType actType;
     }
     public Status status;
 
     // 移動にかかる時間
-    public const float MoveTime = 0.25f;
+    public const float MoveTime = 0.1f;
 
     protected virtual void UpdateProc()
     {// 行動時のアップデート
@@ -54,7 +54,7 @@ public class Actor : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        actType = ActType.Wait;
+        status.actType = ActType.Wait;
     }
 
     // Update is called once per frame

@@ -39,7 +39,7 @@ public class MapData : MonoBehaviour
 
     private void Awake()
     {
-        this.Create(20, 20);
+        this.Create(50  , 50);
     }
 
     // 幅
@@ -64,7 +64,7 @@ public class MapData : MonoBehaviour
         this.CreateStage();
     }
 
-    /// 座標をインデックスに変換する
+    // 座標をインデックスに変換する
     public int ToIdx(int x, int y)
     {
         return x + (y * Width);
@@ -102,6 +102,52 @@ public class MapData : MonoBehaviour
         }
 
         mapValue[y * Width + x] = v;
+    }
+
+    public void Fill(int val)
+    {
+        for (int j = 0; j < Height; j++)
+        {
+            for (int i = 0; i < Width; i++)
+            {
+                this.Set(i, j, val);
+              
+            }
+        }
+    }
+
+    /// <summary>
+    /// 矩形領域を指定の値で埋める
+    /// </summary>
+    /// <param name="x">矩形の左上(X座標)</param>
+    /// <param name="y">矩形の左上(Y座標)</param>
+    /// <param name="w">矩形の幅</param>
+    /// <param name="h">矩形の高さ</param>
+    /// <param name="val">埋める値</param>
+    public void FillRect(int x, int y, int w, int h, int val)
+    {
+        for (int j = 0; j < h; j++)
+        {
+            for (int i = 0; i < w; i++)
+            {
+                int px = x + i;
+                int py = y + j;
+                Set(px, py, val);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 矩形領域を指定の値で埋める（4点指定)
+    /// </summary>
+    /// <param name="left">左</param>
+    /// <param name="top">上</param>
+    /// <param name="right">右</param>
+    /// <param name="bottom">下</param>
+    /// <param name="val">埋める値</param>
+    public void FillRectLTRB(int left, int top, int right, int bottom, int val)
+    {
+        FillRect(left, top, right - left, bottom - top, val);
     }
 
 
@@ -200,6 +246,14 @@ public class MapData : MonoBehaviour
         mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(1, 8)), Quaternion.identity));
         gridInfos[1, 9].Type = FieldInformation.FieldType.wall;
         mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(1, 9)), Quaternion.identity));
+    }
+
+    public void CreateWall(int x, int y)
+    {
+        gridInfos[x, y].Type = FieldInformation.FieldType.wall;
+        GameObject wall = Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(x, y)), Quaternion.identity);
+        wall.transform.parent = this.transform;
+        mapObjects.Add(wall);
     }
 
     public FieldInformation.GridInfo GetGrid(Point point)

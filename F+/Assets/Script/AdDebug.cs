@@ -1,17 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Diagnostics;
 
 /// <summary>
 /// デバッグログ用クラス
 /// </summary>
 public class AdDebug : MonoBehaviour
 {
-
+    [Conditional("UNITY_EDITOR")]
     public static void Log(string text)
     {
 #if UNITY_EDITOR
-        Debug.Log(text);
+        UnityEngine.Debug.Log(text);
 #endif
     }
 

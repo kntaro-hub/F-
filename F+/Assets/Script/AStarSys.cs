@@ -24,6 +24,27 @@ public struct Point
     {// エラー値
         return new Point(9999, 9999);
     }
+
+    public static bool operator !=(Point point, Point point2)
+    {
+        if(point.x != point2.x && point.y != point2.y)
+        {
+            return true;
+        }
+        return false;
+    }
+    public static bool operator ==(Point point, Point point2)
+    {
+        if (point.x == point2.x && point.y == point2.y)
+        {
+            return true;
+        }
+        return false;
+    }
+    public static Point operator +(Point point, Point point2)
+    {
+        return new Point(point.x + point2.x, point.y + point2.y);
+    }
 }
 
 public class AStarSys : MonoBehaviour
@@ -48,8 +69,6 @@ public class AStarSys : MonoBehaviour
     {
         // スタート地点
         startPoint = new Point(UnityEngine.Random.Range(0, MapData.instance.Width), UnityEngine.Random.Range(0, MapData.instance.Height));
-
-
 
         // ゴール
         pGoal = SequenceMGR.instance.Player.GetPoint();
