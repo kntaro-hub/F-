@@ -36,7 +36,11 @@ public class MapGenerator : MonoBehaviour
     /// <summary>
     /// 区画リスト
     /// </summary>
-    List<Division> divList = null;
+    private List<Division> divList = null;
+    public List<Division> DivList
+    {
+        get { return divList; }
+    }
 
     /// チップ上のX座標を取得する.
     float GetChipX(int i)
@@ -144,7 +148,7 @@ public class MapGenerator : MonoBehaviour
 
         if (bVertical)
         {
-            // ▼縦方向に分割する
+            // =--------- 縦方向に分割する ---------= //
             if (CheckDivisionSize(parent.Outer.Height) == false)
             {
                 // 縦の高さが足りない
@@ -173,7 +177,7 @@ public class MapGenerator : MonoBehaviour
         }
         else
         {
-            // ▼横方向に分割する
+            // =--------- 横方向に分割する ---------= //
             if (CheckDivisionSize(parent.Outer.Width) == false)
             {
                 // 横幅が足りない

@@ -23,6 +23,9 @@ public class PlayerControll : Actor
     // アニメータ
     private Animator playerAnimator;
 
+    // 基本メニューUI
+    private UI_BasicMenu ui_BasicMenu;
+
     public ActType GetAct
     {
         get { return status.actType; }
@@ -51,9 +54,11 @@ public class PlayerControll : Actor
             this.transform.position.z);
 
         playerAnimator = this.GetComponent<Animator>();
+        ui_BasicMenu = FindObjectOfType<UI_BasicMenu>();
 
         status.gridPos = new Point();
         status.direct = Direct.forward;
+      
     }
 
     public void Init()
@@ -65,7 +70,10 @@ public class PlayerControll : Actor
     void Update()
     {
         // プレイヤーキャラクターの操作を一括管理する
-        this.Controll();
+        if (!ui_BasicMenu.IsShowMenu)
+        {// 基本メニューを表示していない間だけ操作可能にする
+            this.Controll();
+        }
 
         this.CalcCameraPos();
 
@@ -457,6 +465,7 @@ public class PlayerControll : Actor
         {
             SequenceMGR.instance.ResetAct();
         }
+        UI_MGR.instance.Ui_Map.UpdateMapPlayer();
     }
 
     private IEnumerator AtkTimer()
@@ -466,7 +475,6 @@ public class PlayerControll : Actor
 
         StartCoroutine(ActProcTimer());
     }
-
 
     // MoveTime後に敵のターン
     private IEnumerator ActProcTimer()

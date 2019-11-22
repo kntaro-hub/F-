@@ -60,8 +60,6 @@ public class MapData : MonoBehaviour
         this.height = height;
         mapValue = new int[Width * Height];
         gridInfos = new FieldInformation.GridInfo[Width, Height];
-
-        this.CreateStage();
     }
 
     // 座標をインデックスに変換する
@@ -196,56 +194,6 @@ public class MapData : MonoBehaviour
             Destroy(itr);
         }
         mapObjects.Clear();
-    }
-
-    /// <summary>
-    /// 配列からステージを生成する
-    /// </summary>
-    private void CreateStage()
-    {
-        for (int i = 0; i < width; ++i)
-        {
-            for (int j = 0; j < height; ++j)
-            {
-                gridInfos[i, j].GridNum = new Vector2Int(i, j);
-                gridInfos[i, j].Type = FieldInformation.FieldType.none;
-                gridInfos[i, j].OnFieldObj = null;
-
-                if(i - 1 < 0)
-                {
-                    mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(-1, j)), Quaternion.identity));
-                }
-                if (j - 1 < 0)
-                {
-                    mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(i, -1)), Quaternion.identity));
-                }
-                if (i + 1 == width)
-                {
-                    mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(width, j)), Quaternion.identity));
-                }
-                if (j + 1 == height)
-                {
-                    mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(i, height)), Quaternion.identity));
-                }
-            }
-        }
-
-        gridInfos[1, 3].Type = FieldInformation.FieldType.wall;
-        mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(1, 3)), Quaternion.identity));
-        gridInfos[1, 4].Type = FieldInformation.FieldType.wall;
-        mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(1, 4)), Quaternion.identity));
-        gridInfos[1, 5].Type = FieldInformation.FieldType.wall;
-        mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(1, 5)), Quaternion.identity));
-        gridInfos[1, 2].Type = FieldInformation.FieldType.wall;
-        mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(1, 2)), Quaternion.identity));
-        gridInfos[1, 6].Type = FieldInformation.FieldType.wall;
-        mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(1, 6)), Quaternion.identity));
-        gridInfos[1, 7].Type = FieldInformation.FieldType.wall;
-        mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(1, 7)), Quaternion.identity));
-        gridInfos[1, 8].Type = FieldInformation.FieldType.wall;
-        mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(1, 8)), Quaternion.identity));
-        gridInfos[1, 9].Type = FieldInformation.FieldType.wall;
-        mapObjects.Add(Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(1, 9)), Quaternion.identity));
     }
 
     public void CreateWall(int x, int y)

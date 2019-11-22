@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using DG.Tweening;
+using UnityEngine.UI;
 
 public class MessageWindow : MonoBehaviour
 {
@@ -61,7 +62,8 @@ public class MessageWindow : MonoBehaviour
                 Vector3 InitPos = textMesh.transform.localPosition;
 
                 // 生成したテキストをメッセージウィンドウの子に設定
-                textMesh.transform.SetParent(this.transform);
+                //textMesh.transform.SetParent(this.transform);
+                textMesh.transform.SetParent(this.transform.GetComponentInChildren<RectMask2D>().transform);
 
                 // 予約テキストからテキストを更新
                 textMesh.text = reserves[reserves.Count - 1].text;
@@ -69,7 +71,7 @@ public class MessageWindow : MonoBehaviour
                 // 予約テキスト色保存
                 Color setColor = reserves[reserves.Count - 1].color;
 
-                // 予約テキスト削除
+                // 移し終えたので予約テキスト削除
                 reserves.RemoveAt(reserves.Count - 1);
 
                 foreach (var itr in texts)
@@ -93,13 +95,6 @@ public class MessageWindow : MonoBehaviour
 
                 // テキストを流せるまでのタイマーをスタートする
                 StartCoroutine(TextFadeTimer());
-
-                if(texts.Count > MaxText)
-                {// テキストが最大量を超えたら
-
-                    // 一番古いテキストを透明に
-                    texts[0].DOColor(Color.clear, FallSpeed);
-                }
             }
         }
     }
