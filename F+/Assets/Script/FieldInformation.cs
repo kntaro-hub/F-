@@ -9,6 +9,7 @@ public class FieldInformation : MonoBehaviour
     {
         none = 0,   // 何もない
         wall,       // 壁
+        goal,       // 階段
         max
     }
 

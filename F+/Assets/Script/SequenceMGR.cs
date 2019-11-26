@@ -24,17 +24,18 @@ public class SequenceMGR : MonoBehaviour
 
     public enum SeqType
     {
-        KeyInput = 0,
-
+        action,     // 行動可
+        menu,       // メニュー表示
+        max
     }
+
+    // 今の状態
+    public SeqType seqType;
 
     // Start is called before the first frame update
     void Awake()
     { 
-        if(player == null)
-        {
-            player = FindObjectOfType<PlayerControll>();
-        }
+        
     }
 
     private void Start()
@@ -43,6 +44,10 @@ public class SequenceMGR : MonoBehaviour
         foreach(var itr in enemy)
         {
             enemies.Add(itr);
+        }
+        if (player == null)
+        {
+            player = FindObjectOfType<PlayerControll>();
         }
     }
 

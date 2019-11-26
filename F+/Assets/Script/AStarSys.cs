@@ -67,14 +67,16 @@ public class AStarSys : MonoBehaviour
 
     private void Start()
     {
-        // スタート地点
-        startPoint = new Point(UnityEngine.Random.Range(0, MapData.instance.Width), UnityEngine.Random.Range(0, MapData.instance.Height));
-
         // ゴール
         pGoal = SequenceMGR.instance.Player.GetPoint();
 
         // マネージャ作成
         nodeMGR = new NodeMGR(pGoal.x, pGoal.y);
+    }
+
+    public void SetStartPoint(Point point)
+    {
+        startPoint = point;
     }
 
     private AStarSys()

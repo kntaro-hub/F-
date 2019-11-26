@@ -33,9 +33,21 @@ public class MapData : MonoBehaviour
     int outOfRange = -1; // 領域外を指定した時の値
     int[] mapValue = null; // マップデータ
 
+    private List<EnemyBase> enemies = new List<EnemyBase>();
+
+    private Goal goal = null;
+    public Goal GetGoal
+    {
+        get { return goal; }
+    }
+
     // =--------- プレハブ ---------= //
     // 壁
     [SerializeField] private GameObject wallPrefab;
+    [SerializeField] private Goal goalPrefab;
+
+    // 敵（本来は敵テーブルから）
+    [SerializeField] private EnemyBase enemyPrefab;
 
     private void Awake()
     {
@@ -202,6 +214,48 @@ public class MapData : MonoBehaviour
         GameObject wall = Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(x, y)), Quaternion.identity);
         wall.transform.parent = this.transform;
         mapObjects.Add(wall);
+    }
+    
+    /// <summary>
+    /// 階段生成
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    public void CreateGoal(int x, int y)
+    {
+        gridInfos[x, y].Type = FieldInformation.FieldType.goal;
+        goal = Instantiate(goalPrefab, FieldMGR.GridToWorld(new Point(x, y)), Quaternion.identity);
+        goal.transform.parent = this.transform;
+        mapObjects.Add(goal.gameObject);
+        goal.GoalPoint = new Point(x, y);
+    }
+
+    /// <summary>
+    /// 敵生成
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    public void CreateEnemy(int x, int y)
+    {
+        EnemyBase enemy = Instantiate(enemyPrefab, FieldMGR.GridToWorld(new Point(x, y)), Quaternion.identity);
+        enemy.transform.parent = this.transform;
+        enemy.GetComponent<AStarSys>().SetStartPoint(new Point(x, y));
+        enemy.status.gridPos = new Point(x, y);
+        SequenceMGR.instance.Enemies.Add(enemy);
+    }
+
+    /// <summary>
+    /// 渡したグリッド座標とゴールの座標を比較
+    /// </summary>
+    /// <param name="point"></param>
+    /// <returns></returns>
+    public bool CheckGoal(Point point)
+    {
+        if (goal.GoalPoint == point)
+        {
+            return true;
+        }
+        return false;
     }
 
     public FieldInformation.GridInfo GetGrid(Point point)

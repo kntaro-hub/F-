@@ -70,8 +70,8 @@ public class PlayerControll : Actor
     void Update()
     {
         // プレイヤーキャラクターの操作を一括管理する
-        if (!ui_BasicMenu.IsShowMenu)
-        {// 基本メニューを表示していない間だけ操作可能にする
+        if (SequenceMGR.instance.seqType == SequenceMGR.SeqType.action)
+        {// メニューを表示していない間だけ操作可能にする
             this.Controll();
         }
 
@@ -214,7 +214,7 @@ public class PlayerControll : Actor
     {
         //if(cntDirect == 0 || cntInput == 2)
         {// 移動していない場合
-            if(Input.GetKeyDown(KeyCode.Return))
+            if(Input.GetKeyDown(KeyCode.P))
             {
                 this.Attack();
             }
@@ -465,7 +465,15 @@ public class PlayerControll : Actor
         {
             SequenceMGR.instance.ResetAct();
         }
+        // マップ情報上のプレイヤーを更新
         UI_MGR.instance.Ui_Map.UpdateMapPlayer();
+
+        // 足元がゴールかチェック
+        if(MapData.instance.CheckGoal(status.gridPos))
+        {
+            // ゴールUIを表示する
+            UI_MGR.instance.Ui_Goal.ShowMenu();
+        }
     }
 
     private IEnumerator AtkTimer()

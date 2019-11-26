@@ -94,7 +94,7 @@ public class UI_Map : MonoBehaviour
             {
                 if(MapData.instance.Get(i,j) == 0)
                 {// 道に色を付ける
-                    mapChips[j, i].color = new Color(0.0f, 1.0f, 0.3f, 0.1f);
+                    mapChips[j, i].color = new Color(0.0f, 1.0f, 0.3f, 0.2f);
                 }
             }
         }

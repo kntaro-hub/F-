@@ -6,6 +6,7 @@ public class UI_MGR : MonoBehaviour
 {
     private UI_BasicMenu ui_BasicMenu = null;
     private UI_Map ui_Map = null;
+    private UI_Goal ui_Goal = null;
 
     public UI_BasicMenu Ui_BasicMenu
     {
@@ -29,6 +30,17 @@ public class UI_MGR : MonoBehaviour
             return ui_Map;
         }
     }
+    public UI_Goal Ui_Goal
+    {
+        get
+        {
+            if (ui_Goal == null)
+            {
+                ui_Goal = FindObjectOfType<UI_Goal>();
+            }
+            return ui_Goal;
+        }
+    }
 
 
     // Start is called before the first frame update
@@ -36,12 +48,16 @@ public class UI_MGR : MonoBehaviour
     {
         ui_BasicMenu = FindObjectOfType<UI_BasicMenu>();
         ui_Map = FindObjectOfType<UI_Map>();
+        ui_Goal = FindObjectOfType<UI_Goal>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.GetKeyDown(KeyCode.Backspace))
+        {
+            ui_Map.ShowMapUI();
+        }
     }
 
     #region singleton
