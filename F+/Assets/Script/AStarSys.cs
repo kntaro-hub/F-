@@ -52,7 +52,7 @@ public class AStarSys : MonoBehaviour
     // スタート地点.
     private Point startPoint = new Point();
     // ゴール.
-    private Point pGoal = new Point();
+    private Point goalPoint = new Point();
 
     // マネージャ
     private NodeMGR nodeMGR = null;
@@ -68,10 +68,10 @@ public class AStarSys : MonoBehaviour
     private void Start()
     {
         // ゴール
-        pGoal = SequenceMGR.instance.Player.GetPoint();
+        goalPoint = SequenceMGR.instance.Player.GetPoint();
 
         // マネージャ作成
-        nodeMGR = new NodeMGR(pGoal.x, pGoal.y);
+        nodeMGR = new NodeMGR(goalPoint.x, goalPoint.y);
     }
 
     public void SetStartPoint(Point point)
@@ -272,8 +272,8 @@ public class AStarSys : MonoBehaviour
         // 指定の座標にあるノードをオープンする
         public A_StarNode OpenNode(int x, int y, int cost, A_StarNode parent)
         {
-            // 座標をチェック
-            if (MapData.instance.IsOutOfRange(x, y))
+            // 座標をチェックして部屋の同一の部屋にいる場合のみオープン
+            if (!MapData.instance.IsOutOfRange(x, y))
             {
                 // 領域外
                 return null;
@@ -346,27 +346,14 @@ public class AStarSys : MonoBehaviour
         }
     }
 
-    // ランダムな座標を取得する
-	private Point GetRandomPosition()
-    {
-        Point randomPoint = new Point();
-        while (true)
-        {
-            randomPoint.x = UnityEngine.Random.Range(0, 10); 
-            randomPoint.y = UnityEngine.Random.Range(0, 10);
-            if (MapData.instance.Get(randomPoint.x, randomPoint.y) == 0)
-            {
-                // 通過可能
-                break;
-            }
-        }
-        return randomPoint;
-    }
-
+    /// <summary>
+    /// 重いほう
+    /// </summary>
+    /// <returns></returns>
     public Point A_StarProc_Single2()
     {
-        if (startPoint.x == pGoal.x &&
-        startPoint.y == pGoal.y)
+        if (startPoint.x == goalPoint.x &&
+        startPoint.y == goalPoint.y)
         {
             IsArrival = true;
         }
@@ -396,7 +383,7 @@ public class AStarSys : MonoBehaviour
                         AdDebug.Log("囲", true);
                         return StartPoint;
                     }
-                    if (node.X == pGoal.x && node.Y == pGoal.y)
+                    if (node.X == goalPoint.x && node.Y == goalPoint.y)
                     {
                         // ゴールにたどり着いた
                         nodeMGR.RemoveOpenList(node);
@@ -427,10 +414,14 @@ public class AStarSys : MonoBehaviour
     }
 
     // 一回分の移動
+    /// <summary>
+    /// 軽いほう
+    /// </summary>
+    /// <returns></returns>
     public Point A_StarProc_Single()
     {
-        if (startPoint.x == pGoal.x &&
-            startPoint.y == pGoal.y)
+        if (startPoint.x == goalPoint.x &&
+            startPoint.y == goalPoint.y)
         {
             IsArrival = true;
         }
@@ -473,11 +464,158 @@ public class AStarSys : MonoBehaviour
             return StartPoint;
         }
     }
+
+    public Point A_StarProc_Specified(int num)
+    {
+        if (startPoint.x == goalPoint.x &&
+            startPoint.y == goalPoint.y)
+        {
+            IsArrival = true;
+        }
+        if (!IsArrival)
+        {
+            List<Point> pointList = new List<Point>();
+            // A-star実行
+            {
+                // スタート地点のノード取得
+                // スタート地点なのでコストは「0」
+                nodeMGR.ClearOpenList();
+                A_StarNode node = nodeMGR.OpenNode(startPoint.x, startPoint.y, 0, null);
+                nodeMGR.AddOpenList(node);
+
+                int cnt = 0;
+                while (cnt < 3) // 3回実行
+                {
+                    nodeMGR.RemoveOpenList(node);
+                    // 周囲を開く
+                    nodeMGR.OpenAround(node);
+                    // 最小スコアのノードを探す
+                    node = nodeMGR.SearchMinScoreNodeFromOpenList();
+                    if (node == null)
+                    {
+                        // 袋小路なのでおしまい
+                        AdDebug.Log("囲", true);
+                        return StartPoint;
+                    }
+                    // カウントアップ
+                    ++cnt;
+                }
+
+                nodeMGR.RemoveOpenList(node);
+                // パスを取得する
+                node.GetPath(pointList);
+                // 反転する
+                pointList.Reverse();
+
+                AdDebug.Log("経路探索終了", Color.cyan, 20, true);
+
+                nodeMGR.Reset();
+
+                if (num < pointList.Count)
+                {
+                    startPoint = pointList[num];
+
+                    return pointList[num];
+                }
+                else
+                {
+                    this.A_StarProc_Single();
+                }
+            }
+        }
+        return StartPoint;
+    }
+
+    public Point SimpleProc(Point point)
+    {
+        if (startPoint.x == goalPoint.x &&
+            startPoint.y == goalPoint.y)
+        {
+            IsArrival = true;
+        }
+        if (!IsArrival)
+        {
+            // プレイヤーへの距離を求める
+            int dx = point.x - goalPoint.x;
+            int dy = point.y - goalPoint.y;
+
+            Point startPointCpy = startPoint;
+
+            if (Mathf.Abs(dx) > Mathf.Abs(dy))
+            {
+                // X方向への距離の方が遠いのでそっちに進む
+                if (dx < 0)
+                {
+                    startPointCpy = new Point(point.x + 1, point.y);
+                    if (this.CheckWall_StartPointSet(startPointCpy)) return startPointCpy;
+                } // 左
+                else
+                {
+                    startPointCpy = new Point(point.x - 1, point.y);
+                    if (this.CheckWall_StartPointSet(startPointCpy)) return startPointCpy;
+                } // 右
+            }
+            else
+            {
+                // Y方向へ進む
+                if (dy < 0)
+                {
+                    startPointCpy = new Point(point.x, point.y + 1);
+                    if (this.CheckWall_StartPointSet(startPointCpy)) return startPointCpy;
+                } // 上
+                else
+                {
+                    startPointCpy = new Point(point.x, point.y - 1);
+                    if (this.CheckWall_StartPointSet(startPointCpy)) return startPointCpy;
+                } // 下
+            }
+
             
+
+            // 2重に検査することで壁で詰まることをなくす
+            if (dx < 0)
+            {
+                startPointCpy = new Point(point.x + 1, point.y);
+                if (this.CheckWall_StartPointSet(startPointCpy)) return startPointCpy;
+            } // 左
+            else
+            {
+                startPointCpy = new Point(point.x - 1, point.y);
+                if (this.CheckWall_StartPointSet(startPointCpy)) return startPointCpy;
+            } // 右
+            if (dy < 0)
+            {
+                startPointCpy = new Point(point.x, point.y + 1);
+                if (this.CheckWall_StartPointSet(startPointCpy)) return startPointCpy;
+            } // 上
+            else
+            {
+                startPointCpy = new Point(point.x, point.y - 1);
+                if (this.CheckWall_StartPointSet(startPointCpy)) return startPointCpy;
+            } // 下
+        }
+        return startPoint;
+    }
+
+    /// <summary>
+    /// 指定したグリッド座標が壁かを判断して、壁でないなら
+    /// スタート地点を指定したグリッド座標にする
+    /// </summary>
+    /// <param name="point">壁か判定するグリッド座標</param>
+    private bool CheckWall_StartPointSet(Point point)
+    {
+        if (MapData.instance.Get(point) != (int)FieldInformation.FieldType.wall)
+        {
+            startPoint = point;
+            return true;
+        }
+        return false;
+    }
+
     public void SetGoal(Point point)
     {
-        pGoal = point;
-        nodeMGR.SetGoal = pGoal;
+        goalPoint = point;
+        nodeMGR.SetGoal = goalPoint;
         IsArrival = false;
     }
 

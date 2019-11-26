@@ -83,8 +83,13 @@ public class MapData : MonoBehaviour
     // 領域外かどうかチェックする
     public bool IsOutOfRange(int x, int y)
     {
-        if (x < 0 || x >= Width) { return true; }
-        if (y < 0 || y >= Height) { return true; }
+        //if (x < 0 || x >= Width) { return true; }
+        //if (y < 0 || y >= Height) { return true; }
+
+        if (this.CheckPlayerRoom(this.GetRoom(new Point(x, y))))
+        {
+            return true;
+        }
 
         // 領域内
         return false;
@@ -100,6 +105,15 @@ public class MapData : MonoBehaviour
         }
 
         return mapValue[y * Width + x];
+    }
+    public int Get(Point point)
+    {
+        if (IsOutOfRange(point.x, point.y))
+        {
+            return outOfRange;
+        }
+
+        return mapValue[point.y * Width + point.x];
     }
 
     // 値の設定
@@ -273,6 +287,38 @@ public class MapData : MonoBehaviour
         initPosY = posY;
     }
 
+    public Division.Div_Room GetRoom(Point point)
+    {
+        foreach (var itr in MapGenerator.instance.DivList)
+        {
+            if (itr.Room.Left   <= point.x &&
+               itr.Room.Right   > point.x &&
+               itr.Room.Top     <= point.y &&
+               itr.Room.Bottom  > point.y)
+            {
+                return itr.Room;
+            }
+        }
+        return null;
+    }
+
+    public bool CheckPlayerRoom(Division.Div_Room room)
+    {
+        if (room != null)
+        {
+            Division.Div_Room playerRoom = this.GetRoom(SequenceMGR.instance.Player.status.gridPos);
+
+            if (playerRoom != null)
+            {
+                if (room.Left == playerRoom.Left &&
+                    room.Right == playerRoom.Right)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     #region singleton
 

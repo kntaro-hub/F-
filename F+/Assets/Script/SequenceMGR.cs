@@ -61,7 +61,7 @@ public class SequenceMGR : MonoBehaviour
     {
         for (int i = enemies.Count - 1; i >= 0; i--)
         {
-            if (enemies[i].IsDestroy)
+            if (enemies[i].isDestroy)
             {
                 Destroy(enemies[i].gameObject);
                 enemies.RemoveAt(i);
@@ -96,7 +96,7 @@ public class SequenceMGR : MonoBehaviour
     {
         foreach(var itr in enemies)
         {
-            itr.Move(player.GetPoint());
+            itr.MoveProc(player.GetPoint());
         }
     }
 

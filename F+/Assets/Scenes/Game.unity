@@ -6807,7 +6807,7 @@ MonoBehaviour:
     type: 3}
   goalPrefab: {fileID: 6209832055970073042, guid: 1bbc2953835235c4da97e68d31590b27,
     type: 3}
-  enemyPrefab: {fileID: 8762398888712112726, guid: 7e7234cd05995bb41bd1d379bcaf9417,
+  enemyPrefab: {fileID: 2840031995818672948, guid: 7e7234cd05995bb41bd1d379bcaf9417,
     type: 3}
 --- !u!4 &1442621205
 Transform:

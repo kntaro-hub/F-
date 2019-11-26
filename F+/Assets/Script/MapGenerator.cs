@@ -96,7 +96,7 @@ public class MapGenerator : MonoBehaviour
 
                     mapData.CreateWall(i,j);
                 }
-                if (mapData.Get(i, j) == (int)FieldInformation.FieldType.goal)
+                else if (mapData.Get(i, j) == (int)FieldInformation.FieldType.goal)
                 {
                     // 壁生成
                     float x = GetChipX(i);
@@ -135,6 +135,7 @@ public class MapGenerator : MonoBehaviour
 
         // ゴールのマスを設定
         MapData.instance.Set(X, Y, (int)FieldInformation.FieldType.goal);
+        MapData.instance.CreateGoal(X, Y);
     }
 
     /// <summary>

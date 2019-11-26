@@ -8,19 +8,15 @@ using DG.Tweening;
 /// </summary>
 public class EnemyBase : Actor
 {
-    private AStarSys aStar = null;
-    public AStarSys AStar
+    public bool isDestroy = false;
+    public bool IsDestroy
     {
-        get { return aStar; }
+        get { return isDestroy; }
     }
-
-    public bool IsDestroy = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        aStar = GetComponent<AStarSys>();
-        status.gridPos = aStar.StartPoint;
         this.transform.position = FieldMGR.GridToWorld(status.gridPos);
     }
 
@@ -30,10 +26,14 @@ public class EnemyBase : Actor
         
     }
 
-    public void Move(Point setPoint)
+    /// <summary>
+    /// 目的地へ移動する
+    /// </summary>
+    /// <param name="setPoint">目的地</param>
+    public void MoveProc(Point setPoint)
     {
-        this.AStar.SetGoal(setPoint);
-        this.status.gridPos = this.AStar.A_StarProc_Single();
+        this.Move(setPoint);
+
         this.transform.DOMove(FieldMGR.GridToWorld(this.status.gridPos), Actor.MoveTime).SetEase(Ease.Linear);
         this.status.actType = ActType.Move;
 
@@ -41,9 +41,27 @@ public class EnemyBase : Actor
         StartCoroutine(MoveTimer());
     }
 
+    protected virtual void Move(Point setPoint)
+    {
+        // 各敵ごとに処理が異なる
+    }
+
+    /// <summary>
+    /// 攻撃
+    /// </summary>
+    public void AttackProc()
+    {
+        this.Attack();
+    }
+
+    protected virtual void Attack()
+    {
+        // 各敵ごとに処理が異なる
+    }
+
     public void Destroy()
     {
-        IsDestroy = true;
+        isDestroy = true;
     }
 
     // 移動タイマー
