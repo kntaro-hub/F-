@@ -32,6 +32,8 @@ public class Division
         public int Right  = 0; // 右
         public int Bottom = 0; // 下
 
+        public int RoomNumber = 0;  // 部屋番号
+
         /// <summary>
         /// コンストラクタ
         /// </summary>

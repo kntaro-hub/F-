@@ -5,33 +5,36 @@ using System.IO;
 
 public class MapData : MonoBehaviour
 {
-    // =--------- 構造体定義 ---------= //
-    private struct SaveData
+    // =--------- 列挙体定義 ---------= //
+    public enum MapChipType
     {
-        public FieldInformation.GridInfo[,] infos;
+        none = 0,   // 何もない
+        wall,       // 壁
+        room,
+        goal,       // 階段
+        max
     }
+
+    // =--------- 定数定義 ---------= //
+    public const float GridSize = 1.0f; // グリッドサイズ
 
     // =--------- 変数宣言 ---------= //
     // グリッド座標→ワールド座標変換時のズレ
     private float initPosY = 0.0f;
 
-    // マップデータ保存用構造体
-    private SaveData saveData = new SaveData();
-
     // 生成したマップオブジェクトリスト
     private List<GameObject> mapObjects = new List<GameObject>();
-
-    // マップデータ
-    private FieldInformation.GridInfo[,] gridInfos;
-    public FieldInformation.GridInfo[,] GridInfos
-    {
-        get { return gridInfos; }
-    }
 
     int width; // 幅
     int height; // 高さ
     int outOfRange = -1; // 領域外を指定した時の値
-    int[] mapValue = null; // マップデータ
+
+    struct MapValue
+    {
+        public int value;       // マップチップ
+        public int roomNumber;  // 部屋番号
+    }
+    MapValue[,] mapValue = null; // マップデータ
 
     private List<EnemyBase> enemies = new List<EnemyBase>();
 
@@ -70,8 +73,7 @@ public class MapData : MonoBehaviour
     {
         this.width = width;
         this.height = height;
-        mapValue = new int[Width * Height];
-        gridInfos = new FieldInformation.GridInfo[Width, Height];
+        mapValue = new MapValue[Width , Height];
     }
 
     // 座標をインデックスに変換する
@@ -83,50 +85,43 @@ public class MapData : MonoBehaviour
     // 領域外かどうかチェックする
     public bool IsOutOfRange(int x, int y)
     {
-        //if (x < 0 || x >= Width) { return true; }
-        //if (y < 0 || y >= Height) { return true; }
+        if (x < 0 || x >= Width) { return true; }
+        if (y < 0 || y >= Height) { return true; }
 
-        if (this.CheckPlayerRoom(this.GetRoom(new Point(x, y))))
-        {
-            return true;
-        }
-
-        // 領域内
         return false;
     }
 
     // 値の取得
     // 指定の座標の値（領域外を指定したら_outOfRangeを返す）
-    public int Get(int x, int y)
+    public int GetValue(int x, int y)
     {
-        if (IsOutOfRange(x, y))
-        {
-            return outOfRange;
-        }
-
-        return mapValue[y * Width + x];
+        return mapValue[x , y].value;
     }
-    public int Get(Point point)
+    public int GetValue(Point point)
     {
-        if (IsOutOfRange(point.x, point.y))
-        {
-            return outOfRange;
-        }
-
-        return mapValue[point.y * Width + point.x];
+        return mapValue[point.x , point.y].value;
     }
 
     // 値の設定
-    public void Set(int x, int y, int v)
+    public void SetValue(int x, int y, int v)
     {
-        if (IsOutOfRange(x, y))
-        {
-            // 領域外を指定した
-            return;
-        }
-
-        mapValue[y * Width + x] = v;
+        mapValue[x , y].value = v;
     }
+
+    public void SetRoomNum(int x, int y, int v)
+    {
+        mapValue[x, y].roomNumber = v;
+    }
+
+    public int GetRoomNum(int x, int y)
+    {
+        return mapValue[x, y].roomNumber;
+    }
+    public int GetRoomNum(Point point)
+    {
+        return mapValue[point.x, point.y].roomNumber;
+    }
+
 
     public void Fill(int val)
     {
@@ -134,7 +129,7 @@ public class MapData : MonoBehaviour
         {
             for (int i = 0; i < Width; i++)
             {
-                this.Set(i, j, val);
+                this.SetValue(i, j, val);
               
             }
         }
@@ -156,7 +151,7 @@ public class MapData : MonoBehaviour
             {
                 int px = x + i;
                 int py = y + j;
-                Set(px, py, val);
+                SetValue(px, py, val);
             }
         }
     }
@@ -174,58 +169,100 @@ public class MapData : MonoBehaviour
         FillRect(left, top, right - left, bottom - top, val);
     }
 
-
     // =---------  ---------= //
 
-    private void SaveField()
-    {
-        StreamWriter writer;
+    //private void SaveField()
+    //{
+    //    StreamWriter writer;
 
-        writer = new StreamWriter(Application.dataPath + "/MapData.json", false);
+    //    writer = new StreamWriter(Application.dataPath + "/MapData.json", false);
 
-        saveData.infos = new FieldInformation.GridInfo[width, height];
-        for (int i = 0; i < width; ++i)
-        {
-            for (int j = 0; j < height; ++j)
-            {
-                saveData.infos[i, j] = gridInfos[i, j];
-                string jsonstr = JsonUtility.ToJson(saveData.infos[i, j]);
-                jsonstr = jsonstr + "\n";
-                writer.Write(jsonstr);
-                writer.Flush();
-            }
-        }
+    //    saveData.infos = new GridInfo[width, height];
+    //    //for (int i = 0; i < width; ++i)
+    //    //{
+    //    //    for (int j = 0; j < height; ++j)
+    //    //    {
+    //    //        saveData.infos[i, j] = gridInfos[i, j];
+    //    //        string jsonstr = JsonUtility.ToJson(saveData.infos[i, j]);
+    //    //        jsonstr = jsonstr + "\n";
+    //    //        writer.Write(jsonstr);
+    //    //        writer.Flush();
+    //    //    }
+    //    //}
 
 
-        writer.Close();
-    }
+    //    writer.Close();
+    //}
 
-    private void LoadField()
-    {
-        string datastr = "";
-        StreamReader reader;
-        reader = new StreamReader(Application.dataPath + "/MapData.json");
-        datastr = reader.ReadToEnd();
-        reader.Close();
+    //private void LoadField()
+    //{
+    //    string datastr = "";
+    //    StreamReader reader;
+    //    reader = new StreamReader(Application.dataPath + "/MapData.json");
+    //    datastr = reader.ReadToEnd();
+    //    reader.Close();
 
-        for (int i = 0; i < width; ++i)
-        {
-            for (int j = 0; j < height; ++j)
-            {
-                gridInfos[i, j] = JsonUtility.FromJson<FieldInformation.GridInfo>(datastr);
-            }
-        }
-        foreach (var itr in mapObjects)
-        {
-            Destroy(itr);
-        }
-        mapObjects.Clear();
-    }
+    //    //for (int i = 0; i < width; ++i)
+    //    //{
+    //    //    for (int j = 0; j < height; ++j)
+    //    //    {
+    //    //        gridInfos[i, j] = JsonUtility.FromJson<GridInfo>(datastr);
+    //    //    }
+    //    //}
+    //    foreach (var itr in mapObjects)
+    //    {
+    //        Destroy(itr);
+    //    }
+    //    mapObjects.Clear();
+    //}    //private void SaveField()
+    //{
+    //    StreamWriter writer;
+
+    //    writer = new StreamWriter(Application.dataPath + "/MapData.json", false);
+
+    //    saveData.infos = new GridInfo[width, height];
+    //    //for (int i = 0; i < width; ++i)
+    //    //{
+    //    //    for (int j = 0; j < height; ++j)
+    //    //    {
+    //    //        saveData.infos[i, j] = gridInfos[i, j];
+    //    //        string jsonstr = JsonUtility.ToJson(saveData.infos[i, j]);
+    //    //        jsonstr = jsonstr + "\n";
+    //    //        writer.Write(jsonstr);
+    //    //        writer.Flush();
+    //    //    }
+    //    //}
+    //
+    //
+    //    writer.Close();
+    //}
+    //
+    //private void LoadField()
+    //{
+    //    string datastr = "";
+    //    StreamReader reader;
+    //    reader = new StreamReader(Application.dataPath + "/MapData.json");
+    //    datastr = reader.ReadToEnd();
+    //    reader.Close();
+
+    //    //for (int i = 0; i < width; ++i)
+    //    //{
+    //    //    for (int j = 0; j < height; ++j)
+    //    //    {
+    //    //        gridInfos[i, j] = JsonUtility.FromJson<GridInfo>(datastr);
+    //    //    }
+    //    //}
+    //    foreach (var itr in mapObjects)
+    //    {
+    //        Destroy(itr);
+    //    }
+    //    mapObjects.Clear();
+    //}
 
     public void CreateWall(int x, int y)
     {
-        gridInfos[x, y].Type = FieldInformation.FieldType.wall;
-        GameObject wall = Instantiate(wallPrefab, FieldMGR.GridToWorld(new Point(x, y)), Quaternion.identity);
+        mapValue[x, y].value = (int)MapData.MapChipType.wall;
+        GameObject wall = Instantiate(wallPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
         wall.transform.parent = this.transform;
         mapObjects.Add(wall);
     }
@@ -237,8 +274,8 @@ public class MapData : MonoBehaviour
     /// <param name="y"></param>
     public void CreateGoal(int x, int y)
     {
-        gridInfos[x, y].Type = FieldInformation.FieldType.goal;
-        goal = Instantiate(goalPrefab, FieldMGR.GridToWorld(new Point(x, y)), Quaternion.identity);
+        mapValue[x, y].value = (int)MapData.MapChipType.goal;
+        goal = Instantiate(goalPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
         goal.transform.parent = this.transform;
         mapObjects.Add(goal.gameObject);
         goal.GoalPoint = new Point(x, y);
@@ -251,7 +288,7 @@ public class MapData : MonoBehaviour
     /// <param name="y"></param>
     public void CreateEnemy(int x, int y)
     {
-        EnemyBase enemy = Instantiate(enemyPrefab, FieldMGR.GridToWorld(new Point(x, y)), Quaternion.identity);
+        EnemyBase enemy = Instantiate(enemyPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
         enemy.transform.parent = this.transform;
         enemy.GetComponent<AStarSys>().SetStartPoint(new Point(x, y));
         enemy.status.gridPos = new Point(x, y);
@@ -272,14 +309,14 @@ public class MapData : MonoBehaviour
         return false;
     }
 
-    public FieldInformation.GridInfo GetGrid(Point point)
+    public int GetGrid(Point point)
     {
         if (point.x < 0 || point.x >= Width || point.y < 0 || point.y >= Height)
         {
             AdDebug.Log("範囲外参照");
         }
 
-        return gridInfos[point.x, point.y];
+        return mapValue[point.x, point.y].value;
     }
 
     public void SetInitY(float posY)
@@ -302,22 +339,24 @@ public class MapData : MonoBehaviour
         return null;
     }
 
-    public bool CheckPlayerRoom(Division.Div_Room room)
+    // =--------- // =--------- static ---------= // ---------= //
+    public static Vector3 GridToWorld(Point grid)
     {
-        if (room != null)
-        {
-            Division.Div_Room playerRoom = this.GetRoom(SequenceMGR.instance.Player.status.gridPos);
+        Vector3 world = new Vector3(
+            (float)(grid.x * GridSize),
+            0.0f,
+            (float)(grid.y * GridSize));
 
-            if (playerRoom != null)
-            {
-                if (room.Left == playerRoom.Left &&
-                    room.Right == playerRoom.Right)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return world;
+    }
+
+    public static Point WorldToGrid(Vector3 world)
+    {
+        Point grid = new Point(
+            (int)(world.x / GridSize),
+            (int)(world.z / GridSize));
+
+        return grid;
     }
 
     #region singleton

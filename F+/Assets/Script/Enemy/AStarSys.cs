@@ -24,6 +24,10 @@ public struct Point
     {// エラー値
         return new Point(9999, 9999);
     }
+    public static float Distance(Point point1, Point point2)
+    {
+        return (Mathf.Sqrt(Mathf.Pow(point1.x - point2.x, 2) + Mathf.Pow(point1.y - point2.y, 2)));
+    }
 
     public static bool operator !=(Point point, Point point2)
     {
@@ -45,13 +49,17 @@ public struct Point
     {
         return new Point(point.x + point2.x, point.y + point2.y);
     }
+    public static Point operator -(Point point, Point point2)
+    {
+        return new Point(point.x - point2.x, point.y - point2.y);
+    } 
 }
 
 public class AStarSys : MonoBehaviour
 {
-    // スタート地点.
+    // スタート地点
     private Point startPoint = new Point();
-    // ゴール.
+    // ゴール
     private Point goalPoint = new Point();
 
     // マネージャ
@@ -59,6 +67,8 @@ public class AStarSys : MonoBehaviour
 
     // 到着フラグ
     private bool IsArrival = false;
+
+    
 
     public Point StartPoint
     {
@@ -138,7 +148,7 @@ public class AStarSys : MonoBehaviour
         // 総スコア計算＆返却
         public int GetGeneralCost()
         {
-            if (MapData.instance.GetGrid(new Point(X, Y)).Type == FieldInformation.FieldType.wall)
+            if (MapData.instance.GetGrid(new Point(X, Y)) == (int)MapData.MapChipType.wall)
             {
                 cost = 9999;
             }
@@ -212,12 +222,15 @@ public class AStarSys : MonoBehaviour
     // ノード管理
     class NodeMGR
     {
+        Actor actor;
+
         // オープンリスト
         List<A_StarNode> openList = null;
         // ノード管理
         Dictionary<int, A_StarNode> Nodes = null;
         // ゴール座標
         Point goal = new Point();
+
         public Point SetGoal
         {
             set { goal = value; }
@@ -272,13 +285,7 @@ public class AStarSys : MonoBehaviour
         // 指定の座標にあるノードをオープンする
         public A_StarNode OpenNode(int x, int y, int cost, A_StarNode parent)
         {
-            // 座標をチェックして部屋の同一の部屋にいる場合のみオープン
-            if (!MapData.instance.IsOutOfRange(x, y))
-            {
-                // 領域外
-                return null;
-            }
-            if (MapData.instance.Get(x, y) > 1)
+            if (MapData.instance.GetValue(x, y) == (int)MapData.MapChipType.wall)
             {
                 // 通過できない
                 return null;
@@ -604,7 +611,7 @@ public class AStarSys : MonoBehaviour
     /// <param name="point">壁か判定するグリッド座標</param>
     private bool CheckWall_StartPointSet(Point point)
     {
-        if (MapData.instance.Get(point) != (int)FieldInformation.FieldType.wall)
+        if (MapData.instance.GetValue(point) != (int)MapData.MapChipType.wall)
         {
             startPoint = point;
             return true;

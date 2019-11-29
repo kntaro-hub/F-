@@ -58,7 +58,7 @@ public class MapGenerator : MonoBehaviour
         divList = new List<Division>();
 
         // 2. すべてを壁にする
-        mapData.Fill((int)FieldInformation.FieldType.wall);
+        mapData.Fill((int)MapData.MapChipType.wall);
 
         // 3. 最初の区画を作る
         CreateDivision(0, 0, mapData.Width - 1, mapData.Height - 1);
@@ -88,7 +88,7 @@ public class MapGenerator : MonoBehaviour
         {
             for (int i = 0; i < mapData.Width; i++)
             {
-                if (mapData.Get(i, j) == (int)FieldInformation.FieldType.wall)
+                if (mapData.GetValue(i, j) == (int)MapData.MapChipType.wall)
                 {
                     // 壁生成
                     float x = GetChipX(i);
@@ -96,7 +96,7 @@ public class MapGenerator : MonoBehaviour
 
                     mapData.CreateWall(i,j);
                 }
-                else if (mapData.Get(i, j) == (int)FieldInformation.FieldType.goal)
+                else if (mapData.GetValue(i, j) == (int)MapData.MapChipType.goal)
                 {
                     // 壁生成
                     float x = GetChipX(i);
@@ -122,7 +122,7 @@ public class MapGenerator : MonoBehaviour
 
         // プレイヤーのグリッド座標を更新
         SequenceMGR.instance.Player.status.gridPos = new Point(X, Y);
-        SequenceMGR.instance.Player.transform.position = FieldMGR.GridToWorld(new Point(X, Y));
+        SequenceMGR.instance.Player.transform.position = MapData.GridToWorld(new Point(X, Y));
     }
     private void GoalSet()
     {
@@ -134,7 +134,7 @@ public class MapGenerator : MonoBehaviour
         int Y = Random.Range(room.Bottom - 1, room.Top);
 
         // ゴールのマスを設定
-        MapData.instance.Set(X, Y, (int)FieldInformation.FieldType.goal);
+        MapData.instance.SetValue(X, Y, (int)MapData.MapChipType.goal);
         MapData.instance.CreateGoal(X, Y);
     }
 
@@ -277,6 +277,7 @@ public class MapGenerator : MonoBehaviour
     /// </summary>
     void CreateRoom()
     {
+        int SetRoomNumber = 0;
         foreach (Division div in divList)
         {
             // 基準サイズを決める
@@ -307,8 +308,21 @@ public class MapGenerator : MonoBehaviour
             // 部屋のサイズを設定
             div.Room.Set(left, top, right, bottom);
 
+            // 部屋番号設定
+            div.Room.RoomNumber = SetRoomNumber;
+
             // 部屋を通路にする
             FillRoom(div.Room);
+
+            // マップデータに登録
+            for(int i = 0; i < div.Room.Right - div.Room.Left; ++i)
+            {
+                for (int j = 0; j < div.Room.Bottom - div.Room.Top; ++j)
+                {
+                    MapData.instance.SetValue(div.Room.Left + i, div.Room.Top + j, (int)MapData.MapChipType.room);
+                    MapData.instance.SetRoomNum(div.Room.Left + i, div.Room.Top + j, SetRoomNumber);
+                }
+            }
         }
     }
 
@@ -318,7 +332,7 @@ public class MapGenerator : MonoBehaviour
     /// <param name="rect">部屋矩形情報</param>
     void FillRoom(Division.Div_Room r)
     {
-        MapData.instance.FillRectLTRB(r.Left, r.Top, r.Right, r.Bottom, (int)FieldInformation.FieldType.none);
+        MapData.instance.FillRectLTRB(r.Left, r.Top, r.Right, r.Bottom, (int)MapData.MapChipType.none);
     }
 
     /// <summary>
@@ -416,16 +430,16 @@ public class MapGenerator : MonoBehaviour
                 // B - A (Bが上側)
                 y = divA.Outer.Top;
                 // 通路を作成
-                MapData.instance.FillRectLTRB(x1, y + 1, x1 + 1, divA.Room.Top, (int)FieldInformation.FieldType.none);
-                MapData.instance.FillRectLTRB(x2, divB.Room.Bottom, x2 + 1, y, (int)FieldInformation.FieldType.none);
+                MapData.instance.FillRectLTRB(x1, y + 1, x1 + 1, divA.Room.Top, (int)MapData.MapChipType.none);
+                MapData.instance.FillRectLTRB(x2, divB.Room.Bottom, x2 + 1, y, (int)MapData.MapChipType.none);
             }
             else
             {
                 // A - B (Aが上側)
                 y = divB.Outer.Top;
                 // 通路を作成
-                MapData.instance.FillRectLTRB(x1, divA.Room.Bottom, x1 + 1, y, (int)FieldInformation.FieldType.none);
-                MapData.instance.FillRectLTRB(x2, y, x2 + 1, divB.Room.Top, (int)FieldInformation.FieldType.none);
+                MapData.instance.FillRectLTRB(x1, divA.Room.Bottom, x1 + 1, y, (int)MapData.MapChipType.none);
+                MapData.instance.FillRectLTRB(x2, y, x2 + 1, divB.Room.Top, (int)MapData.MapChipType.none);
             }
 
             // 通路同士を接続する
@@ -448,15 +462,15 @@ public class MapGenerator : MonoBehaviour
                 // B - A (Bが左側)
                 x = divA.Outer.Left;
                 // 通路を作成
-                MapData.instance.FillRectLTRB(divB.Room.Right, y2, x, y2 + 1, (int)FieldInformation.FieldType.none);
-                MapData.instance.FillRectLTRB(x + 1, y1, divA.Room.Left, y1 + 1, (int)FieldInformation.FieldType.none);
+                MapData.instance.FillRectLTRB(divB.Room.Right, y2, x, y2 + 1, (int)MapData.MapChipType.none);
+                MapData.instance.FillRectLTRB(x + 1, y1, divA.Room.Left, y1 + 1, (int)MapData.MapChipType.none);
             }
             else
             {
                 // A - B (Aが左側)
                 x = divB.Outer.Left;
-                MapData.instance.FillRectLTRB(divA.Room.Right, y1, x, y1 + 1, (int)FieldInformation.FieldType.none);
-                MapData.instance.FillRectLTRB(x, y2, divB.Room.Left, y2 + 1, (int)FieldInformation.FieldType.none);
+                MapData.instance.FillRectLTRB(divA.Room.Right, y1, x, y1 + 1, (int)MapData.MapChipType.none);
+                MapData.instance.FillRectLTRB(x, y2, divB.Room.Left, y2 + 1, (int)MapData.MapChipType.none);
             }
 
             // 通路同士を接続する
@@ -486,7 +500,7 @@ public class MapGenerator : MonoBehaviour
             left = right;
             right = work;
         }
-        MapData.instance.FillRectLTRB(left, y, right + 1, y + 1, (int)FieldInformation.FieldType.none);
+        MapData.instance.FillRectLTRB(left, y, right + 1, y + 1, (int)MapData.MapChipType.none);
     }
 
     /// <summary>
@@ -504,7 +518,7 @@ public class MapGenerator : MonoBehaviour
             top = bottom;
             bottom = work;
         }
-        MapData.instance.FillRectLTRB(x, top, x + 1, bottom + 1, (int)FieldInformation.FieldType.none);
+        MapData.instance.FillRectLTRB(x, top, x + 1, bottom + 1, (int)MapData.MapChipType.none);
     }
 
     #region singleton

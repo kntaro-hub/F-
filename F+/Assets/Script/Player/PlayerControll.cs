@@ -47,7 +47,7 @@ public class PlayerControll : Actor
     void Start()
     {
         MapData.instance.SetInitY(InitPosY);
-        this.transform.position = FieldMGR.GridToWorld(status.gridPos);
+        this.transform.position = MapData.GridToWorld(status.gridPos);
         this.transform.position = new Vector3(
             this.transform.position.x,
             InitPosY,
@@ -69,11 +69,11 @@ public class PlayerControll : Actor
     // Update is called once per frame
     void Update()
     {
-        // プレイヤーキャラクターの操作を一括管理する
-        if (SequenceMGR.instance.seqType == SequenceMGR.SeqType.action)
-        {// メニューを表示していない間だけ操作可能にする
+        //// プレイヤーキャラクターの操作を一括管理する
+        //if (SequenceMGR.instance.seqType == SequenceMGR.SeqType.keyInput)
+        //{// メニューを表示していない間だけ操作可能にする
             this.Controll();
-        }
+        //}
 
         this.CalcCameraPos();
 
@@ -83,7 +83,7 @@ public class PlayerControll : Actor
 
     private void UpdatePosition()
     {
-        this.transform.position = FieldMGR.GridToWorld(this.status.gridPos);
+        this.transform.position = MapData.GridToWorld(this.status.gridPos);
     }
 
     private void CalcCameraPos()
@@ -98,23 +98,19 @@ public class PlayerControll : Actor
     /// <summary>
     /// キャラ一回分の更新
     /// </summary>
-    override protected void UpdateProc()
+    public override void ActStart()
     {
-        if(status.actType == ActType.Move)
+        if(SequenceMGR.instance.seqType == SequenceMGR.SeqType.keyInput)
         {// 移動開始
-            this.Move(status.direct);
-        }
-        else if(status.actType == ActType.Act)
-        {// 行動開始
-
+            this.Move();
         }
     }
 
     private void Controll()
     {
-        
 
-        if (status.actType == ActType.Wait)
+
+        if (SequenceMGR.instance.seqType == SequenceMGR.SeqType.keyInput && status.actType == ActType.Wait)
         {// 待機中のみ行動できる
 
             #region 移動
@@ -124,15 +120,6 @@ public class PlayerControll : Actor
             #region 行動
             this.Controll_Act();
             #endregion
-        }
-
-        if (Input.GetKey(KeyCode.S))
-        {// セーブ
-            this.SaveStatus();
-        }
-        if (Input.GetKey(KeyCode.L))
-        {// ロード
-            this.LoadStatus();
         }
     }
 
@@ -200,8 +187,7 @@ public class PlayerControll : Actor
         {
             if (!IsRotButton)
             {
-                status.actType = ActType.Move;
-                this.UpdateProc();
+                SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.move);
             }
             else
             {
@@ -223,7 +209,7 @@ public class PlayerControll : Actor
 
     private void Attack()
     {
-        this.transform.DOPunchPosition(FieldMGR.GridToWorld(this.GetDirect()), MoveTime);
+        this.transform.DOPunchPosition(MapData.GridToWorld(this.GetDirect()), MoveTime);
         status.actType = ActType.Act;
         StartCoroutine(AtkTimer());
     }
@@ -232,7 +218,7 @@ public class PlayerControll : Actor
     /// 移動用関数
     /// </summary>
     /// <param name="Direct">目的地</param>
-    private void Move(Direct direct)
+    public void Move()
     {
         Vector3 moveValue = new Vector3();
         Point movedGrid;
@@ -240,27 +226,27 @@ public class PlayerControll : Actor
 
         if (cntInput == 2)
         {
-            switch (direct)
+            switch (status.direct)
             {
                 case Direct.right_forward:
-                    direct = Direct.right;
+                    status.direct = Direct.right;
                     break;
 
                 case Direct.left_forward:
-                    direct = Direct.left;
+                    status.direct = Direct.left;
                     break;
 
                 case Direct.right_back:
-                    direct = Direct.right;
+                    status.direct = Direct.right;
                     break;
 
                 case Direct.left_back:
-                    direct = Direct.left;
+                    status.direct = Direct.left;
                     break;
             }
         }
 
-        switch (direct)
+        switch (status.direct)
         {
             case Direct.right: movedGrid = new Point(1, 0); rotY = 90.0f; break;
             case Direct.left: movedGrid = new Point(-1, 0); rotY = 270.0f; break;
@@ -274,24 +260,12 @@ public class PlayerControll : Actor
                rotY,
                this.transform.rotation.z),
                0.1f);
-        status.direct = direct;
+        status.direct = status.direct;
 
-        //if (status.gridPos.x + movedGrid.x < 0 ||
-        //    status.gridPos.x + movedGrid.x > MapData.instance.Width - 1 ||
-        //    status.gridPos.y + movedGrid.y < 0 ||
-        //    status.gridPos.y + movedGrid.y > MapData.instance.Height - 1)
-        //{// 範囲外
-        //    MessageWindow.instance.AddMessage("範囲外です", Color.red);
-
-        //    // MoveTime秒経つまで次の入力を受け付けないようにする
-        //    StartCoroutine(MoveTimer(true));
-        //    return;
-        //}
-
-        if (MapData.instance.GridInfos
-            [status.gridPos.x + movedGrid.x,
-            status.gridPos.y + movedGrid.y]
-            .Type != FieldInformation.FieldType.wall)
+        if (MapData.instance.GetValue(
+            status.gridPos.x + movedGrid.x,
+            status.gridPos.y + movedGrid.y)
+             != (int)MapData.MapChipType.wall)
         {
             status.actType = ActType.Move;
 
@@ -300,7 +274,7 @@ public class PlayerControll : Actor
                 playerAnimator.Play("Walking@loop");
             }
 
-            switch (direct)
+            switch (status.direct)
             {
                 case Direct.right:
                     moveValue = Vector3.right;
@@ -329,9 +303,9 @@ public class PlayerControll : Actor
             StartCoroutine(MoveTimer(false));
 
             // 敵を動かす
-            SequenceMGR.instance.ActProc();
+            //SequenceMGR.instance.ActProc();
 
-            moveValue *= FieldInformation.GridSize;
+            moveValue *= MapData.GridSize;
             // MoveTime秒かけて目的地へ
             this.transform.DOMove(new Vector3(
                     this.transform.position.x + moveValue.x,
@@ -341,8 +315,8 @@ public class PlayerControll : Actor
         }
         else
         {
-            // MoveTime秒経つまで次の入力を受け付けないようにする
-            StartCoroutine(MoveTimer(true));
+            // 移動中とする
+            status.actType = ActType.Wait;
 
             MessageWindow.instance.AddMessage("壁だこれは", Color.red);
         }
@@ -397,7 +371,7 @@ public class PlayerControll : Actor
 
         #region ステータス反映
 
-        this.transform.position = FieldMGR.GridToWorld(status.gridPos);
+        this.transform.position = MapData.GridToWorld(status.gridPos);
         float rotY = this.transform.rotation.y;
 
         switch (status.direct)
@@ -435,7 +409,7 @@ public class PlayerControll : Actor
 
     public Point GetPoint()
     {
-        return FieldMGR.WorldToGrid(this.transform.position);
+        return MapData.WorldToGrid(this.transform.position);
     }
 
     /// <summary>
@@ -456,11 +430,6 @@ public class PlayerControll : Actor
         {
 
         }
-        status.actType = ActType.TurnEnd;
-        if (SequenceMGR.instance.IsTurnEnd())
-        {
-            SequenceMGR.instance.ResetAct();
-        }
         if(isWall)
         {
             SequenceMGR.instance.ResetAct();
@@ -474,6 +443,7 @@ public class PlayerControll : Actor
             // ゴールUIを表示する
             UI_MGR.instance.Ui_Goal.ShowMenu();
         }
+        status.actType = ActType.TurnEnd;
     }
 
     private IEnumerator AtkTimer()

@@ -18,20 +18,14 @@ public class Actor : MonoBehaviour
         max
     }
 
+    /// <summary>
+    /// アクタの状態
+    /// </summary>
     public enum ActType
     {
-        Wait, // キー入力待ち。もしくは待機中
-
-        // アクション
-        ActBegin, // 開始
-        Act,      // 実行中
-        ActEnd,   // 終了
-        
-        // 移動
-        MoveBegin, // 開始
+        Wait = 0,
+        Act,      // 実行中    
         Move,      // 移動中
-        MoveEnd,   // 完了
-
         TurnEnd,   // ターン終了
     };
 
@@ -46,7 +40,7 @@ public class Actor : MonoBehaviour
     // 移動にかかる時間
     public const float MoveTime = 0.1f;
 
-    protected virtual void UpdateProc()
+    public virtual void ActStart()
     {// 行動時のアップデート
         
     }
