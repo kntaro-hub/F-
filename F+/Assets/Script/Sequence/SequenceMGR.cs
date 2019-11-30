@@ -60,7 +60,7 @@ public class SequenceMGR : MonoBehaviour
         switch(actType)
         {
             case PlayerActType.move:
-                //seqList.Add(SeqType.requestEnemy);
+                seqList.Add(ActSeqType.requestEnemy);
                 seqList.Add(ActSeqType.move);
                 //seqList.Add(ActSeqType.enemyAct);
                 break;
@@ -98,13 +98,6 @@ public class SequenceMGR : MonoBehaviour
     void Update()
     {
         this.ActProc();
-        if (seqList.Count == 0)
-        {
-            if (this.IsTurnEnd())
-            {
-                this.ResetAct();
-            }
-        }
     }
 
     public void CheckDestroy()
@@ -139,8 +132,17 @@ public class SequenceMGR : MonoBehaviour
 
                 case ActSeqType.move:
                     // 移動
-                    player.Move();
-                    this.MoveEnemy();
+                    if (player.Move())
+                    {
+                        this.MoveEnemy();
+                    }
+                    else
+                    {
+                        // 予約リストを消去
+                        seqList.Clear();
+                        this.ResetAct();
+                        return;
+                    }
                     break;
 
                 case ActSeqType.enemyAct:
@@ -151,6 +153,13 @@ public class SequenceMGR : MonoBehaviour
             }
 
             seqList.RemoveAt(0);
+        }
+        else
+        {// 予約が一件もない場合
+            if (this.IsTurnEnd())
+            {
+                this.ResetAct();
+            }
         }
     }
 

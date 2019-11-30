@@ -15,6 +15,15 @@ public class MapData : MonoBehaviour
         max
     }
 
+    // マップ上のオブジェクト（これはオブジェクトが自分で設定、自分で消去する）
+    public enum ObjectOnTheMap
+    {
+        none = 0,
+        player,
+        enemy,
+        max
+    }
+
     // =--------- 定数定義 ---------= //
     public const float GridSize = 1.0f; // グリッドサイズ
 
@@ -31,8 +40,9 @@ public class MapData : MonoBehaviour
 
     struct MapValue
     {
-        public int value;       // マップチップ
-        public int roomNumber;  // 部屋番号
+        public int value;                   // マップチップ
+        public int roomNumber;              // 部屋番号
+        public ObjectOnTheMap mapObject;    // マップ上のオブジェクトタイプ
     }
     MapValue[,] mapValue = null; // マップデータ
 
@@ -55,6 +65,14 @@ public class MapData : MonoBehaviour
     private void Awake()
     {
         this.Create(50  , 50);
+        
+        for(int i = 0; i < width; ++i)
+        {
+            for (int j = 0; j < height; ++j)
+            {
+                mapValue[i, j].mapObject = ObjectOnTheMap.none;
+            }
+        }
     }
 
     // 幅
@@ -121,7 +139,30 @@ public class MapData : MonoBehaviour
     {
         return mapValue[point.x, point.y].roomNumber;
     }
-
+    public ObjectOnTheMap GetMapObject(int x, int y)
+    {
+        return mapValue[x, y].mapObject;
+    }
+    public ObjectOnTheMap GetMapObject(Point point)
+    {
+        return mapValue[point.x, point.y].mapObject;
+    }
+    public void SetMapObject(Point point, ObjectOnTheMap obj)
+    {
+        mapValue[point.x, point.y].mapObject = obj;
+    }
+    public void SetMapObject(int x, int y, ObjectOnTheMap obj)
+    {
+        mapValue[x, y].mapObject = obj;
+    }
+    public void ResetMapObject(Point point)
+    {
+        mapValue[point.x, point.y].mapObject = ObjectOnTheMap.none;
+    }
+    public void ResetMapObject(int x, int y)
+    {
+        mapValue[x, y].mapObject = ObjectOnTheMap.none;
+    }
 
     public void Fill(int val)
     {

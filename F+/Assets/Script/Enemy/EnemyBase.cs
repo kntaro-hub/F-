@@ -10,10 +10,11 @@ public class EnemyBase : Actor
 {
     public enum EnemyAct
     {
-        move = 0,
-        act,
+        move = 0,   // 移動 // 敵それぞれで移動する条件を書く
+        act,        // 行動 // これもそれぞれ、内容も
         max
     }
+    protected EnemyAct enemyAct;
 
     protected Point targetPoint;    // 目標地点
     public Point TargetPoint
@@ -28,6 +29,8 @@ public class EnemyBase : Actor
         get { return isDestroy; }
     }
 
+    // =--------- // =--------- unity execution ---------= // ---------= //
+
     // Start is called before the first frame update
     void Start()
     {
@@ -40,49 +43,56 @@ public class EnemyBase : Actor
         
     }
 
+    // =--------- // =--------- 外部で呼ばれる ---------= // ---------= //
+
     /// <summary>
     /// 目的地へ移動する
     /// </summary>
     /// <param name="setPoint">目的地</param>
     public void MoveProc()
     {
-        this.Move();
+        if (this.Move())
+        {
+            this.transform.DOMove(MapData.GridToWorld(this.status.gridPos), Actor.MoveTime).SetEase(Ease.Linear);
+            this.status.actType = ActType.Move;
 
-        this.transform.DOMove(MapData.GridToWorld(this.status.gridPos), Actor.MoveTime).SetEase(Ease.Linear);
-        this.status.actType = ActType.Move;
+            // マップに敵を登録
+            MapData.instance.SetMapObject(status.gridPos, MapData.ObjectOnTheMap.enemy);
 
-        // 移動タイマー起動
-        StartCoroutine(MoveTimer());
-    }
-
-    protected virtual void Move()
-    {
-        // 各敵ごとに処理が異なる
+            // 移動タイマー起動
+            StartCoroutine(MoveTimer());
+        }
     }
 
     /// <summary>
     /// 攻撃
     /// </summary>
-    public void AttackProc()
+    public void ActProc()
     {
-        this.Attack();
-    }
-
-    protected virtual void Attack()
-    {
-        // 各敵ごとに処理が異なる
+        this.Act();
     }
 
     public void Destroy()
     {
+        // マップに登録してある自分の情報を消す
+        MapData.instance.ResetMapObject(status.gridPos);
         isDestroy = true;
     }
 
+    // =--------- // =--------- 継承先で変更する ---------= // ---------= //
+    protected virtual bool Move()
+    {
+        return false;
+    }
+    protected virtual void Act()
+    {
+        // 各敵ごとに処理が異なる
+    }
     /// <summary>
     /// 行動決定　
     /// ここで敵は挙動を自分で判断して決定する
     /// </summary>
-    public void DecideCommand()
+    public virtual void DecideCommand()
     {
 
     }
@@ -90,10 +100,12 @@ public class EnemyBase : Actor
     /// <summary>
     /// DecideCommandで決定した挙動を実行する
     /// </summary>
-    public void ExecuteCommand()
+    public virtual void ExecuteCommand()
     {
 
     }
+
+    // =--------- // =--------- コルーチン ---------= // ---------= //
 
     // 移動タイマー
     private IEnumerator MoveTimer()
@@ -102,4 +114,6 @@ public class EnemyBase : Actor
 
         status.actType = ActType.TurnEnd;
     }
+
+    // =--------- // =--------- ---------= // ---------= //
 }

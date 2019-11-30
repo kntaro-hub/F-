@@ -92,7 +92,9 @@ public class UI_Map : MonoBehaviour
         {// マップチップ分ループ
             for (int j = 0; j < (MapData.instance.Height); ++j)
             {
-                if(MapData.instance.GetValue(i,j) == 0)
+                int num = MapData.instance.GetValue(i, j);
+                if (num == (int)MapData.MapChipType.none ||
+                    num == (int)MapData.MapChipType.room)
                 {// 道に色を付ける
                     mapChips[j, i].color = new Color(0.0f, 1.0f, 0.3f, 0.2f);
                 }

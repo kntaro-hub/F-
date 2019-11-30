@@ -12,7 +12,7 @@ public class PlayerControll : Actor
     // =--------- 変数宣言 ---------= //
 
     // 移動キー押下フラグ
-    private bool IsLastMove = false;
+    private bool IsMove = false;
 
     private bool IsInit = false;
 
@@ -57,8 +57,7 @@ public class PlayerControll : Actor
         ui_BasicMenu = FindObjectOfType<UI_BasicMenu>();
 
         status.gridPos = new Point();
-        status.direct = Direct.forward;
-      
+        status.direct = Direct.forward;      
     }
 
     public void Init()
@@ -187,7 +186,17 @@ public class PlayerControll : Actor
         {
             if (!IsRotButton)
             {
-                SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.move);
+                // 移動決定
+                if (!IsMove)
+                {
+                    SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.move);
+                }
+
+                // 移動フラグon
+                IsMove = true;
+
+                // マップ上オブジェクトの消去
+                MapData.instance.ResetMapObject(status.gridPos);
             }
             else
             {
@@ -218,7 +227,7 @@ public class PlayerControll : Actor
     /// 移動用関数
     /// </summary>
     /// <param name="Direct">目的地</param>
-    public void Move()
+    public bool Move()
     {
         Vector3 moveValue = new Vector3();
         Point movedGrid;
@@ -260,7 +269,16 @@ public class PlayerControll : Actor
                rotY,
                this.transform.rotation.z),
                0.1f);
-        status.direct = status.direct;
+
+        // 進先にオブジェクトがあれば進まない
+        if(MapData.instance.GetMapObject(
+            status.gridPos.x + movedGrid.x,
+            status.gridPos.y + movedGrid.y) != MapData.ObjectOnTheMap.none)
+        {
+            // 移動中止
+            IsMove = false;
+            return false;
+        }
 
         if (MapData.instance.GetValue(
             status.gridPos.x + movedGrid.x,
@@ -269,7 +287,7 @@ public class PlayerControll : Actor
         {
             status.actType = ActType.Move;
 
-            if (IsLastMove)
+            if (IsMove)
             {
                 playerAnimator.Play("Walking@loop");
             }
@@ -297,13 +315,12 @@ public class PlayerControll : Actor
                     MessageWindow.instance.AddMessage("手前に進みました", Color.white);
                     break;
             }
-            IsLastMove = true;
+
+            // マップにプレイヤーを登録
+            MapData.instance.SetMapObject(status.gridPos, MapData.ObjectOnTheMap.player);
 
             // MoveTime秒経つまで次の入力を受け付けないようにする
             StartCoroutine(MoveTimer(false));
-
-            // 敵を動かす
-            //SequenceMGR.instance.ActProc();
 
             moveValue *= MapData.GridSize;
             // MoveTime秒かけて目的地へ
@@ -312,13 +329,18 @@ public class PlayerControll : Actor
                     this.transform.position.y + moveValue.y,
                     this.transform.position.z + moveValue.z),
                     MoveTime).SetEase(Ease.Linear);
+            return true;
         }
         else
         {
             // 移動中とする
             status.actType = ActType.Wait;
 
+            // 移動状態解除
+            IsMove = false;
+
             MessageWindow.instance.AddMessage("壁だこれは", Color.red);
+            return false;
         }
     }
 
@@ -421,7 +443,7 @@ public class PlayerControll : Actor
         // MoveTime秒まつ
         yield return new WaitForSeconds(MoveTime);
 
-        if (!IsLastMove)
+        if (!IsMove)
         {
             // 立ちモーション
             playerAnimator.Play("Standing@loop");
@@ -443,6 +465,7 @@ public class PlayerControll : Actor
             // ゴールUIを表示する
             UI_MGR.instance.Ui_Goal.ShowMenu();
         }
+        IsMove = false;
         status.actType = ActType.TurnEnd;
     }
 
