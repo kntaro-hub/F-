@@ -16,7 +16,7 @@ public class MapData : MonoBehaviour
     }
 
     // マップ上のオブジェクト（これはオブジェクトが自分で設定、自分で消去する）
-    public enum ObjectOnTheMap
+    public enum MapObjType
     {
         none = 0,
         player,
@@ -24,8 +24,15 @@ public class MapData : MonoBehaviour
         max
     }
 
+    public struct ObjectOnTheMap
+    {
+        public MapObjType objType;
+        public int id;
+    }
+
     // =--------- 定数定義 ---------= //
     public const float GridSize = 1.0f; // グリッドサイズ
+    public const int None_Id = 9999;
 
     // =--------- 変数宣言 ---------= //
     // グリッド座標→ワールド座標変換時のズレ
@@ -70,7 +77,7 @@ public class MapData : MonoBehaviour
         {
             for (int j = 0; j < height; ++j)
             {
-                mapValue[i, j].mapObject = ObjectOnTheMap.none;
+                mapValue[i, j].mapObject.objType = MapObjType.none;
             }
         }
     }
@@ -147,21 +154,25 @@ public class MapData : MonoBehaviour
     {
         return mapValue[point.x, point.y].mapObject;
     }
-    public void SetMapObject(Point point, ObjectOnTheMap obj)
+    public void SetMapObject(Point point, MapObjType obj, int id)
     {
-        mapValue[point.x, point.y].mapObject = obj;
+        mapValue[point.x, point.y].mapObject.objType = obj;
+        mapValue[point.x, point.y].mapObject.id = id;
     }
-    public void SetMapObject(int x, int y, ObjectOnTheMap obj)
+    public void SetMapObject(int x, int y, MapObjType obj, int id)
     {
-        mapValue[x, y].mapObject = obj;
+        mapValue[x, y].mapObject.objType = obj;
+        mapValue[x, y].mapObject.id = id;
     }
     public void ResetMapObject(Point point)
     {
-        mapValue[point.x, point.y].mapObject = ObjectOnTheMap.none;
+        mapValue[point.x, point.y].mapObject.objType = MapObjType.none;
+        mapValue[point.x, point.y].mapObject.id = None_Id;
     }
     public void ResetMapObject(int x, int y)
     {
-        mapValue[x, y].mapObject = ObjectOnTheMap.none;
+        mapValue[x, y].mapObject.objType = MapObjType.none;
+        mapValue[x, y].mapObject.id = None_Id;
     }
 
     public void Fill(int val)

@@ -51,16 +51,19 @@ public class EnemyBase : Actor
     /// <param name="setPoint">目的地</param>
     public void MoveProc()
     {
-        if (this.Move())
+        if (enemyAct == EnemyAct.move)
         {
-            this.transform.DOMove(MapData.GridToWorld(this.status.gridPos), Actor.MoveTime).SetEase(Ease.Linear);
-            this.status.actType = ActType.Move;
+            if (this.Move())
+            {
+                this.transform.DOMove(MapData.GridToWorld(this.status.gridPos), Actor.MoveTime).SetEase(Ease.Linear);
+                this.status.actType = ActType.Move;
 
-            // マップに敵を登録
-            MapData.instance.SetMapObject(status.gridPos, MapData.ObjectOnTheMap.enemy);
+                // マップに敵を登録
+                MapData.instance.SetMapObject(status.gridPos, MapData.MapObjType.enemy, param.id);
 
-            // 移動タイマー起動
-            StartCoroutine(MoveTimer());
+                // タイマー起動（指定秒数経過するとターンエンド状態になる）
+                StartCoroutine(Timer());
+            }
         }
     }
 
@@ -69,7 +72,10 @@ public class EnemyBase : Actor
     /// </summary>
     public void ActProc()
     {
-        this.Act();
+        if (enemyAct == EnemyAct.act)
+        {
+            this.Act();
+        }
     }
 
     public void Destroy()
@@ -77,6 +83,11 @@ public class EnemyBase : Actor
         // マップに登録してある自分の情報を消す
         MapData.instance.ResetMapObject(status.gridPos);
         isDestroy = true;
+    }
+
+    public void MapDataUpdate()
+    {
+        MapData.instance.SetMapObject(this.status.gridPos, MapData.MapObjType.enemy, param.id);
     }
 
     // =--------- // =--------- 継承先で変更する ---------= // ---------= //
@@ -89,7 +100,7 @@ public class EnemyBase : Actor
         // 各敵ごとに処理が異なる
     }
     /// <summary>
-    /// 行動決定　
+    /// 行動決定
     /// ここで敵は挙動を自分で判断して決定する
     /// </summary>
     public virtual void DecideCommand()
@@ -97,18 +108,16 @@ public class EnemyBase : Actor
 
     }
 
-    /// <summary>
-    /// DecideCommandで決定した挙動を実行する
-    /// </summary>
-    public virtual void ExecuteCommand()
-    {
-
-    }
-
     // =--------- // =--------- コルーチン ---------= // ---------= //
 
-    // 移動タイマー
-    private IEnumerator MoveTimer()
+    /// <summary>
+    /// ターンエンドタイマー
+    /// 指定秒数経過すると自動的にターンエンドとなる
+    /// BaseのMoveでは、秒数が決められているためBaseに直接書いてあるが、
+    /// 行動は敵の種類によってターンエンドのタイミングが違うため
+    /// BaseのActには書いていない（個別のscriptで書く）
+    /// </summary>
+    protected IEnumerator Timer()
     {
         yield return new WaitForSeconds(MoveTime);
 

@@ -45,6 +45,22 @@ public struct Point
         }
         return false;
     }
+    public static bool operator !=(Point point, int point2)
+    {
+        if (point.x != point2 || point.y != point2)
+        {
+            return true;
+        }
+        return false;
+    }
+    public static bool operator ==(Point point, int point2)
+    {
+        if (point.x == point2 && point.y == point2)
+        {
+            return true;
+        }
+        return false;
+    }
     public static Point operator +(Point point, Point point2)
     {
         return new Point(point.x + point2.x, point.y + point2.y);
@@ -609,7 +625,7 @@ public class AStarSys : MonoBehaviour
     /// スタート地点を指定したグリッド座標にする
     /// </summary>
     /// <param name="point">壁か判定するグリッド座標</param>
-    private bool CheckWall_StartPointSet(Point point)
+    public bool CheckWall_StartPointSet(Point point)
     {
         if (MapData.instance.GetValue(point) != (int)MapData.MapChipType.wall)
         {
