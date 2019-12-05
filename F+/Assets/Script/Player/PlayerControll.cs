@@ -130,8 +130,6 @@ public class PlayerControll : Actor
     private void Controll_Move()
     {
         {
-            cntDirect = 0;          // 方向を決めるためのカウンタ
-            cntInput = 0;           // 押されたキー数
             IsRotButton = false;    // 回転キーが押されているか
 
             if (Input.GetKey(KeyCode.F))
@@ -142,88 +140,97 @@ public class PlayerControll : Actor
 
             if (Input.GetKey(KeyCode.RightArrow))
             {// 右
-                status.direct = Direct.right;
-                cntDirect += 1; ++cntInput;
+                if(Input.GetKey(KeyCode.UpArrow))
+                {
+                    status.direct = Direct.right_forward;
+                }
+                else if(Input.GetKey(KeyCode.DownArrow))
+                {
+                    status.direct = Direct.right_back;
+                }
+                else status.direct = Direct.right;
+                this.MoveReserve();
             }
             else if (Input.GetKey(KeyCode.LeftArrow))
             {// 左
-                status.direct = Direct.left;
-                cntDirect += 2; ++cntInput;
+                if (Input.GetKey(KeyCode.UpArrow))
+                {
+                    status.direct = Direct.left_forward;
+                }
+                else if (Input.GetKey(KeyCode.DownArrow))
+                {
+                    status.direct = Direct.left_back;
+                }
+                else status.direct = Direct.left;
+                this.MoveReserve();
             }
-            if (Input.GetKey(KeyCode.UpArrow))
+            else if (Input.GetKey(KeyCode.UpArrow))
             {// 奥
-                status.direct = Direct.forward;
-                cntDirect += 4; ++cntInput;
+                if (Input.GetKey(KeyCode.RightArrow))
+                {
+                    status.direct = Direct.right_forward;
+                }
+                else if (Input.GetKey(KeyCode.LeftArrow))
+                {
+                    status.direct = Direct.left_forward;
+                }
+                else status.direct = Direct.forward;
+                this.MoveReserve();
             }
             else if (Input.GetKey(KeyCode.DownArrow))
             {// 手前
-                status.direct = Direct.back;
-                cntDirect += 6; ++cntInput;
+                if (Input.GetKey(KeyCode.RightArrow))
+                {
+                    status.direct = Direct.right_back;
+                }
+                else if (Input.GetKey(KeyCode.LeftArrow))
+                {
+                    status.direct = Direct.left_back;
+                }
+                else status.direct = Direct.back;
+                this.MoveReserve();
             }
-            //else
-            //{
-            //    // 立ちモーション
-            //    playerAnimator.Play("Standing@loop");
-            //}
+        }
+    }
 
-            if (cntInput == 2)
+    private void MoveReserve()
+    {
+        if (!IsRotButton)
+        {
             {
-                switch (cntDirect)
+                // この時点で移動後座標を更新する
+                movedPoint = status.gridPos;
+                switch (status.direct)
                 {
-                    case (int)Direct.right_forward:
-                        status.direct = Direct.right_forward;
-                        break;
-
-                    case (int)Direct.left_forward:
-                        status.direct = Direct.left_forward;
-                        break;
-
-                    case (int)Direct.right_back:
-                        status.direct = Direct.right_back;
-                        break;
-
-                    case (int)Direct.left_back:
-                        status.direct = Direct.left_back;
-                        break;
+                    case Direct.right:          movedPoint.x++; break;
+                    case Direct.left:           movedPoint.x--; break;
+                    case Direct.forward:        movedPoint.y++; break;
+                    case Direct.back:           movedPoint.y--; break;
+                    case Direct.right_back:     movedPoint.x++; movedPoint.y--; break;
+                    case Direct.left_back:      movedPoint.x--; movedPoint.y--; break;
+                    case Direct.right_forward:  movedPoint.x++; movedPoint.y++; break;
+                    case Direct.left_forward:   movedPoint.x--; movedPoint.y++; break;
                 }
+
+                // プレイヤーが移動した場合
+                SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.move);
+
+                // マップ上オブジェクトの消去
+                MapData.instance.ResetMapObject(status.gridPos);    // 先に消去と登録をしなければならない
+
+                // マップ上オブジェクトの登録
+                MapData.instance.SetMapObject(movedPoint, MapData.MapObjType.player, param.id);
+
+                // 移動状態に遷移
+                status.actType = ActType.Move;
+
+                // 予約を一件実行
+                SequenceMGR.instance.ActProc();
             }
-
-            if (cntDirect > 0)
-            {
-                if (!IsRotButton)
-                {
-                    {
-                        // この時点で移動後座標を更新する
-                        movedPoint = status.gridPos;
-                        switch (status.direct)
-                        {
-                            case Direct.right: movedPoint.x++; break;
-                            case Direct.left: movedPoint.x--; break;
-                            case Direct.forward: movedPoint.y++; break;
-                            case Direct.back: movedPoint.y--; break;
-                        }
-
-                        // プレイヤーが移動した場合
-                        SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.move);
-
-                        // マップ上オブジェクトの消去
-                        MapData.instance.ResetMapObject(status.gridPos);    // 先に消去と登録をしなければならない
-
-                        // マップ上オブジェクトの登録
-                        MapData.instance.SetMapObject(movedPoint, MapData.MapObjType.player, param.id);
-
-                        // 移動状態に遷移
-                        status.actType = ActType.Move;
-
-                        // 予約を一件実行
-                        SequenceMGR.instance.ActProc();
-                    }
-                }
-                else
-                {
-                    this.ChangeRotate();
-                }
-            }
+        }
+        else
+        {
+            this.ChangeRotate();
         }
     }
 
@@ -259,40 +266,7 @@ public class PlayerControll : Actor
     {
         if (status.actType == ActType.Move)
         {
-            float rotY = this.transform.rotation.y;
-
-            if (cntInput == 2)
-            {
-                switch (status.direct)
-                {
-                    case Direct.right_forward:
-                        status.direct = Direct.right;
-                        break;
-
-                    case Direct.left_forward:
-                        status.direct = Direct.left;
-                        break;
-
-                    case Direct.right_back:
-                        status.direct = Direct.right;
-                        break;
-
-                    case Direct.left_back:
-                        status.direct = Direct.left;
-                        break;
-                }
-            }
-
-            switch (status.direct)
-            {
-                case Direct.right: rotY = 90.0f; break;
-                case Direct.left: rotY = 270.0f; break;
-                case Direct.forward: rotY = 0.0f; break;
-                case Direct.back: rotY = 180.0f; break;
-                default: break;
-            }
-
-            this.transform.DORotate(new Vector3(this.transform.rotation.x, rotY, this.transform.rotation.z), MoveTime);
+            this.ChangeRotate();
 
             // ここでマップに登録してある敵を更新
             SequenceMGR.instance.MapDataUpdate_Enemy();
@@ -316,25 +290,7 @@ public class PlayerControll : Actor
                     playerAnimator.Play("Walking@loop");
                 }
 
-                switch (status.direct)
-                {
-                    case Direct.right:
-                        status.gridPos.x++;
-                        MessageWindow.instance.AddMessage("右に進みました", Color.white);
-                        break;
-                    case Direct.left:
-                        status.gridPos.x--;
-                        MessageWindow.instance.AddMessage("左に進みました", Color.white);
-                        break;
-                    case Direct.forward:
-                        status.gridPos.y++;
-                        MessageWindow.instance.AddMessage("奥に進みました", Color.white);
-                        break;
-                    case Direct.back:
-                        status.gridPos.y--;
-                        MessageWindow.instance.AddMessage("手前に進みました", Color.white);
-                        break;
-                }
+                status.gridPos = movedPoint;
 
                 // MoveTime秒経つまで次の入力を受け付けないようにする
                 StartCoroutine(MoveTimer());
@@ -349,8 +305,6 @@ public class PlayerControll : Actor
                 this.MoveFailure();
 
                 SequenceMGR.instance.ActFailed();
-
-                MessageWindow.instance.AddMessage("壁だこれは", Color.red);
                 return false;
             }
         }
