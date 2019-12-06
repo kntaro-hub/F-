@@ -45,31 +45,47 @@ public class Actor : MonoBehaviour
         public int level;   // レベル
         public int hp;      // 体力
         public int maxHp;   // 体力（最大値）
+        public int basicAtk;// 基本攻撃力
         public int atk;     // 攻撃力
-        public int def;     // 防御力
         public int exp;     // 今まで取得した経験値
         public int xp;      // 倒したとき得られる経験値
 
+        public int weaponId;// 装備中武器ID
+        public int shieldId;// 装備中盾ID
+
+        /// <summary>
+        /// トルネコ式攻撃力計算
+        /// </summary>
+        /// <returns>整数の攻撃値</returns>
+        public int CalcAtk()
+        {
+            // Atk計算                                                                                                               // 力の初期値
+            int Atk = (this.basicAtk * Mathf.RoundToInt(this.basicAtk * (DataBase.instance.GetWeaponTable(this.weaponId).Atk + this.atk - 8.0f) / 16.0f));
+            // 計算結果を返す
+            return Atk;
+        }
+
         /// <summary>
         /// トルネコ式ダメージ計算
-        /// Aの攻撃力 * (0.9375 ^ Bの防御力)
         /// 1を下回った場合、最低1ダメージ
         /// </summary>
-        /// <param name="atk">攻撃側の攻撃力</param>
+        /// <param name="atk">攻撃側の計算後攻撃力</param>
         /// <returns>整数のダメージ値</returns>
-        public int CalcDamage(int atk)
+        public int CalcDamage(int Atk)
         {
-            // ダメージ計算
-            int damage = (int)(atk * Mathf.Pow(0.9375f, this.def));
-            if (damage < 1)
+            // 防御力計算
+            Atk = (int)Mathf.Pow(Atk * (15 / 16), DataBase.instance.GetShiledTable(this.weaponId).Def);  // 攻撃力と基本ダメージ
+            Atk = Mathf.FloorToInt(Atk * Random.Range(112, 143) / 128);   // 結果
+
+            if (Atk < 1)
             {// 計算結果が1を下回った場合
 
                 // 最低でも1ダメージ
-                damage = 1;
+                Atk = 1;
             }
 
             // 計算結果を返す
-            return damage;
+            return Atk;
         }
     }
     protected Parameter param;

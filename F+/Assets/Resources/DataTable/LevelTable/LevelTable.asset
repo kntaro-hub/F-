@@ -1,0 +1,126 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 8
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 992ffb78ebe02c44293de377a58b8fa7, type: 3}
+  m_Name: LevelTable
+  m_EditorClassIdentifier: 
+  Table:
+  - Level: 1
+    BasicAtk: 5
+    Xp: 0
+  - Level: 2
+    BasicAtk: 7
+    Xp: 10
+  - Level: 3
+    BasicAtk: 9
+    Xp: 30
+  - Level: 4
+    BasicAtk: 11
+    Xp: 60
+  - Level: 5
+    BasicAtk: 13
+    Xp: 100
+  - Level: 6
+    BasicAtk: 16
+    Xp: 150
+  - Level: 7
+    BasicAtk: 19
+    Xp: 230
+  - Level: 8
+    BasicAtk: 22
+    Xp: 350
+  - Level: 9
+    BasicAtk: 25
+    Xp: 500
+  - Level: 10
+    BasicAtk: 29
+    Xp: 700
+  - Level: 11
+    BasicAtk: 33
+    Xp: 950
+  - Level: 12
+    BasicAtk: 37
+    Xp: 1200
+  - Level: 13
+    BasicAtk: 41
+    Xp: 1500
+  - Level: 14
+    BasicAtk: 46
+    Xp: 1800
+  - Level: 15
+    BasicAtk: 51
+    Xp: 2300
+  - Level: 16
+    BasicAtk: 56
+    Xp: 3000
+  - Level: 17
+    BasicAtk: 61
+    Xp: 4000
+  - Level: 18
+    BasicAtk: 65
+    Xp: 6000
+  - Level: 19
+    BasicAtk: 71
+    Xp: 9000
+  - Level: 20
+    BasicAtk: 74
+    Xp: 15000
+  - Level: 21
+    BasicAtk: 77
+    Xp: 23000
+  - Level: 22
+    BasicAtk: 80
+    Xp: 33000
+  - Level: 23
+    BasicAtk: 83
+    Xp: 45000
+  - Level: 24
+    BasicAtk: 86
+    Xp: 60000
+  - Level: 25
+    BasicAtk: 89
+    Xp: 80000
+  - Level: 26
+    BasicAtk: 90
+    Xp: 100000
+  - Level: 27
+    BasicAtk: 91
+    Xp: 130000
+  - Level: 28
+    BasicAtk: 92
+    Xp: 180000
+  - Level: 29
+    BasicAtk: 93
+    Xp: 240000
+  - Level: 30
+    BasicAtk: 94
+    Xp: 300000
+  - Level: 31
+    BasicAtk: 95
+    Xp: 400000
+  - Level: 32
+    BasicAtk: 96
+    Xp: 500000
+  - Level: 33
+    BasicAtk: 97
+    Xp: 600000
+  - Level: 34
+    BasicAtk: 98
+    Xp: 700000
+  - Level: 35
+    BasicAtk: 99
+    Xp: 800000
+  - Level: 36
+    BasicAtk: 100
+    Xp: 900000
+  - Level: 37
+    BasicAtk: 100
+    Xp: 999999

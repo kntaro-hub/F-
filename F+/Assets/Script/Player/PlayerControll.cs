@@ -80,7 +80,6 @@ public class PlayerControll : Actor
         param.atk = 1;
         param.hp = 3;
         param.id = 0;
-        param.def = 1;
     }
 
     // Update is called once per frame
@@ -487,7 +486,7 @@ public class PlayerControll : Actor
             // ダメージ量を計算してhpから減算
             // 一時変数に値をコピー（こうしないとParamは参照型のためコンパイルエラーとなる）
             Parameter enemyParam = enemy.Param; 
-            enemyParam.hp -= enemy.Param.CalcDamage(this.param.atk);
+            enemyParam.hp -= enemy.Param.CalcDamage(this.param.CalcAtk());
             enemy.Param = enemyParam;
 
             // hpが0以下なら死亡

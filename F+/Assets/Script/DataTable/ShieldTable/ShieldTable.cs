@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [ExcelAsset]
-public class EnemyTable : ScriptableObject
+public class ShieldTable : ScriptableObject
 {
-    public List<EnemyTableEntity> Table;
+	public List<ShieldTableEntity> Table;
 }

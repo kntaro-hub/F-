@@ -26,7 +26,6 @@ public class Enemy_Normal : EnemyBase
 
         param.hp = 4;
         param.atk = 2;
-        param.def = 1;
         param.id = 1;
     }
 
@@ -109,7 +108,7 @@ public class Enemy_Normal : EnemyBase
 
         // プレイヤー被ダメモーション
         // 攻撃が成功した場合
-        SequenceMGR.instance.Player.Damage(this.param.atk);
+        SequenceMGR.instance.Player.Damage(this.param.CalcAtk());
 
         // タイマー起動（指定秒数経過するとターンエンド状態になる）
         StartCoroutine(Timer());
