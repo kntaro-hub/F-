@@ -17,6 +17,9 @@ public class DataBase : MonoBehaviour
     [SerializeField]
     private LevelTable table_Level;
 
+    [SerializeField]
+    private ItemTable table_Item;
+
     // =--------- ゲッター ---------= //
 
     public EnemyTableEntity GetEnemyTable(int id)
@@ -34,6 +37,31 @@ public class DataBase : MonoBehaviour
     public LevelTableEntity GetLevelTable(int id)
     {
         return table_Level.Table[id];
+    }
+    public ItemTableEntity GetItemTable(int id)
+    {
+        return table_Item.Table[id];
+    }
+
+    public int GetEnemyTableCount()
+    {
+        return table_Enemy.Table.Count;
+    }
+    public int GetWeaponTableCount()
+    {
+        return table_weapon.Table.Count;
+    }
+    public int GetShiledTableCount()
+    {
+        return table_shield.Table.Count;
+    }
+    public int GetLevelTableCount()
+    {
+        return table_Level.Table.Count;
+    }
+    public int GetItemTableCount()
+    {
+        return table_Item.Table.Count;
     }
     #region singleton
 

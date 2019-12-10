@@ -53,14 +53,20 @@ public class Actor : MonoBehaviour
         public int weaponId;// 装備中武器ID
         public int shieldId;// 装備中盾ID
 
+        public int hunger;      // 満腹度
+        public int maxHunger;   // 満腹度（最大値）
+
         /// <summary>
         /// トルネコ式攻撃力計算
         /// </summary>
         /// <returns>整数の攻撃値</returns>
         public int CalcAtk()
         {
-            // Atk計算                                                                                                               // 力の初期値
-            int Atk = (this.basicAtk * Mathf.RoundToInt(this.basicAtk * (DataBase.instance.GetWeaponTable(this.weaponId).Atk + this.atk - 8.0f) / 16.0f));
+            // Atk計算                                                                                      // 力の初期値
+
+            float WeaponAtk = (this.basicAtk * (DataBase.instance.GetWeaponTable(this.weaponId).Atk + this.atk - 8.0f) / 16.0f);
+
+            int Atk = (int)(this.basicAtk * Mathf.Round(WeaponAtk));
             // 計算結果を返す
             return Atk;
         }
@@ -74,8 +80,8 @@ public class Actor : MonoBehaviour
         public int CalcDamage(int Atk)
         {
             // 防御力計算
-            Atk = (int)Mathf.Pow(Atk * (15 / 16), DataBase.instance.GetShiledTable(this.weaponId).Def);  // 攻撃力と基本ダメージ
-            Atk = Mathf.FloorToInt(Atk * Random.Range(112, 143) / 128);   // 結果
+            Atk = (int)(Atk * Mathf.Pow((15.0f / 16.0f), DataBase.instance.GetShiledTable(this.weaponId).Def));  // 攻撃力と基本ダメージ
+            Atk = (int)Mathf.Floor(Atk * Random.Range(112, 143) / 128);   // 結果
 
             if (Atk < 1)
             {// 計算結果が1を下回った場合

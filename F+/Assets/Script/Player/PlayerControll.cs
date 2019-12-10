@@ -20,6 +20,8 @@ public class PlayerControll : Actor
     int cntInput = 0;           // 押されたキー数
     bool IsRotButton = false;   // 回転キーが押されているか
 
+    Player_Items playerItems;
+
     // アニメータ
     private Animator playerAnimator;
     public Animator PlayerAnimator
@@ -77,7 +79,10 @@ public class PlayerControll : Actor
 
     public void Init()
     {
+        playerItems = this.GetComponent<Player_Items>();
+
         param.atk = 1;
+        param.basicAtk = 1;
         param.hp = 3;
         param.id = 0;
     }
@@ -451,11 +456,27 @@ public class PlayerControll : Actor
         UI_MGR.instance.Ui_Map.UpdateMapPlayer();
 
         // 足元がゴールかチェック
-        if(MapData.instance.CheckGoal(status.gridPos))
+        if(MapData.instance.GetValue(this.status.gridPos) == (int)MapData.MapChipType.goal)
         {
             // ゴールUIを表示する
             UI_MGR.instance.Ui_Goal.ShowMenu();
         }
+
+        // マップ情報上のアイテムを更新
+        ItemMGR.instance.UpdateMapObject();
+        MapData.ObjectOnTheMap mapObject = MapData.instance.GetMapObject(this.status.gridPos);
+        if (mapObject.objType == MapData.MapObjType.item)
+        {// アイテムの上に乗った
+            // インベントリに収納
+            playerItems.AddItem(mapObject.id);
+
+            MapData.instance.ResetMapObject(this.status.gridPos);
+
+            // 取得したアイテムをマップから消す
+            ItemMGR.instance.DestroyItem(this.status.gridPos);
+        }
+
+        // 
         status.actType = ActType.TurnEnd;
     }
 
@@ -476,6 +497,9 @@ public class PlayerControll : Actor
         // MoveTime秒まつ
         yield return new WaitForSeconds(MoveTime * 0.5f);
 
+        // マップ上の敵更新
+        SequenceMGR.instance.MapDataUpdate_Enemy();
+
         // 攻撃
         MapData.ObjectOnTheMap mapObj = MapData.instance.GetMapObject(status.gridPos + this.GetDirect());
         if (mapObj.objType == MapData.MapObjType.enemy)
@@ -485,8 +509,10 @@ public class PlayerControll : Actor
 
             // ダメージ量を計算してhpから減算
             // 一時変数に値をコピー（こうしないとParamは参照型のためコンパイルエラーとなる）
-            Parameter enemyParam = enemy.Param; 
-            enemyParam.hp -= enemy.Param.CalcDamage(this.param.CalcAtk());
+            Parameter enemyParam = enemy.Param;
+            int damage = enemy.Param.CalcDamage(this.param.CalcAtk());
+            MessageWindow.instance.AddMessage(damage.ToString() + "のダメージ", Color.red);
+            enemyParam.hp -= damage;
             enemy.Param = enemyParam;
 
             // hpが0以下なら死亡

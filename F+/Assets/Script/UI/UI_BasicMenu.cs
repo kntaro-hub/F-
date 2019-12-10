@@ -8,7 +8,7 @@ using DG.Tweening;
 /// <summary>
 /// 基本メニューUI表示クラス
 /// </summary>
-public class UI_BasicMenu : MonoBehaviour
+public class UI_BasicMenu : UI_Base
 {
     // =--------- 列挙体定義 ---------= //
     enum TextType   // 表示するテキストの種類
@@ -84,8 +84,8 @@ public class UI_BasicMenu : MonoBehaviour
         {
             // 透明に
             itr.color = Color.clear;
-            itr.rectTransform.localPosition = new Vector3(initializePositionX, initializePositionY - itr.rectTransform.sizeDelta.y * cnt);
-            itr.rectTransform.localScale = new Vector3(1.0f,0.3f);
+            itr.rectTransform.localPosition = new Vector3(initializePositionX, initializePositionY - itr.rectTransform.sizeDelta.y * 0.7f * cnt);
+            itr.rectTransform.localScale = new Vector3(0.2f, 0.2f);
             ++cnt;
         }
 
@@ -98,6 +98,11 @@ public class UI_BasicMenu : MonoBehaviour
 
     // Update is called once per frame
     void Update()
+    {
+        
+    }
+
+    public override void UpdateProc_UI()
     {
         if (isShow)
         {// メニュー表示中のみ
@@ -118,14 +123,11 @@ public class UI_BasicMenu : MonoBehaviour
             {// エンターキーで決定
                 this.SwitchCommand();
             }
-        }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {// escキーでメニュー表示/非表示
-            if (!isShow)
-                this.ShowMenu();
-            else
-                this.HideMenu();
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {// escキーでメニュー表示/非表示
+                UI_MGR.instance.ReturnUI();
+            }
         }
     }
 
@@ -134,7 +136,7 @@ public class UI_BasicMenu : MonoBehaviour
     /// <summary>
     /// メニューを開く
     /// </summary>
-    private void ShowMenu()
+    public override void ShowMenu()
     {
         foreach (var itr in textList)
         {
@@ -144,19 +146,19 @@ public class UI_BasicMenu : MonoBehaviour
         panel.color = initPanelColor;
         isShow = true;
 
-        this.transform.DOMoveX(0.0f + 400.0f, 0.2f);
+        this.transform.DOMoveX(0.0f + panel.rectTransform.sizeDelta.x * 0.5f, UI_MGR.ShowMenuTime);
 
         // 0番にカーソル位置を合わせる
         buttonNum = 0;
         this.CursorSet(buttonNum);
 
-        SequenceMGR.instance.seqType = SequenceMGR.SeqType.menu;
+        UI_MGR.instance.Ui_Infomation.ShowMenu();
     }
 
     /// <summary>
     /// メニューを閉じる
     /// </summary>
-    private void HideMenu()
+    public override void HideMenu()
     {
         //foreach (var itr in textList)
         //{
@@ -166,9 +168,9 @@ public class UI_BasicMenu : MonoBehaviour
         //panel.color = Color.clear;
         isShow = false;
 
-        this.transform.DOMoveX(0.0f, 0.2f);
+        this.transform.DOMoveX(0.0f - panel.rectTransform.sizeDelta.x * 0.5f, UI_MGR.ShowMenuTime);
 
-        SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
+        UI_MGR.instance.Ui_Infomation.HideMenu();
     }
 
     // =--------- // =--------- コマンド ---------= // ---------= //
@@ -177,7 +179,7 @@ public class UI_BasicMenu : MonoBehaviour
     /// </summary>
     private void Com_Item()
     {
-
+        UI_MGR.instance.ShowUI(UI_MGR.UIType.inventory);
     }
     /// <summary>
     /// [マップ]コマンド
@@ -205,7 +207,7 @@ public class UI_BasicMenu : MonoBehaviour
     /// </summary>
     private void Com_Close()
     {
-        this.HideMenu();
+        UI_MGR.instance.ReturnUI();
     }
 
     // =--------- // =--------- ---------= // ---------= //
@@ -218,7 +220,7 @@ public class UI_BasicMenu : MonoBehaviour
     {
         cursor.rectTransform.localPosition =
             new Vector3(
-                textList[i].rectTransform.localPosition.x - textList[i].rectTransform.sizeDelta.x * 0.5f,
+                textList[i].rectTransform.localPosition.x - 200.0f,
                 textList[i].rectTransform.localPosition.y);
     }
 

@@ -21,6 +21,8 @@ public class MapData : MonoBehaviour
         none = 0,
         player,
         enemy,
+        item,
+        goal,
         max
     }
 
@@ -54,12 +56,6 @@ public class MapData : MonoBehaviour
     MapValue[,] mapValue = null; // マップデータ
 
     private List<EnemyBase> enemies = new List<EnemyBase>();
-
-    private Goal goal = null;
-    public Goal GetGoal
-    {
-        get { return goal; }
-    }
 
     // =--------- プレハブ ---------= //
     // 壁
@@ -327,10 +323,7 @@ public class MapData : MonoBehaviour
     public void CreateGoal(int x, int y)
     {
         mapValue[x, y].value = (int)MapData.MapChipType.goal;
-        goal = Instantiate(goalPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
-        goal.transform.parent = this.transform;
-        mapObjects.Add(goal.gameObject);
-        goal.GoalPoint = new Point(x, y);
+        Instantiate(goalPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
     }
 
     /// <summary>
@@ -345,20 +338,6 @@ public class MapData : MonoBehaviour
         enemy.GetComponent<AStarSys>().SetStartPoint(new Point(x, y));
         enemy.status.gridPos = new Point(x, y);
         SequenceMGR.instance.Enemies.Add(enemy);
-    }
-
-    /// <summary>
-    /// 渡したグリッド座標とゴールの座標を比較
-    /// </summary>
-    /// <param name="point"></param>
-    /// <returns></returns>
-    public bool CheckGoal(Point point)
-    {
-        if (goal.GoalPoint == point)
-        {
-            return true;
-        }
-        return false;
     }
 
     public int GetGrid(Point point)

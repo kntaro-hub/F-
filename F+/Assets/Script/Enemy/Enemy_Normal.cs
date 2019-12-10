@@ -59,7 +59,8 @@ public class Enemy_Normal : EnemyBase
         }
 
         // 探索した座標に別のオブジェクトがあった場合は移動しない
-        if (MapData.instance.GetMapObject(movedPoint).objType != MapData.MapObjType.none)
+        MapData.MapObjType objType = MapData.instance.GetMapObject(movedPoint).objType;
+        if (objType != MapData.MapObjType.none && objType != MapData.MapObjType.item)
         {// オブジェクトがある場合
             return false;
         }

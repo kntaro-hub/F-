@@ -622,7 +622,7 @@ public class AStarSys : MonoBehaviour
 
     /// <summary>
     /// 指定したグリッド座標が壁かを判断して、壁でないなら
-    /// スタート地点を指定したグリッド座標にする
+    /// Astarのスタート地点を指定したグリッド座標にする
     /// </summary>
     /// <param name="point">壁か判定するグリッド座標</param>
     public bool CheckWall_StartPointSet(Point point)

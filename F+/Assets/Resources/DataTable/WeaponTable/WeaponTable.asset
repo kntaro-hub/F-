@@ -14,11 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Table:
   - TypeID: 0
+    Name: "\u7D20\u624B"
+    Atk: 1000
+    Buy: 0
+    Sell: 0
+  - TypeID: 1
     Name: "\u3072\u306E\u304D\u306E\u307C\u3046"
     Atk: 2
     Buy: 2
     Sell: 1
-  - TypeID: 1
+  - TypeID: 2
     Name: "\u304D\u3093\u305E\u304F\u30D0\u30C3\u30C8"
     Atk: 5
     Buy: 10

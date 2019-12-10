@@ -11,7 +11,8 @@ namespace UnityChan
 
 //	[RequireComponent(typeof(Animator))]  
 
-	public class IKLookAt : MonoBehaviour {
+	public class IKLookAt : MonoBehaviour
+    {
 
         private Animator avator;
         private MeshRenderer target = null;
@@ -19,26 +20,22 @@ namespace UnityChan
 		public bool ikActive = false;
 		public Transform lookAtObj = null;
 		
-		public float lookAtWeight = 1.0f;
-		public float bodyWeight = 0.3f;
-		public float headWeight = 0.8f;
-		public float eyesWeight = 1.0f;
-		public float clampWeight = 0.5f;
-        public bool isGUI = true;
-
-
-
-
+		public float    lookAtWeight    = 1.0f;
+		public float    bodyWeight      = 0.3f;
+		public float    headWeight      = 0.8f;
+		public float    eyesWeight      = 1.0f;
+		public float    clampWeight     = 0.5f;
+        public bool     isGUI           = true;
 
 		// Use this for initialization
-		void Start () {
+		void Start ()
+        {
             avator = GetComponent<Animator>();
             if (lookAtObj != null)
             {
                 target = lookAtObj.GetComponentInParent<MeshRenderer>();
                 target.enabled = false;
             }
-            
 		}
 
 		void OnGUI()

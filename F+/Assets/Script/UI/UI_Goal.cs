@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 /// <summary>
 /// 階段メニュー表示
 /// </summary>
-public class UI_Goal : MonoBehaviour
+public class UI_Goal : UI_Base
 {
     // =--------- 列挙体定義 ---------= //
     enum TextType   // 表示するテキストの種類
@@ -77,6 +77,18 @@ public class UI_Goal : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // 座標矯正
+        int cnt = 0;
+        foreach (var itr in textList)
+        {
+            itr.rectTransform.localPosition = new Vector3(initializePositionX, 
+                initializePositionY - itr.rectTransform.sizeDelta.y * cnt + offsetText * cnt);
+            ++cnt;
+        }
+    }
+
+    public override void UpdateProc_UI()
+    {
         if (isShow)
         {// メニュー表示中のみ
             if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -96,25 +108,11 @@ public class UI_Goal : MonoBehaviour
             {// エンターキーで決定
                 this.SwitchCommand();
             }
-        }
 
-        if (Input.GetKeyDown(KeyCode.V))
-        {// エンターキーで決定
-            this.ShowMenu();
-        }
-        if (Input.GetKeyDown(KeyCode.B))
-        {// エンターキーで決定
-            this.HideMenu();
-        }
-
-
-        // 座標矯正
-        int cnt = 0;
-        foreach (var itr in textList)
-        {
-            itr.rectTransform.localPosition = new Vector3(initializePositionX, 
-                initializePositionY - itr.rectTransform.sizeDelta.y * cnt + offsetText * cnt);
-            ++cnt;
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {// escキーでメニュー表示/非表示
+                UI_MGR.instance.ReturnUI();
+            }
         }
     }
 
@@ -144,7 +142,7 @@ public class UI_Goal : MonoBehaviour
     /// <summary>
     /// メニューを開く
     /// </summary>
-    public void ShowMenu()
+    public override void ShowMenu()
     {
         foreach (var itr in textList)
         {
@@ -157,14 +155,12 @@ public class UI_Goal : MonoBehaviour
         // 0番にカーソル位置を合わせる
         buttonNum = 0;
         this.CursorSet(buttonNum);
-
-        SequenceMGR.instance.seqType = SequenceMGR.SeqType.menu;
     }
 
     /// <summary>
     /// メニューを閉じる
     /// </summary>
-    public void HideMenu()
+    public override void HideMenu()
     {
         foreach (var itr in textList)
         {
@@ -173,8 +169,6 @@ public class UI_Goal : MonoBehaviour
         cursor.color = Color.clear;
         panel.color = Color.clear;
         isShow = false;
-
-        SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
     }
 
     // =--------- // =--------- コマンド ---------= // ---------= //

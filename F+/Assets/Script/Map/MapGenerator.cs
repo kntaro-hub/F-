@@ -108,23 +108,7 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// プレイヤーをランダムな部屋のどこかに生成する
-    /// </summary>
-    private void PlayerSet()
-    {
-        // 生成した部屋のリストからランダムな部屋を指定
-        Division.Div_Room room = divList[Random.Range(0, divList.Count - 1)].Room;
-
-        // 指定した部屋のランダムな位置を算出
-        int X = Random.Range(room.Left + 1, room.Right);
-        int Y = Random.Range(room.Bottom - 1, room.Top); 
-
-        // プレイヤーのグリッド座標を更新
-        SequenceMGR.instance.Player.status.gridPos = new Point(X, Y);
-        SequenceMGR.instance.Player.transform.position = MapData.GridToWorld(new Point(X, Y));
-    }
-    private void GoalSet()
+    public Point RandomPointInRoom()
     {
         // 生成した部屋のリストからランダムな部屋を指定
         Division.Div_Room room = divList[Random.Range(0, divList.Count - 1)].Room;
@@ -133,9 +117,27 @@ public class MapGenerator : MonoBehaviour
         int X = Random.Range(room.Left + 1, room.Right);
         int Y = Random.Range(room.Bottom - 1, room.Top);
 
+        return new Point(X, Y);
+    }
+
+    /// <summary>
+    /// プレイヤーをランダムな部屋のどこかに生成する
+    /// </summary>
+    private void PlayerSet()
+    {
+        Point point = this.RandomPointInRoom();
+
+        // プレイヤーのグリッド座標を更新
+        SequenceMGR.instance.Player.status.gridPos = point;
+        SequenceMGR.instance.Player.transform.position = MapData.GridToWorld(point);
+    }
+    private void GoalSet()
+    {
+        Point point = this.RandomPointInRoom();
+
         // ゴールのマスを設定
-        MapData.instance.SetValue(X, Y, (int)MapData.MapChipType.goal);
-        MapData.instance.CreateGoal(X, Y);
+        MapData.instance.SetValue(point.x, point.y, (int)MapData.MapChipType.goal);
+        MapData.instance.CreateGoal(point.x, point.y);
     }
 
     /// <summary>
