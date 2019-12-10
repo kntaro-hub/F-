@@ -12,6 +12,7 @@ public class ItemTableEntity
     public int      Buy;            // 買値
     public int      Sell;           // 売値
     public string   Detail;         // 説明文
+    public string   UseMessage;     // 使った時の文
     public string   UsedMessage;    // 使った後の文
 }
 

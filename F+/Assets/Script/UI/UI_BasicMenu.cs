@@ -220,7 +220,7 @@ public class UI_BasicMenu : UI_Base
     {
         cursor.rectTransform.localPosition =
             new Vector3(
-                textList[i].rectTransform.localPosition.x - 200.0f,
+                textList[i].rectTransform.localPosition.x - 150.0f,
                 textList[i].rectTransform.localPosition.y);
     }
 

@@ -114,6 +114,26 @@ public class UI_MGR : MonoBehaviour
         }
     }
 
+    public void ReturnAllUI()
+    {
+        while (true)
+        {
+            if (uiList.Count != 0)
+            {
+                ui_Array[(int)uiList[0]].HideMenu();
+                uiList.RemoveAt(0);
+            }
+            else break;
+        }
+
+        SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
+    }
+
+    public void UpdatePosUI(UIType type, Vector2 pos)
+    {
+        ui_Array[(int)type].GetComponent<RectTransform>().position = new Vector3(pos.x, pos.y);
+    }
+
     // Start is called before the first frame update
     void Start()
     {

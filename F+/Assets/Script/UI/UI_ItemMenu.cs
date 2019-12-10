@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -39,8 +40,10 @@ public class UI_ItemMenu : UI_Base
     private bool isShow = false;    // メニューを表示しているか
 
     private int selectedItem = 0;
+    private int inventoryID = 0;
 
     private List<TextMeshProUGUI> textList = new List<TextMeshProUGUI>();   // 生成したテキストリスト
+    private Player_Items items; // プレイヤーが所持しているアイテム
 
     // =--------- プロパティ ---------= //
     public bool IsShowMenu
@@ -64,6 +67,7 @@ public class UI_ItemMenu : UI_Base
         textList.Add(put);
 
         panel = this.GetComponent<Image>();
+        items = SequenceMGR.instance.Player.GetComponent<Player_Items>();
         panel.color = Color.clear;
 
         // 初期化
@@ -113,6 +117,13 @@ public class UI_ItemMenu : UI_Base
                 UI_MGR.instance.ReturnUI();
             }
         }
+        int cnt = 0;
+        foreach (var itr in textList)
+        {
+            itr.rectTransform.localPosition = new Vector3(initializePositionX,
+                initializePositionY - itr.rectTransform.sizeDelta.y * cnt + offsetText);
+            ++cnt;
+        }
     }
 
     /// <summary>
@@ -127,7 +138,6 @@ public class UI_ItemMenu : UI_Base
             itr.color = Color.clear;
             itr.rectTransform.localPosition = new Vector3(initializePositionX,
                 initializePositionY - itr.rectTransform.sizeDelta.y * cnt + offsetText);
-            itr.rectTransform.localScale = new Vector3(1.0f, 0.3f);
             ++cnt;
         }
         // カーソルも透明に
@@ -138,10 +148,10 @@ public class UI_ItemMenu : UI_Base
 
     // =--------- // =--------- メニュー表示/非表示 ---------= // ---------= //
 
-
-    public void SetItemID(int selectItemID)
+    public void SetItemID(int selectItemID, int invID)
     {
         selectedItem = selectItemID;    // 選んだアイテムのIDを登録
+        inventoryID = invID;
     }
 
     /// <summary>
@@ -182,7 +192,19 @@ public class UI_ItemMenu : UI_Base
     /// </summary>
     private void Com_Use()
     {// 選択しているアイテムを使う
-        this.HideMenu();
+        UI_MGR.instance.ReturnAllUI();
+
+        if (DataBase.instance.GetItemTable(selectedItem).Type == ItemType.Consumables)
+        {
+            // 一定時間操作不能に
+            SequenceMGR.instance.seqType = SequenceMGR.SeqType.menu;
+            StartCoroutine(this.ItemUseTimer());
+
+            // インベントリから使ったアイテムを削除
+            items.Erase(inventoryID);
+        }
+
+        MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItem).UseMessage, Color.white);
     }
     /// <summary>
     /// [情報]コマンド
@@ -209,7 +231,7 @@ public class UI_ItemMenu : UI_Base
     {
         cursor.rectTransform.localPosition =
             new Vector3(
-                textList[i].rectTransform.localPosition.x - textList[i].rectTransform.sizeDelta.x * 0.55f,
+                textList[i].rectTransform.localPosition.x - 50.0f,
                 textList[i].rectTransform.localPosition.y);
     }
 
@@ -242,4 +264,11 @@ public class UI_ItemMenu : UI_Base
         }
     }
 
+    // =--------- // =--------- コルーチン ---------= // ---------= //
+    private IEnumerator ItemUseTimer()
+    {
+        yield return new WaitForSeconds(1.0f);
+        SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
+        MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItem).UsedMessage, Color.white);
+    }
 }

@@ -34,7 +34,7 @@ public class UI_Information : UI_Base
     [SerializeField]
     private float TextInitPosY = 0.0f;   // テキスト基準座標Y
 
-    private const float ShowedPanelPosX = 716.0f;
+    private const float ShowedPanelPosX = 765.0f;
 
     // =--------- 変数宣言 ---------= //
     private Image panel = null;     // パネル
@@ -103,12 +103,12 @@ public class UI_Information : UI_Base
     /// </summary>
     public override void ShowMenu()
     {
-        textList[(int)TextType.weapon].text  = "武器の強さ　" + DataBase.instance.GetWeaponTable(player.Param.weaponId).Atk.ToString();
-        textList[(int)TextType.shield].text  = "盾の強さ　　" + DataBase.instance.GetShiledTable(player.Param.shieldId).Def.ToString();
-        textList[(int)TextType.deepest].text = "最深層　　　" + 1;
-        textList[(int)TextType.hunger].text  = "満腹度　　　" + player.Param.hunger.ToString();
-        textList[(int)TextType.xp].text      = "経験値　　　" + player.Param.exp.ToString();
-        textList[(int)TextType.atk].text     = "基本攻撃力　" + player.Param.atk.ToString();
+        textList[(int)TextType.weapon].text  = "武器の強さ: " + DataBase.instance.GetWeaponTable(player.Param.weaponId).Atk.ToString();
+        textList[(int)TextType.shield].text  = "盾の強さ　: " + DataBase.instance.GetShiledTable(player.Param.shieldId).Def.ToString();
+        textList[(int)TextType.deepest].text = "最深層　　: " + 1;
+        textList[(int)TextType.hunger].text  = "満腹度　　: " + player.Param.hunger.ToString();
+        textList[(int)TextType.xp].text      = "経験値　　: " + player.Param.exp.ToString();
+        textList[(int)TextType.atk].text     = "基本攻撃力: " + player.Param.atk.ToString();
 
         foreach (var itr in textList)
         {

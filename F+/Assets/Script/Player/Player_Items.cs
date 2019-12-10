@@ -40,23 +40,27 @@ public class Player_Items : MonoBehaviour
         return stocks[i].itemID;
     }
 
+    public int GetStockID(int i)
+    {
+        return stocks[i].stockID;
+    }
+
     public void AddItem(int itemId)
     {
         stocks.Add(new StockItem(itemId, this.GetID()));
     }
-    public void Erase(int ItemID)
+    public void Erase(int StockID)
     {
         for (int i = stocks.Count - 1; i >= 0; i--)
         {// 逆順ループ
-            // ID検索してヒットした敵を消す リストからも
-            if (stocks[i].stockID == ItemID)
+            if (stocks[i].stockID == StockID)
             {
                 stocks.RemoveAt(i);
             }
         }
     }
 
-    public int GetID()
+    private int GetID()
     {
         int cnt = 0;
         while (true)

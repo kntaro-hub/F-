@@ -11,6 +11,8 @@ public class UI_Inventory : UI_Base
     private TextMeshProUGUI textPrefab;     // テキストプレハブ
     [SerializeField]
     private Image cursorPrefab;   // カーソルプレハブ
+    [SerializeField]
+    private UI_ItemInfo ItemText;
 
     // =--------- パラメータ ---------= //
 
@@ -64,36 +66,44 @@ public class UI_Inventory : UI_Base
     // Update is called once per frame
     void Update()
     {
-        // 座標矯正
-        int cnt = 0;
-        foreach (var itr in textList)
-        {
-            itr.rectTransform.localPosition = new Vector3(initializePositionX,
-                initializePositionY - itr.rectTransform.sizeDelta.y * cnt + offsetText * cnt);
-            ++cnt;
-        }
+        this.PositionSet();
     }
 
     public override void UpdateProc_UI()
     {
         if (isShow)
         {// メニュー表示中のみ
-            if (Input.GetKeyDown(KeyCode.UpArrow))
-            {// ↑キーでカーソルを上に
-                buttonNum--;
-                this.CheckFlow();
-                this.CursorSet(buttonNum);
-            }
-            if (Input.GetKeyDown(KeyCode.DownArrow))
-            {// ↓キーでカーソルを下に
-                buttonNum++;
-                this.CheckFlow();
-                this.CursorSet(buttonNum);
-            }
+            if (items.StockCount() > 0)
+            {
+                if (Input.GetKeyDown(KeyCode.UpArrow))
+                {// ↑キーでカーソルを上に
+                    buttonNum--;
+                    this.CheckFlow();
+                    this.CursorSet(buttonNum);
+                }
+                else if (Input.GetKeyDown(KeyCode.DownArrow))
+                {// ↓キーでカーソルを下に
+                    buttonNum++;
+                    this.CheckFlow();
+                    this.CursorSet(buttonNum);
+                }
+                else if (Input.GetKeyDown(KeyCode.RightArrow))
+                {// ←キーでカーソルを左に
+                    buttonNum -= (ShowItemNum / 2);
+                    this.CheckFlow();
+                    this.CursorSet(buttonNum);
+                }
+                else if (Input.GetKeyDown(KeyCode.LeftArrow))
+                {// ↓キーでカーソルを下に
+                    buttonNum += (ShowItemNum / 2);
+                    this.CheckFlow();
+                    this.CursorSet(buttonNum);
+                }
 
-            if (Input.GetKeyDown(KeyCode.Return))
-            {// エンターキーで決定
-                this.SwitchCommand();
+                if (Input.GetKeyDown(KeyCode.Return))
+                {// エンターキーで決定
+                    this.SwitchCommand();
+                }
             }
 
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -108,20 +118,55 @@ public class UI_Inventory : UI_Base
     /// </summary>
     private void Init()
     {
+        // 座標矯正
         int cnt = 0;
         foreach (var itr in textList)
         {
-            // 透明に
-            itr.color = Color.clear;
-            itr.rectTransform.localPosition = new Vector3(initializePositionX,
-                initializePositionY - itr.rectTransform.sizeDelta.y * cnt + offsetText);
-            itr.rectTransform.localScale = new Vector3(1.0f, 0.3f);
+            if (cnt < (ShowItemNum / 2))
+            {// 4つまでは左
+                // 透明に
+                itr.color = Color.clear;
+                itr.rectTransform.localPosition = new Vector3(initializePositionX,
+                    initializePositionY + cnt * offsetText);
+            }
+            else
+            {// 4つ以降右
+                // 透明に
+                itr.color = Color.clear;
+                itr.rectTransform.localPosition = new Vector3(initializePositionX + this.panel.rectTransform.sizeDelta.x * 0.5f,
+                    initializePositionY + (cnt - (ShowItemNum / 2)) * offsetText);
+            }
+
             ++cnt;
         }
+
         // カーソルも透明に
         cursor.color = Color.clear;
         // パネルも
         panel.color = Color.clear;
+        // アイテム説明欄も
+        ItemText.Hide();
+    }
+
+    private void PositionSet()
+    {
+        // 座標矯正
+        int cnt = 0;
+        foreach (var itr in textList)
+        {
+            if (cnt < (ShowItemNum / 2))
+            {// 4つまでは左
+                itr.rectTransform.localPosition = new Vector3(initializePositionX,
+                    initializePositionY + cnt * offsetText);
+            }
+            else
+            {// 4つ以降右
+                itr.rectTransform.localPosition = new Vector3(initializePositionX + this.panel.rectTransform.sizeDelta.x * 0.5f,
+                    initializePositionY + (cnt - (ShowItemNum / 2)) * offsetText);
+            }
+
+            ++cnt;
+        }
     }
 
     // =--------- // =--------- メニュー表示/非表示 ---------= // ---------= //
@@ -131,31 +176,43 @@ public class UI_Inventory : UI_Base
     /// </summary>
     public override void ShowMenu()
     {
-        for (int i = 0; i < items.StockCount(); i++)
-        {// アイテム数だけテキストを表示
-            if (textList.Count > i)
-            {// テキストを更新するだけ
-                textList[i].text = DataBase.instance.GetItemTable(items.GetItemID(i)).Name;
+        if (items.StockCount() > 0)
+        {
+            for (int i = 0; i < items.StockCount(); i++)
+            {// アイテム数だけテキストを表示
+                if (textList.Count > i)
+                {// テキストがすでに生成されていたらテキストを更新するだけ
+                    textList[i].text = DataBase.instance.GetItemTable(items.GetItemID(i)).Name;
+                }
+                else
+                {
+                    TextMeshProUGUI itemText = Instantiate(textPrefab, this.transform);
+                    itemText.text = DataBase.instance.GetItemTable(items.GetItemID(i)).Name;
+                    textList.Add(itemText);
+                }
             }
-            else
+            foreach (var itr in textList)
             {
-                TextMeshProUGUI itemText = Instantiate(textPrefab, this.transform);
-                itemText.text = DataBase.instance.GetItemTable(items.GetItemID(i)).Name;
-                textList.Add(itemText);
+                itr.color = Color.white;
             }
+            cursor.color = Color.white;
+
+            // アイテム説明欄を表示
+            ItemText.Show();
+
+            this.PositionSet();
+
+            // 0番にカーソル位置を合わせる
+            buttonNum = 0;
+            this.CursorSet(buttonNum);
+        }
+        else
+        {
+            cursor.color = Color.clear;
         }
 
-        foreach (var itr in textList)
-        {
-            itr.color = Color.white;
-        }
-        cursor.color = Color.white;
         panel.color = new Color(0.0f, 0.0f, 0.0f, 0.3f);
         isShow = true;
-
-        // 0番にカーソル位置を合わせる
-        buttonNum = 0;
-        this.CursorSet(buttonNum);
     }
 
     /// <summary>
@@ -169,6 +226,9 @@ public class UI_Inventory : UI_Base
         }
         cursor.color = Color.clear;
         panel.color = Color.clear;
+
+        // アイテム説明欄も
+        ItemText.Hide();
         isShow = false;
     }
 
@@ -196,13 +256,13 @@ public class UI_Inventory : UI_Base
     /// <param name="i"></param>
     private void CursorSet(int i)
     {
-        if (textList.Count > 0)
-        {
-            cursor.rectTransform.localPosition =
-                new Vector3(
-                    textList[i].rectTransform.localPosition.x - textList[i].rectTransform.sizeDelta.x * 0.55f,
-                    textList[i].rectTransform.localPosition.y);
-        }
+        cursor.rectTransform.localPosition =
+            new Vector3(
+                textList[i].rectTransform.localPosition.x - textList[i].rectTransform.sizeDelta.x * 0.55f,
+                textList[i].rectTransform.localPosition.y);
+
+        // アイテムの説明欄を更新
+        ItemText.SetText(DataBase.instance.GetItemTable(items.GetItemID(i)).Detail);
     }
 
     /// <summary>
@@ -210,6 +270,31 @@ public class UI_Inventory : UI_Base
     /// </summary>
     private void CheckFlow()
     {
+        //int offset = Mathf.Abs(buttonNum - textList.Count);
+
+        //if (offset == 1)
+        //{
+        //    if (buttonNum >= (int)textList.Count)
+        //    {
+        //        buttonNum = 0;
+        //    }
+        //    else if (buttonNum < 0)
+        //    {
+        //        buttonNum = (int)textList.Count - 1;
+        //    }
+        //}
+        //else
+        //{
+        //    if (buttonNum >= (int)textList.Count)
+        //    {
+        //        buttonNum -= (ShowItemNum / 2) + offset;
+        //    }
+        //    else if (buttonNum < 0)
+        //    {
+        //        buttonNum += (ShowItemNum / 2) - offset;
+        //    }
+        //}
+
         if (buttonNum >= (int)textList.Count)
         {
             buttonNum = 0;
@@ -225,7 +310,8 @@ public class UI_Inventory : UI_Base
     /// </summary>
     private void SwitchCommand()
     {
-        itemMenu.SetItemID(buttonNum + pageNum * ShowItemNum);
+        itemMenu.SetItemID(buttonNum + pageNum * ShowItemNum, items.GetStockID(buttonNum + pageNum * ShowItemNum));
         UI_MGR.instance.ShowUI(UI_MGR.UIType.itemMenu);
+        UI_MGR.instance.UpdatePosUI(UI_MGR.UIType.itemMenu, this.textList[buttonNum + pageNum * ShowItemNum].rectTransform.position);
     }
 }
