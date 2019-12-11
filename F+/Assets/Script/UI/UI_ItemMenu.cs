@@ -192,19 +192,15 @@ public class UI_ItemMenu : UI_Base
     /// </summary>
     private void Com_Use()
     {// 選択しているアイテムを使う
-        UI_MGR.instance.ReturnAllUI();
+        this.SwitchItemType(DataBase.instance.GetItemTable(selectedItem).Type);
 
-        if (DataBase.instance.GetItemTable(selectedItem).Type == ItemType.Consumables)
+        if (DataBase.instance.GetItemTable(selectedItem).UseMessage != "")
         {
-            // 一定時間操作不能に
-            SequenceMGR.instance.seqType = SequenceMGR.SeqType.menu;
-            StartCoroutine(this.ItemUseTimer());
-
-            // インベントリから使ったアイテムを削除
-            items.Erase(inventoryID);
+            MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItem).UseMessage, Color.white);
         }
 
-        MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItem).UseMessage, Color.white);
+        // ウィンドウを閉じる
+        UI_MGR.instance.ReturnUI();
     }
     /// <summary>
     /// [情報]コマンド
@@ -222,6 +218,58 @@ public class UI_ItemMenu : UI_Base
     }
 
     // =--------- // =--------- ---------= // ---------= //
+
+    private void SwitchItemType(ItemType type)
+    {
+        switch(type)
+        {
+            case ItemType.Consumables:
+                // 一定時間操作不能に
+                SequenceMGR.instance.seqType = SequenceMGR.SeqType.menu;
+                StartCoroutine(this.ItemUseTimer());
+
+                // アイテムの効果を使う
+                SequenceMGR.instance.Player.Param = ItemMGR.instance.UseItem(selectedItem, SequenceMGR.instance.Player.Param);
+
+                // インベントリから使ったアイテムを削除
+                items.Erase(items.GetStockID(inventoryID));
+                UI_MGR.instance.Ui_Inventory.EraseText(inventoryID);
+                break;
+
+            case ItemType.Weapon:
+                // 武器を装備
+                if (inventoryID != UI_MGR.instance.Ui_Inventory.GetEquipInventoryID( UI_Inventory.EquipType.weapon))
+                {
+                    SequenceMGR.instance.Player.Param = ItemMGR.instance.EquipWeapon(selectedItem, SequenceMGR.instance.Player.Param);
+                    MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItem).Name + "を装備した。", Color.white);
+                    UI_MGR.instance.Ui_Inventory.SetEquipIcon(inventoryID, UI_Inventory.EquipType.weapon);
+                }
+                else
+                {// 武器を外す
+                    MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItem).Name + "を外した。", Color.white);
+                    UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(UI_Inventory.EquipType.weapon);
+                    SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, UI_Inventory.EquipType.weapon);
+
+                }
+                break;
+
+            case ItemType.Shield:
+                // 盾を装備
+                if (inventoryID != UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(UI_Inventory.EquipType.shield))
+                {
+                    SequenceMGR.instance.Player.Param = ItemMGR.instance.EquipShield(selectedItem, SequenceMGR.instance.Player.Param);
+                    MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItem).Name + "を装備した。", Color.white);
+                    UI_MGR.instance.Ui_Inventory.SetEquipIcon(inventoryID, UI_Inventory.EquipType.shield);
+                }
+                else
+                {// 盾を外す
+                    MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItem).Name + "を外した。", Color.white);
+                    UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(UI_Inventory.EquipType.shield);
+                    SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, UI_Inventory.EquipType.shield);
+                }
+                break;
+        }
+    }
 
     /// <summary>
     /// テキストの横にカーソルの座標を合わせる

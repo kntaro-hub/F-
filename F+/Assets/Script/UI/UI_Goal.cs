@@ -184,7 +184,7 @@ public class UI_Goal : UI_Base
     /// </summary>
     private void Com_Cancel()
     {// マップUIを消す
-        this.HideMenu();
+        UI_MGR.instance.ReturnUI();
     }
 
     // =--------- // =--------- ---------= // ---------= //

@@ -50,8 +50,8 @@ public class Actor : MonoBehaviour
         public int exp;     // 今まで取得した経験値
         public int xp;      // 倒したとき得られる経験値
 
-        public int weaponId;// 装備中武器ID
-        public int shieldId;// 装備中盾ID
+        public int weaponId;// 装備中武器アイテムID
+        public int shieldId;// 装備中盾アイテムID
 
         public int hunger;      // 満腹度
         public int maxHunger;   // 満腹度（最大値）
@@ -63,9 +63,15 @@ public class Actor : MonoBehaviour
         public int CalcAtk()
         {
             // Atk計算                                                                                      // 力の初期値
-
-            float WeaponAtk = (this.basicAtk * (DataBase.instance.GetWeaponTable(this.weaponId).Atk + this.atk - 8.0f) / 16.0f);
-
+            float WeaponAtk;
+            if (this.weaponId != DataBase.instance.GetItemTableCount() - 1)
+            {
+                WeaponAtk = (this.basicAtk * (DataBase.instance.GetItemTable(this.weaponId).Atk + this.atk - 8.0f) / 16.0f);
+            }
+            else // なにも装備していない場合
+            {
+                WeaponAtk = (this.basicAtk + (this.atk - 8.0f) / 16.0f);
+            }
             int Atk = (int)(this.basicAtk * Mathf.Round(WeaponAtk));
             // 計算結果を返す
             return Atk;
@@ -79,9 +85,17 @@ public class Actor : MonoBehaviour
         /// <returns>整数のダメージ値</returns>
         public int CalcDamage(int Atk)
         {
-            // 防御力計算
-            Atk = (int)(Atk * Mathf.Pow((15.0f / 16.0f), DataBase.instance.GetShiledTable(this.weaponId).Def));  // 攻撃力と基本ダメージ
-            Atk = (int)Mathf.Floor(Atk * Random.Range(112, 143) / 128);   // 結果
+            if (this.shieldId != DataBase.instance.GetItemTableCount() - 1)
+            {
+                // 防御力計算
+                Atk = (int)(Atk * Mathf.Pow((15.0f / 16.0f), DataBase.instance.GetItemTable(this.weaponId).Def));  // 攻撃力と基本ダメージ
+                Atk = (int)Mathf.Floor(Atk * Random.Range(112, 143) / 128);   // 結果
+            }
+            else
+            {// なにも装備していない場合
+                // 防御力計算
+                Atk = (int)Mathf.Floor(Atk * Random.Range(112, 143) / 128);   // 結果
+            }
 
             if (Atk < 1)
             {// 計算結果が1を下回った場合
@@ -93,6 +107,9 @@ public class Actor : MonoBehaviour
             // 計算結果を返す
             return Atk;
         }
+
+        // 非装備時武器盾ID
+        public static int notEquipValue = DataBase.instance.GetItemTableCount() - 1;
     }
     protected Parameter param;
     public Parameter Param
@@ -106,7 +123,7 @@ public class Actor : MonoBehaviour
     }
 
     // 移動にかかる時間
-    public const float MoveTime = 0.1f;
+    public static float MoveTime = 0.1f;
 
     // Start is called before the first frame update
     void Start()
@@ -118,5 +135,17 @@ public class Actor : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public static void ChangeSpeed()
+    {
+        if (Input.GetKey(KeyCode.D))
+        {
+            MoveTime = 0.01f;
+        }
+        if (Input.GetKeyUp(KeyCode.D))
+        {
+            MoveTime = 0.1f;
+        }
     }
 }

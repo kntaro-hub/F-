@@ -47,12 +47,12 @@ public class UI_Information : UI_Base
     void Start()
     {
         player = SequenceMGR.instance.Player;
-        TextMeshProUGUI weapon  = Instantiate(textPrefab, this.transform);  weapon.text  = "武器の強さ" + DataBase.instance.GetWeaponTable(player.Param.weaponId).Atk.ToString();
-        TextMeshProUGUI shield  = Instantiate(textPrefab, this.transform);  shield.text  = "盾の強さ" + DataBase.instance.GetShiledTable(player.Param.shieldId).Def.ToString();
+        TextMeshProUGUI weapon  = Instantiate(textPrefab, this.transform);  weapon.text  = "武器の強さ" + DataBase.instance.GetItemTable(player.Param.weaponId).Atk.ToString();
+        TextMeshProUGUI shield  = Instantiate(textPrefab, this.transform);  shield.text  = "盾の強さ" + DataBase.instance.GetItemTable(player.Param.shieldId).Def.ToString();
         TextMeshProUGUI deepest = Instantiate(textPrefab, this.transform);  deepest.text = "最深層" + 1;
         TextMeshProUGUI hunger  = Instantiate(textPrefab, this.transform);  hunger.text  = "満腹度" + player.Param.hunger.ToString();
         TextMeshProUGUI xp      = Instantiate(textPrefab, this.transform);  xp.text      = "経験値" + player.Param.exp.ToString();
-        TextMeshProUGUI atk     = Instantiate(textPrefab, this.transform);  atk.text     = "基本攻撃力" + player.Param.atk.ToString();
+        TextMeshProUGUI atk     = Instantiate(textPrefab, this.transform);  atk.text     = "基本攻撃力" + player.Param.basicAtk.ToString();
 
         textList.Add(weapon);
         textList.Add(shield);
@@ -70,12 +70,17 @@ public class UI_Information : UI_Base
     // Update is called once per frame
     void Update()
     {
-
+        textList[(int)TextType.weapon].text = "武器の強さ: " + DataBase.instance.GetItemTable(player.Param.weaponId).Atk.ToString();
+        textList[(int)TextType.shield].text = "盾の強さ　: " + DataBase.instance.GetItemTable(player.Param.shieldId).Def.ToString();
+        textList[(int)TextType.deepest].text = "最深層　　: " + 1;
+        textList[(int)TextType.hunger].text = "満腹度　　: " + player.Param.hunger.ToString();
+        textList[(int)TextType.xp].text = "経験値　　: " + player.Param.exp.ToString();
+        textList[(int)TextType.atk].text = "基本攻撃力: " + player.Param.basicAtk.ToString();
     }
 
     public override void UpdateProc_UI()
     {
-
+        
     }
 
     /// <summary>
@@ -103,13 +108,12 @@ public class UI_Information : UI_Base
     /// </summary>
     public override void ShowMenu()
     {
-        textList[(int)TextType.weapon].text  = "武器の強さ: " + DataBase.instance.GetWeaponTable(player.Param.weaponId).Atk.ToString();
-        textList[(int)TextType.shield].text  = "盾の強さ　: " + DataBase.instance.GetShiledTable(player.Param.shieldId).Def.ToString();
+        textList[(int)TextType.weapon].text = "武器の強さ: " + DataBase.instance.GetItemTable(player.Param.weaponId).Atk.ToString();
+        textList[(int)TextType.shield].text = "盾の強さ　: " + DataBase.instance.GetItemTable(player.Param.shieldId).Def.ToString();
         textList[(int)TextType.deepest].text = "最深層　　: " + 1;
-        textList[(int)TextType.hunger].text  = "満腹度　　: " + player.Param.hunger.ToString();
-        textList[(int)TextType.xp].text      = "経験値　　: " + player.Param.exp.ToString();
-        textList[(int)TextType.atk].text     = "基本攻撃力: " + player.Param.atk.ToString();
-
+        textList[(int)TextType.hunger].text = "満腹度　　: " + player.Param.hunger.ToString();
+        textList[(int)TextType.xp].text = "経験値　　: " + player.Param.exp.ToString();
+        textList[(int)TextType.atk].text = "基本攻撃力: " + player.Param.basicAtk.ToString();
         foreach (var itr in textList)
         {
             itr.color = Color.white;

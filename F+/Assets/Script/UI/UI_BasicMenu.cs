@@ -180,6 +180,7 @@ public class UI_BasicMenu : UI_Base
     private void Com_Item()
     {
         UI_MGR.instance.ShowUI(UI_MGR.UIType.inventory);
+
     }
     /// <summary>
     /// [マップ]コマンド

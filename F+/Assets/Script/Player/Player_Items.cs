@@ -56,6 +56,7 @@ public class Player_Items : MonoBehaviour
             if (stocks[i].stockID == StockID)
             {
                 stocks.RemoveAt(i);
+                break;
             }
         }
     }

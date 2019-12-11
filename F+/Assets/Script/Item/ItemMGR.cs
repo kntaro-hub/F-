@@ -32,7 +32,10 @@ public class ItemMGR : MonoBehaviour
             ItemObject item = Instantiate(itemPrefab);
             item.point = MapGenerator.instance.RandomPointInRoom();
             item.transform.position = MapData.GridToWorld(item.point);
-            item.ItemID = Random.Range(0, DataBase.instance.GetItemTableCount());
+
+            // ここでアイテムIDを設定する
+            item.ItemID = Random.Range(0, DataBase.instance.GetItemTableCount()- 1);
+
             items.Add(item);
             item.transform.parent = this.transform;
             MapData.instance.SetMapObject(item.point, MapData.MapObjType.item, item.ItemID);
@@ -70,6 +73,84 @@ public class ItemMGR : MonoBehaviour
                 return;
             }
         }
+    }
+
+
+    /// <summary>
+    /// アイテムの効果を発揮させる
+    /// </summary>
+    /// <param name="itemID">アイテムID</param>
+    /// <param name="actor">効果を反映させたいキャラクター</param>
+    public Actor.Parameter UseItem(int itemID, Actor.Parameter actorParam)
+    {
+        ItemTableEntity item = DataBase.instance.GetItemTable(itemID);
+        Actor.Parameter param = actorParam;
+        param.hp += item.HP;
+        param.basicAtk += item.Atk;
+        param.hunger += item.Hunger;
+
+        if(param.hp > param.maxHp)
+        {
+            param.hp = param.maxHp;
+        }
+        if(param.hunger > param.maxHunger)
+        {
+            param.hunger = param.maxHunger;
+        }
+
+        actorParam = param;
+        return actorParam;
+    }
+
+    /// <summary>
+    /// 武器を装備させる
+    /// </summary>
+    /// <param name="itemID">アイテムID</param>
+    /// <param name="actor">武器を装備させたいキャラクター</param>
+    public Actor.Parameter EquipWeapon(int itemID, Actor.Parameter actorParam)
+    {
+        ItemTableEntity item = DataBase.instance.GetItemTable(itemID);
+        Actor.Parameter param = actorParam;
+        param.weaponId = itemID;
+
+        actorParam = param;
+        return actorParam;
+    }
+
+    /// <summary>
+    /// 盾を装備させる
+    /// </summary>
+    /// <param name="itemID">アイテムID</param>
+    /// <param name="actor">盾を装備させたいキャラクター</param>
+    public Actor.Parameter EquipShield(int itemID, Actor.Parameter actorParam)
+    {
+        ItemTableEntity item = DataBase.instance.GetItemTable(itemID);
+        Actor.Parameter param = actorParam;
+        param.shieldId = itemID;
+
+        actorParam = param;
+        return actorParam;
+    }
+
+    /// <summary>
+    /// 装備を解除する
+    /// </summary>
+    /// <param name="itemID">アイテムID</param>
+    /// <param name="actor">盾を装備させたいキャラクター</param>
+    public Actor.Parameter RemoveEquip(Actor.Parameter actorParam, UI_Inventory.EquipType type)
+    {
+        Actor.Parameter param = actorParam;
+        if(type == UI_Inventory.EquipType.weapon)
+        {
+            param.weaponId = Actor.Parameter.notEquipValue;
+        }
+        else
+        {
+            param.shieldId = Actor.Parameter.notEquipValue;
+        }
+        
+        actorParam = param;
+        return actorParam;
     }
 
     #region singleton

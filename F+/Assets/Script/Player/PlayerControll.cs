@@ -82,9 +82,14 @@ public class PlayerControll : Actor
         playerItems = this.GetComponent<Player_Items>();
 
         param.atk = 1;
-        param.basicAtk = 1;
+        param.basicAtk = 100;
         param.hp = 3;
+        param.maxHp = 100;
+        param.maxHunger = 100;
         param.id = 0;
+        // 非装備
+        param.weaponId = DataBase.instance.GetItemTableCount()-1; 
+        param.shieldId = DataBase.instance.GetItemTableCount()-1;
     }
 
     // Update is called once per frame
@@ -459,7 +464,7 @@ public class PlayerControll : Actor
         if(MapData.instance.GetValue(this.status.gridPos) == (int)MapData.MapChipType.goal)
         {
             // ゴールUIを表示する
-            UI_MGR.instance.Ui_Goal.ShowMenu();
+            UI_MGR.instance.ShowUI( UI_MGR.UIType.goal);
         }
 
         // マップ情報上のアイテムを更新

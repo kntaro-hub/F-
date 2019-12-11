@@ -7,6 +7,7 @@ public class ItemTableEntity
     public int      HP;             // HP回復値
     public int      Hunger;         // 満腹度回復値
     public int      Atk;            // 攻撃力
+    public int      Def;            // 防御力
     public string   Ex;             // 追加効果  
     public int      ExValue;        // 追加効果値
     public int      Buy;            // 買値
@@ -20,5 +21,7 @@ public class ItemTableEntity
 public enum ItemType
 {
     Consumables = 0, // 消耗品
+    Weapon,
+    Shield,
     max
 }

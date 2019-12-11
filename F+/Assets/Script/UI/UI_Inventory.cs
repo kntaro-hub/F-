@@ -5,6 +5,13 @@ using UnityEngine.UI;
 
 public class UI_Inventory : UI_Base
 {
+    public enum EquipType
+    {
+        weapon = 0,
+        shield,
+        max
+    }
+
     // =--------- プレハブ ---------= //
 
     [SerializeField]
@@ -26,12 +33,16 @@ public class UI_Inventory : UI_Base
     private int ShowItemNum = 8;
     [SerializeField]
     private UI_ItemMenu itemMenu;
+    [SerializeField]
+    private Image equipIconPrefab;
 
     // =--------- 変数宣言 ---------= //
 
     private int buttonNum = 0;        // 選択しているボタン番号
     private Image panel = null;     // パネル
     private Image cursor = null;     // 選択カーソル
+    private Image[] equipIcon; // 装備中アイコン
+    private int[] equipInvectoryID; // 装備中アイテムのインベントリID 
     private UI_Map ui_Map = null;     // マップ表示用
     private bool isShow = false;    // メニューを表示しているか
 
@@ -53,11 +64,21 @@ public class UI_Inventory : UI_Base
     // Start is called before the first frame update
     void Start()
     {
+        equipIcon = new Image[(int)EquipType.max];
+        equipInvectoryID = new int[(int)EquipType.max];
+
         cursor = Instantiate(cursorPrefab, this.transform);
 
         items = FindObjectOfType<Player_Items>();
         panel = this.GetComponent<Image>();
         panel.color = Color.clear;
+
+        equipIcon[(int)EquipType.weapon] = Instantiate(equipIconPrefab, this.transform);
+        equipIcon[(int)EquipType.shield] = Instantiate(equipIconPrefab, this.transform);
+        equipIcon[(int)EquipType.weapon].color = Color.clear;
+        equipIcon[(int)EquipType.shield].color = Color.clear;
+        equipInvectoryID[(int)EquipType.weapon] = Actor.Parameter.notEquipValue;
+        equipInvectoryID[(int)EquipType.shield] = Actor.Parameter.notEquipValue;
 
         // 初期化
         this.Init();
@@ -148,6 +169,12 @@ public class UI_Inventory : UI_Base
         ItemText.Hide();
     }
 
+    public void EraseText(int inventoryID)
+    {
+        Destroy(textList[inventoryID]);
+        textList.RemoveAt(inventoryID);
+    }
+
     private void PositionSet()
     {
         // 座標矯正
@@ -168,7 +195,25 @@ public class UI_Inventory : UI_Base
             ++cnt;
         }
     }
+    public void SetEquipIcon(int InventoryID, EquipType type)
+    {
+        equipIcon[(int)type].transform.parent = textList[InventoryID].transform;
+        equipIcon[(int)type].transform.localPosition = new Vector3();
+        equipIcon[(int)type].rectTransform.localPosition = new Vector3(-textList[InventoryID].rectTransform.sizeDelta.x * 0.5f - 10.0f, 10.0f);
+        equipIcon[(int)type].color = Color.white;
 
+        equipInvectoryID[(int)type] = InventoryID;
+    }
+    public void RemoveEquipIcon(EquipType type)
+    {
+        equipIcon[(int)type].color = Color.clear;
+        equipInvectoryID[(int)type] = Actor.Parameter.notEquipValue;
+    }
+
+    public int GetEquipInventoryID(EquipType type)
+    {
+        return equipInvectoryID[(int)type];
+    }
     // =--------- // =--------- メニュー表示/非表示 ---------= // ---------= //
 
     /// <summary>
@@ -197,6 +242,14 @@ public class UI_Inventory : UI_Base
             }
             cursor.color = Color.white;
 
+            for (int i = 0; i < (int)EquipType.max; ++i)
+            {
+                if(equipInvectoryID[i] != Actor.Parameter.notEquipValue)
+                {
+                    equipIcon[i].color = Color.white;
+                }
+            }
+
             // アイテム説明欄を表示
             ItemText.Show();
 
@@ -216,6 +269,33 @@ public class UI_Inventory : UI_Base
     }
 
     /// <summary>
+    /// メニューを開く
+    /// </summary>
+    public void UpdateText()
+    {
+        if (items.StockCount() > 0)
+        {
+            for (int i = 0; i < items.StockCount(); i++)
+            {// アイテム数だけテキストを表示
+                if (textList.Count > i)
+                {// テキストがすでに生成されていたらテキストを更新するだけ
+                    textList[i].text = DataBase.instance.GetItemTable(items.GetItemID(i)).Name;
+                }
+                else
+                {
+                    TextMeshProUGUI itemText = Instantiate(textPrefab, this.transform);
+                    itemText.text = DataBase.instance.GetItemTable(items.GetItemID(i)).Name;
+                    textList.Add(itemText);
+                }
+            }
+        }
+        else
+        {
+            cursor.color = Color.clear;
+        }
+    }
+
+    /// <summary>
     /// メニューを閉じる
     /// </summary>
     public override void HideMenu()
@@ -226,6 +306,11 @@ public class UI_Inventory : UI_Base
         }
         cursor.color = Color.clear;
         panel.color = Color.clear;
+
+        foreach (var itr in equipIcon)
+        {
+            itr.color = Color.clear;
+        }
 
         // アイテム説明欄も
         ItemText.Hide();
@@ -270,31 +355,6 @@ public class UI_Inventory : UI_Base
     /// </summary>
     private void CheckFlow()
     {
-        //int offset = Mathf.Abs(buttonNum - textList.Count);
-
-        //if (offset == 1)
-        //{
-        //    if (buttonNum >= (int)textList.Count)
-        //    {
-        //        buttonNum = 0;
-        //    }
-        //    else if (buttonNum < 0)
-        //    {
-        //        buttonNum = (int)textList.Count - 1;
-        //    }
-        //}
-        //else
-        //{
-        //    if (buttonNum >= (int)textList.Count)
-        //    {
-        //        buttonNum -= (ShowItemNum / 2) + offset;
-        //    }
-        //    else if (buttonNum < 0)
-        //    {
-        //        buttonNum += (ShowItemNum / 2) - offset;
-        //    }
-        //}
-
         if (buttonNum >= (int)textList.Count)
         {
             buttonNum = 0;
@@ -310,7 +370,8 @@ public class UI_Inventory : UI_Base
     /// </summary>
     private void SwitchCommand()
     {
-        itemMenu.SetItemID(buttonNum + pageNum * ShowItemNum, items.GetStockID(buttonNum + pageNum * ShowItemNum));
+        // インベントリ番号からアイテムIDとプレイヤーのアイテムストックIDを取得
+        itemMenu.SetItemID(items.GetItemID(buttonNum + pageNum * ShowItemNum), (buttonNum + pageNum * ShowItemNum));
         UI_MGR.instance.ShowUI(UI_MGR.UIType.itemMenu);
         UI_MGR.instance.UpdatePosUI(UI_MGR.UIType.itemMenu, this.textList[buttonNum + pageNum * ShowItemNum].rectTransform.position);
     }

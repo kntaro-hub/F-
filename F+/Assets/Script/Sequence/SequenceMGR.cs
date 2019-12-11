@@ -16,6 +16,10 @@ public class SequenceMGR : MonoBehaviour
         get { return player; }
         set { player = value; }
     }
+    public ref PlayerControll refPlayer
+    {
+        get { return ref player; }
+    }
 
     private List<EnemyBase> enemies = new List<EnemyBase>();
     public List<EnemyBase> Enemies
@@ -109,6 +113,8 @@ public class SequenceMGR : MonoBehaviour
                 this.ResetAct();
             }
         }
+
+        Actor.ChangeSpeed();
     }
 
     public void CheckDestroy()
