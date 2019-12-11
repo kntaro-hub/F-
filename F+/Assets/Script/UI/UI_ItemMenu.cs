@@ -167,6 +167,26 @@ public class UI_ItemMenu : UI_Base
         panel.color = new Color(0.0f, 0.0f, 0.0f, 0.3f);
         isShow = true;
 
+        ItemType type = DataBase.instance.GetItemTable(selectedItem).Type;
+        switch (type)
+        {
+            case ItemType.Consumables:
+                textList[(int)TextType.use].text = "使う"; break;
+            case ItemType.Weapon:
+            case ItemType.Shield:
+
+                if(UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(type) != inventoryID)
+                {
+                    textList[(int)TextType.use].text = "装備";
+                }
+                else
+                {
+                    textList[(int)TextType.use].text = "外す";
+                }
+
+                break;
+        }
+
         // 0番にカーソル位置を合わせる
         buttonNum = 0;
         this.CursorSet(buttonNum);

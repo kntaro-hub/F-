@@ -214,6 +214,19 @@ public class UI_Inventory : UI_Base
     {
         return equipInvectoryID[(int)type];
     }
+    public int GetEquipInventoryID(ItemType type)
+    {
+        if(type == ItemType.Weapon)
+        {
+            return equipInvectoryID[(int)EquipType.weapon];
+        }
+        else if (type == ItemType.Shield)
+        {
+            return equipInvectoryID[(int)EquipType.shield];
+        }
+        return 0;
+        
+    }
     // =--------- // =--------- メニュー表示/非表示 ---------= // ---------= //
 
     /// <summary>
