@@ -9,6 +9,6 @@ public class EnemyTableEntity
     public string   Name;
     public int      MaxHP; 
     public int      Atk;
-    public int      Def;
     public int      Xp;
+    public int      DropPer;
 }

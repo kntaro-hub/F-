@@ -235,6 +235,39 @@ public class UI_ItemMenu : UI_Base
     private void Com_Put()
     {// 選択しているアイテムをその場の足元に置く
 
+        switch (DataBase.instance.GetItemTable(selectedItem).Type)
+        {
+            case ItemType.Consumables:
+                break;
+
+            case ItemType.Weapon:
+                // 武器を装備
+                if (inventoryID != UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(UI_Inventory.EquipType.weapon))
+                {// 武器を外す
+                    UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(UI_Inventory.EquipType.weapon);
+                    SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, UI_Inventory.EquipType.weapon);
+                }
+                break;
+
+            case ItemType.Shield:
+                // 盾を装備
+                if (inventoryID != UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(UI_Inventory.EquipType.shield))
+                {// 盾を外す
+                    UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(UI_Inventory.EquipType.shield);
+                    SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, UI_Inventory.EquipType.shield);
+                }
+                break;
+        }
+        
+        // アイテム設置
+        ItemMGR.instance.CreateItem(SequenceMGR.instance.Player.status.gridPos, selectedItem);
+
+        // インベントリから使ったアイテムを削除
+        items.Erase(items.GetStockID(inventoryID));
+        UI_MGR.instance.Ui_Inventory.EraseText(inventoryID);
+
+        // ウィンドウを閉じる
+        UI_MGR.instance.ReturnUI();
     }
 
     // =--------- // =--------- ---------= // ---------= //

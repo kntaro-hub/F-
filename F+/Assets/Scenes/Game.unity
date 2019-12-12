@@ -559,6 +559,8 @@ MonoBehaviour:
   initializePositionY: 175
   ShowItemNum: 8
   itemMenu: {fileID: 1440287011}
+  equipIconPrefab: {fileID: 710162550227615953, guid: cd08f066e5040604989690d731baec35,
+    type: 3}
 --- !u!114 &669098629
 MonoBehaviour:
   m_ObjectHideFlags: 0

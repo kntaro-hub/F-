@@ -16,17 +16,19 @@ public class EnemyBase : Actor
     }
     protected EnemyAct enemyAct;
 
+    public enum EnemyType
+    {
+        normal = 0,
+        max
+    }
+    public EnemyType enemyType;
+
+
     protected Point targetPoint;    // 目標地点
     public Point TargetPoint
     {
         get { return targetPoint; }
         set { targetPoint = value; }
-    }
-
-    public bool isDestroy = false;
-    public bool IsDestroy
-    {
-        get { return isDestroy; }
     }
 
     // =--------- // =--------- unity execution ---------= // ---------= //
@@ -82,7 +84,16 @@ public class EnemyBase : Actor
     {
         // マップに登録してある自分の情報を消す
         MapData.instance.ResetMapObject(status.gridPos);
-        isDestroy = true;
+
+        // 確率でアイテムをドロップ
+        if (Percent.Per(DataBase.instance.GetEnemyTable((int)this.enemyType).DropPer))
+        {
+            // アイテムをランダム生成
+            ItemMGR.instance.CreateItem(this.status.gridPos, Random.Range(0, DataBase.instance.GetItemTableCount() - 1));
+        }
+
+        // オブジェクト消去
+        Destroy(this.gameObject);
     }
 
     public void MapDataUpdate()

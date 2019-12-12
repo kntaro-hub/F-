@@ -83,7 +83,13 @@ public class MapGenerator : MonoBehaviour
         // 9. 敵設置
         this.EnemySet();
 
-        // タイルを配置
+        // 10. 壁を配置
+        this.FillWall();
+    }
+
+    private void FillWall()
+    {
+        MapData mapData = MapData.instance;
         for (int j = 0; j < mapData.Height; j++)
         {
             for (int i = 0; i < mapData.Width; i++)
@@ -94,15 +100,7 @@ public class MapGenerator : MonoBehaviour
                     float x = GetChipX(i);
                     float y = GetChipY(j);
 
-                    mapData.CreateWall(i,j);
-                }
-                else if (mapData.GetValue(i, j) == (int)MapData.MapChipType.goal)
-                {
-                    // 壁生成
-                    float x = GetChipX(i);
-                    float y = GetChipY(j);
-
-                    mapData.CreateGoal(i, j);
+                    mapData.CreateWall(i, j);
                 }
             }
         }

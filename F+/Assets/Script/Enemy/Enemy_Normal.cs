@@ -24,9 +24,15 @@ public class Enemy_Normal : EnemyBase
         aStar = GetComponent<AStarSys>();
         status.gridPos = aStar.StartPoint;
 
-        param.hp = 4;
-        param.atk = 2;
-        param.id = 1;
+        // 敵情報取得
+        EnemyTableEntity entity = DataBase.instance.GetEnemyTable((int)enemyType);
+
+        // 敵パラメータ設定
+        enemyType   = (EnemyType)entity.TypeID;
+        param.hp    = entity.MaxHP;
+        param.atk   = entity.Atk;
+        param.Name  = entity.Name;
+        param.xp    = entity.Xp;
     }
 
     // Update is called once per frame

@@ -39,16 +39,20 @@ public class Actor : MonoBehaviour
     public Status status;
 
     // キャラクターパラメータ
+    [System.Serializable]
     public struct Parameter
     {
         public int id;      // ユニークID
         public int level;   // レベル
         public int hp;      // 体力
         public int maxHp;   // 体力（最大値）
-        public int basicAtk;// 基本攻撃力
-        public int atk;     // 攻撃力
+        public int basicAtk;// 基本攻撃力（レベルで上昇）
+        public int maxAtk;  // ちから最大値
+        public int atk;     // ちから
         public int exp;     // 今まで取得した経験値
         public int xp;      // 倒したとき得られる経験値
+
+        public string Name; // 名前
 
         public int weaponId;// 装備中武器アイテムID
         public int shieldId;// 装備中盾アイテムID
@@ -108,6 +112,53 @@ public class Actor : MonoBehaviour
             return Atk;
         }
 
+        /// <summary>
+        /// 経験値加算（規定値を超えた場合はレベルアップ）
+        /// </summary>
+        public void AddXp(int addXp)
+        {
+            // 経験値加算
+            this.exp += addXp;
+
+            bool isUp = false;
+
+            // 現経験値からレベル最大値まで上げる
+            while (true)
+            {
+                // レベルテーブルから情報取得
+                LevelTableEntity levelTableEntity = DataBase.instance.GetLevelTable(level);
+                if(levelTableEntity.Xp <= this.exp)
+                {
+                    // レベルアップ
+                    this.level = levelTableEntity.Level;
+                    this.atk = levelTableEntity.atk;
+
+                    // 体力UP
+                    this.maxHp += 3;
+                    
+
+                    isUp = true;
+                    continue;
+                }
+
+                if(isUp)
+                {
+                    MessageWindow.instance.AddMessage($"レベル{this.level}に上がった！", Color.white);
+                }
+                break;
+            }
+        }
+
+        public bool CheckDestroy()
+        {
+            // hpが0以下なら死亡
+            if (this.hp <= 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
         // 非装備時武器盾ID
         public static int notEquipValue = DataBase.instance.GetItemTableCount() - 1;
     }
@@ -148,4 +199,5 @@ public class Actor : MonoBehaviour
             MoveTime = 0.1f;
         }
     }
+
 }

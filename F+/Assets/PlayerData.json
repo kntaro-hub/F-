@@ -1,1 +1,1 @@
-{"direct":2,"actType":0}
+{"parameter":{"id":0,"level":2,"hp":11,"maxHp":18,"basicAtk":0,"maxAtk":8,"atk":0,"exp":10,"xp":0,"Name":"","weaponId":10,"shieldId":7,"hunger":18,"maxHunger":100},"StockItems":[{"itemID":7,"stockID":0}],"equipInventoryID":[10,0]}

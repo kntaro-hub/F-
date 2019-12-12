@@ -14,26 +14,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Table:
   - TypeID: 0
-    Name: "\u30DE\u30B8\u30AB"
-    MaxHP: 20
+    Name: "\u4EEE\u65751"
+    MaxHP: 5
     Atk: 3
-    Def: 1
-    Xp: 1
+    Xp: 10
+    DropPer: 100
   - TypeID: 1
-    Name: "\u30CA\u30C3\u30C8"
+    Name: "\u4EEE\u65752"
     MaxHP: 30
     Atk: 2
-    Def: 1
     Xp: 1
+    DropPer: 10
   - TypeID: 2
-    Name: "\u30A2\u30C8\u30EB\u30EB"
+    Name: "\u4EEE\u65753"
     MaxHP: 10
     Atk: 4
-    Def: 1
     Xp: 3
+    DropPer: 50
   - TypeID: 3
-    Name: "\u30B4\u30EC\u30E0"
+    Name: "\u4EEE\u65754"
     MaxHP: 50
     Atk: 6
-    Def: 3
     Xp: 6
+    DropPer: 30

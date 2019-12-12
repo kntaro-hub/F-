@@ -45,11 +45,14 @@ public class ItemMGR : MonoBehaviour
     /// <summary>
     /// マップの指定の場所にアイテムを配置する
     /// </summary>
-    public void CreateItem(Point point)
+    public void CreateItem(Point point, int itemID)
     {
         ItemObject item = Instantiate(itemPrefab);
         item.point = point;
         item.transform.position = MapData.GridToWorld(item.point);
+        item.ItemID = itemID;
+
+        MapData.instance.SetMapObject(point, MapData.MapObjType.item, itemID);
 
         items.Add(item);
     }

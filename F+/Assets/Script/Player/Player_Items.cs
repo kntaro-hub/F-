@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Player_Items : MonoBehaviour
 {
-    private struct StockItem
+    [System.Serializable]
+    public struct StockItem
     {
         public int itemID;
         public int stockID;
@@ -16,7 +18,13 @@ public class Player_Items : MonoBehaviour
         }
     }
 
+    
     private List<StockItem> stocks = new List<StockItem>();
+    public List<StockItem> Stocks
+    {
+        get { return stocks; }
+        set { stocks = value; }
+    }
 
     // Start is called before the first frame update
     void Start()

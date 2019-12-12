@@ -41,8 +41,8 @@ public class UI_Inventory : UI_Base
     private int buttonNum = 0;        // 選択しているボタン番号
     private Image panel = null;     // パネル
     private Image cursor = null;     // 選択カーソル
-    private Image[] equipIcon; // 装備中アイコン
-    private int[] equipInvectoryID; // 装備中アイテムのインベントリID 
+    private Image[] equipIcon = new Image[(int)EquipType.max]; // 装備中アイコン
+    private int[] equipInventoryID = new int[(int)EquipType.max]; // 装備中アイテムのインベントリID 
     private UI_Map ui_Map = null;     // マップ表示用
     private bool isShow = false;    // メニューを表示しているか
 
@@ -59,13 +59,24 @@ public class UI_Inventory : UI_Base
         set { isShow = value; }
     }
 
+    public int[] EquipInventoryID
+    {
+        get { return equipInventoryID; }
+        set { equipInventoryID = value; }
+    }
+
     // =--------- // =--------- ---------= // ---------= //
+
+    private void Awake()
+    {
+        
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        equipIcon = new Image[(int)EquipType.max];
-        equipInvectoryID = new int[(int)EquipType.max];
+        //equipIcon = new Image[(int)EquipType.max];
+        //equipInventoryID = new int[(int)EquipType.max];
 
         cursor = Instantiate(cursorPrefab, this.transform);
 
@@ -77,8 +88,6 @@ public class UI_Inventory : UI_Base
         equipIcon[(int)EquipType.shield] = Instantiate(equipIconPrefab, this.transform);
         equipIcon[(int)EquipType.weapon].color = Color.clear;
         equipIcon[(int)EquipType.shield].color = Color.clear;
-        equipInvectoryID[(int)EquipType.weapon] = Actor.Parameter.notEquipValue;
-        equipInvectoryID[(int)EquipType.shield] = Actor.Parameter.notEquipValue;
 
         // 初期化
         this.Init();
@@ -166,7 +175,7 @@ public class UI_Inventory : UI_Base
         // パネルも
         panel.color = Color.clear;
         // アイテム説明欄も
-        ItemText.Hide();
+        ItemText.Hide();        
     }
 
     public void EraseText(int inventoryID)
@@ -197,32 +206,35 @@ public class UI_Inventory : UI_Base
     }
     public void SetEquipIcon(int InventoryID, EquipType type)
     {
-        equipIcon[(int)type].transform.parent = textList[InventoryID].transform;
-        equipIcon[(int)type].transform.localPosition = new Vector3();
-        equipIcon[(int)type].rectTransform.localPosition = new Vector3(-textList[InventoryID].rectTransform.sizeDelta.x * 0.5f - 10.0f, 10.0f);
-        equipIcon[(int)type].color = Color.white;
+        if (InventoryID != Actor.Parameter.notEquipValue)
+        {
+            equipIcon[(int)type].transform.parent = textList[InventoryID].transform;
+            equipIcon[(int)type].transform.localPosition = new Vector3();
+            equipIcon[(int)type].rectTransform.localPosition = new Vector3(-textList[InventoryID].rectTransform.sizeDelta.x * 0.5f - 10.0f, 10.0f);
+            equipIcon[(int)type].color = Color.white;
 
-        equipInvectoryID[(int)type] = InventoryID;
+            equipInventoryID[(int)type] = InventoryID;
+        }
     }
     public void RemoveEquipIcon(EquipType type)
     {
         equipIcon[(int)type].color = Color.clear;
-        equipInvectoryID[(int)type] = Actor.Parameter.notEquipValue;
+        equipInventoryID[(int)type] = Actor.Parameter.notEquipValue;
     }
 
     public int GetEquipInventoryID(EquipType type)
     {
-        return equipInvectoryID[(int)type];
+        return equipInventoryID[(int)type];
     }
     public int GetEquipInventoryID(ItemType type)
     {
         if(type == ItemType.Weapon)
         {
-            return equipInvectoryID[(int)EquipType.weapon];
+            return equipInventoryID[(int)EquipType.weapon];
         }
         else if (type == ItemType.Shield)
         {
-            return equipInvectoryID[(int)EquipType.shield];
+            return equipInventoryID[(int)EquipType.shield];
         }
         return 0;
         
@@ -257,7 +269,7 @@ public class UI_Inventory : UI_Base
 
             for (int i = 0; i < (int)EquipType.max; ++i)
             {
-                if(equipInvectoryID[i] != Actor.Parameter.notEquipValue)
+                if(equipInventoryID[i] != Actor.Parameter.notEquipValue)
                 {
                     equipIcon[i].color = Color.white;
                 }
@@ -279,6 +291,9 @@ public class UI_Inventory : UI_Base
 
         panel.color = new Color(0.0f, 0.0f, 0.0f, 0.3f);
         isShow = true;
+
+        UI_MGR.instance.Ui_Inventory.SetEquipIcon(equipInventoryID[(int)EquipType.weapon], EquipType.weapon);
+        UI_MGR.instance.Ui_Inventory.SetEquipIcon(equipInventoryID[(int)EquipType.shield], EquipType.shield);
     }
 
     /// <summary>

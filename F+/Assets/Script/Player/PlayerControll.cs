@@ -16,9 +16,18 @@ public class PlayerControll : Actor
 
     private bool IsInit = false;
 
+    // 初期化済みかどうか
+    private static bool isInitialize = false;
+    public bool IsInitialize
+    {
+        get { return isInitialize; }
+    }
+
     int cntDirect = 0;          // 方向を決めるためのカウンタ
     int cntInput = 0;           // 押されたキー数
     bool IsRotButton = false;   // 回転キーが押されているか
+
+    int cntSteps = 0;   // 歩数カウンタ
 
     Player_Items playerItems;
 
@@ -69,6 +78,7 @@ public class PlayerControll : Actor
             this.transform.position.z);
 
         playerAnimator = this.GetComponent<Animator>();
+        playerItems = this.GetComponent<Player_Items>();
         ui_BasicMenu = FindObjectOfType<UI_BasicMenu>();
 
         status.gridPos = new Point();
@@ -79,32 +89,46 @@ public class PlayerControll : Actor
 
     public void Init()
     {
-        playerItems = this.GetComponent<Player_Items>();
-
-        param.atk = 1;
-        param.basicAtk = 100;
-        param.hp = 3;
-        param.maxHp = 100;
-        param.maxHunger = 100;
-        param.id = 0;
-        // 非装備
-        param.weaponId = DataBase.instance.GetItemTableCount()-1; 
-        param.shieldId = DataBase.instance.GetItemTableCount()-1;
+        if (!IsInitialize)
+        {// 1階層からの場合初期化をかける
+            param.atk           = 8;    // ちから
+            param.maxAtk        = 8;    // ちから最大値
+            param.level         = 1;    // レベル
+            param.basicAtk      = DataBase.instance.GetLevelTable(param.level - 1).atk;    // レベルアップで増える攻撃力
+            param.hp            = 15;   // 体力
+            param.maxHp         = 15;   // 体力最大値
+            param.hunger        = 100;  // 満腹度
+            param.maxHunger     = 100;  // 満腹度最大値
+            param.exp           = 0;    // 今まで取得した経験値
+            param.id            = 0;    // キャラクターID
+            // 非装備にする
+            param.weaponId = DataBase.instance.GetItemTableCount() - 1;
+            param.shieldId = DataBase.instance.GetItemTableCount() - 1;
+            UI_MGR.instance.Ui_Inventory.EquipInventoryID[0] = Actor.Parameter.notEquipValue;
+            UI_MGR.instance.Ui_Inventory.EquipInventoryID[1] = Actor.Parameter.notEquipValue;
+            isInitialize = true;
+        }
+        else
+        {// 2階層以上の場合は前階層のデータを読み込む
+            this.LoadStatus();
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        //// プレイヤーキャラクターの操作を一括管理する
-        //if (SequenceMGR.instance.seqType == SequenceMGR.SeqType.keyInput)
-        //{// メニューを表示していない間だけ操作可能にする
-            this.Controll();
-        //}
+        this.Controll();
 
         this.CalcCameraPos();
 
         if(status.actType == ActType.TurnEnd)
           this.UpdatePosition();
+
+
+        if(Input.GetKeyDown( KeyCode.Space))
+        {
+            this.SaveStatus();
+        }
     }
 
     private void UpdatePosition()
@@ -344,10 +368,7 @@ public class PlayerControll : Actor
         this.param.hp -= this.param.CalcDamage(atk);
 
         // hpが0以下なら死亡
-        if (this.param.hp <= 0)
-        {
-            Destroy(this.gameObject);
-        }
+        this.param.CheckDestroy();
 
         StartCoroutine(this.DamagedTimer());
         playerAnimator.Play("Damaged", 0, 0.0f);
@@ -375,14 +396,33 @@ public class PlayerControll : Actor
                rotY,
                this.transform.rotation.z));
     }
-   
-    private void SaveStatus()
+
+    struct SaveData
+    {
+        // =--------- パラメータ ---------= //
+        public Parameter parameter;
+
+        // =--------- 所持アイテム ---------= //
+
+        public Player_Items.StockItem[] StockItems;
+        public int[] equipInventoryID;
+    }
+
+    public void SaveStatus()
     {
         StreamWriter writer;
 
+        SaveData saveData = new SaveData();
+
+        saveData.parameter = this.param;
+
+        saveData.StockItems = this.GetComponent<Player_Items>().Stocks.ToArray();
+        
+        saveData.equipInventoryID = UI_MGR.instance.Ui_Inventory.EquipInventoryID;
+
         writer = new StreamWriter(Application.dataPath + "/PlayerData.json", false);
 
-        string jsonstr = JsonUtility.ToJson(status);
+        string jsonstr = JsonUtility.ToJson(saveData);
         jsonstr = jsonstr + "\n";
         writer.Write(jsonstr);
         writer.Flush();
@@ -398,26 +438,15 @@ public class PlayerControll : Actor
         datastr = reader.ReadToEnd();
         reader.Close();
 
-        status = JsonUtility.FromJson<Status>(datastr);
+        SaveData saveData;
+
+        saveData = JsonUtility.FromJson<SaveData>(datastr);
 
         #region ステータス反映
 
-        this.transform.position = MapData.GridToWorld(status.gridPos);
-        float rotY = this.transform.rotation.y;
-
-        switch (status.direct)
-        {
-            case Direct.right:  rotY = 90.0f; break;
-            case Direct.left:   rotY = 270.0f; break;
-            case Direct.forward:rotY = 0.0f; break;
-            case Direct.back:   rotY = 180.0f; break;
-            default:  break;
-        }
-
-        this.transform.rotation = (Quaternion.Euler(
-               this.transform.rotation.x,
-               rotY,
-               this.transform.rotation.z));
+        param = saveData.parameter;
+        this.GetComponent<Player_Items>().Stocks.AddRange(saveData.StockItems);
+        UI_MGR.instance.Ui_Inventory.EquipInventoryID = saveData.equipInventoryID;
 
         #endregion
     }
@@ -481,18 +510,33 @@ public class PlayerControll : Actor
             ItemMGR.instance.DestroyItem(this.status.gridPos);
         }
 
-        // 
+        // 歩数加算
+        ++cntSteps;
+
+        if (param.hunger <= 0)
+        {
+            // 満腹度矯正
+            param.hunger = 0;
+
+            // hpを1ずつ減らす
+            --param.hp;
+
+            // hpが0以下なら死亡
+            if(this.param.CheckDestroy())
+            {
+                Destroy(this.gameObject);
+            }
+        }
+        else
+        {
+            if ((cntSteps % 3) == 0)
+            {// 3歩ごとに満腹度を1下げる
+                --param.hunger;
+            }
+        }
+
+        // ターンエンド 
         status.actType = ActType.TurnEnd;
-    }
-
-    private IEnumerator AtkTimer()
-    {
-        // MoveTime秒まつ
-        yield return new WaitForSeconds(MoveTime);
-
-        
-
-        StartCoroutine(ActProcTimer());
     }
 
     // MoveTime後に敵のターン
@@ -516,14 +560,16 @@ public class PlayerControll : Actor
             // 一時変数に値をコピー（こうしないとParamは参照型のためコンパイルエラーとなる）
             Parameter enemyParam = enemy.Param;
             int damage = enemy.Param.CalcDamage(this.param.CalcAtk());
-            MessageWindow.instance.AddMessage(damage.ToString() + "のダメージ", Color.red);
+            MessageWindow.instance.AddMessage(enemy.Param.Name + "に" + damage.ToString() + "のダメージ", Color.red);
             enemyParam.hp -= damage;
             enemy.Param = enemyParam;
 
             // hpが0以下なら死亡
-            if(enemy.Param.hp <= 0)
+            if(enemy.Param.CheckDestroy())
             {
+                // プレイヤーに経験値加算
                 SequenceMGR.instance.DestroyEnemyFromID(enemy.Param.id);
+                this.param.AddXp(enemy.Param.xp);
             }
         }
         // MoveTime秒まつ

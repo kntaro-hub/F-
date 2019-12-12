@@ -178,6 +178,8 @@ public class UI_Goal : UI_Base
     private void Com_Next()
     {// 次のステージへ
         SceneManager.LoadScene("Interval");
+        StageMGR.instance.AddFloorNum(1);
+        SequenceMGR.instance.Player.SaveStatus();
     }
     /// <summary>
     /// [キャンセル]コマンド
@@ -217,7 +219,7 @@ public class UI_Goal : UI_Base
     }
 
     /// <summary>
-    /// 現在の選んでいるボタンごとの処理を実行する
+    /// 現在の選んでいるボタンごとの処理を実行するs
     /// </summary>
     private void SwitchCommand()
     {

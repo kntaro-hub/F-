@@ -117,18 +117,6 @@ public class SequenceMGR : MonoBehaviour
         Actor.ChangeSpeed();
     }
 
-    public void CheckDestroy()
-    {
-        for (int i = enemies.Count - 1; i >= 0; i--)
-        {
-            if (enemies[i].isDestroy)
-            {
-                Destroy(enemies[i].gameObject);
-                enemies.RemoveAt(i);
-            }
-        }
-    }
-
     /// <summary>
     /// 予約を一つ処理する
     /// 各キャラクター達が自分の番の最後に呼び出す
@@ -241,8 +229,7 @@ public class SequenceMGR : MonoBehaviour
             // ID検索してヒットした敵を消す リストからも
             if (enemies[i].Param.id == id)
             {
-                MapData.instance.ResetMapObject(enemies[i].status.gridPos);
-                Destroy(enemies[i].gameObject);
+                enemies[i].Destroy();
                 enemies.RemoveAt(i);
             }
         }

@@ -14,113 +14,113 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Table:
   - Level: 1
-    BasicAtk: 5
+    atk: 0
     Xp: 0
   - Level: 2
-    BasicAtk: 7
+    atk: 0
     Xp: 10
   - Level: 3
-    BasicAtk: 9
+    atk: 0
     Xp: 30
   - Level: 4
-    BasicAtk: 11
+    atk: 0
     Xp: 60
   - Level: 5
-    BasicAtk: 13
+    atk: 0
     Xp: 100
   - Level: 6
-    BasicAtk: 16
+    atk: 0
     Xp: 150
   - Level: 7
-    BasicAtk: 19
+    atk: 0
     Xp: 230
   - Level: 8
-    BasicAtk: 22
+    atk: 0
     Xp: 350
   - Level: 9
-    BasicAtk: 25
+    atk: 0
     Xp: 500
   - Level: 10
-    BasicAtk: 29
+    atk: 0
     Xp: 700
   - Level: 11
-    BasicAtk: 33
+    atk: 0
     Xp: 950
   - Level: 12
-    BasicAtk: 37
+    atk: 0
     Xp: 1200
   - Level: 13
-    BasicAtk: 41
+    atk: 0
     Xp: 1500
   - Level: 14
-    BasicAtk: 46
+    atk: 0
     Xp: 1800
   - Level: 15
-    BasicAtk: 51
+    atk: 0
     Xp: 2300
   - Level: 16
-    BasicAtk: 56
+    atk: 0
     Xp: 3000
   - Level: 17
-    BasicAtk: 61
+    atk: 0
     Xp: 4000
   - Level: 18
-    BasicAtk: 65
+    atk: 0
     Xp: 6000
   - Level: 19
-    BasicAtk: 71
+    atk: 0
     Xp: 9000
   - Level: 20
-    BasicAtk: 74
+    atk: 0
     Xp: 15000
   - Level: 21
-    BasicAtk: 77
+    atk: 0
     Xp: 23000
   - Level: 22
-    BasicAtk: 80
+    atk: 0
     Xp: 33000
   - Level: 23
-    BasicAtk: 83
+    atk: 0
     Xp: 45000
   - Level: 24
-    BasicAtk: 86
+    atk: 0
     Xp: 60000
   - Level: 25
-    BasicAtk: 89
+    atk: 0
     Xp: 80000
   - Level: 26
-    BasicAtk: 90
+    atk: 0
     Xp: 100000
   - Level: 27
-    BasicAtk: 91
+    atk: 0
     Xp: 130000
   - Level: 28
-    BasicAtk: 92
+    atk: 0
     Xp: 180000
   - Level: 29
-    BasicAtk: 93
+    atk: 0
     Xp: 240000
   - Level: 30
-    BasicAtk: 94
+    atk: 0
     Xp: 300000
   - Level: 31
-    BasicAtk: 95
+    atk: 0
     Xp: 400000
   - Level: 32
-    BasicAtk: 96
+    atk: 0
     Xp: 500000
   - Level: 33
-    BasicAtk: 97
+    atk: 0
     Xp: 600000
   - Level: 34
-    BasicAtk: 98
+    atk: 0
     Xp: 700000
   - Level: 35
-    BasicAtk: 99
+    atk: 0
     Xp: 800000
   - Level: 36
-    BasicAtk: 100
+    atk: 0
     Xp: 900000
   - Level: 37
-    BasicAtk: 100
+    atk: 0
     Xp: 999999
