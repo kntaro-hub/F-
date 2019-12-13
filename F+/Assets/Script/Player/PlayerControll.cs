@@ -66,7 +66,6 @@ public class PlayerControll : Actor
 
     // =----------------------------= //
 
-
     // Start is called before the first frame update
     void Start()
     {
@@ -368,7 +367,10 @@ public class PlayerControll : Actor
         this.param.hp -= this.param.CalcDamage(atk);
 
         // hpが0以下なら死亡
-        this.param.CheckDestroy();
+        if(this.param.CheckDestroy())
+        {
+            Destroy(this.gameObject);
+        }
 
         StartCoroutine(this.DamagedTimer());
         playerAnimator.Play("Damaged", 0, 0.0f);
@@ -553,23 +555,30 @@ public class PlayerControll : Actor
         MapData.ObjectOnTheMap mapObj = MapData.instance.GetMapObject(status.gridPos + this.GetDirect());
         if (mapObj.objType == MapData.MapObjType.enemy)
         {// 攻撃した先が敵
-            // 敵パラメータを取得
-            EnemyBase enemy = SequenceMGR.instance.SearchEnemyFromID(mapObj.id);
-
-            // ダメージ量を計算してhpから減算
-            // 一時変数に値をコピー（こうしないとParamは参照型のためコンパイルエラーとなる）
-            Parameter enemyParam = enemy.Param;
-            int damage = enemy.Param.CalcDamage(this.param.CalcAtk());
-            MessageWindow.instance.AddMessage(enemy.Param.Name + "に" + damage.ToString() + "のダメージ", Color.red);
-            enemyParam.hp -= damage;
-            enemy.Param = enemyParam;
-
-            // hpが0以下なら死亡
-            if(enemy.Param.CheckDestroy())
+            if (Percent.Per(90))
             {
-                // プレイヤーに経験値加算
-                SequenceMGR.instance.DestroyEnemyFromID(enemy.Param.id);
-                this.param.AddXp(enemy.Param.xp);
+                // 敵パラメータを取得
+                EnemyBase enemy = SequenceMGR.instance.SearchEnemyFromID(mapObj.id);
+
+                // ダメージ量を計算してhpから減算
+                // 一時変数に値をコピー（こうしないとParamは参照型のためコンパイルエラーとなる）
+                Parameter enemyParam = enemy.Param;
+                int damage = enemy.Param.CalcDamage(this.param.CalcAtk());
+                MessageWindow.instance.AddMessage(enemy.Param.Name + "に" + damage.ToString() + "のダメージ", Color.red);
+                enemyParam.hp -= damage;
+                enemy.Param = enemyParam;
+
+                // hpが0以下なら死亡
+                if (enemy.Param.CheckDestroy())
+                {
+                    // プレイヤーに経験値加算
+                    SequenceMGR.instance.DestroyEnemyFromID(enemy.Param.id);
+                    this.param.AddXp(enemy.Param.xp);
+                }
+            }
+            else
+            {
+                MessageWindow.instance.AddMessage("攻撃は外れてしまった。", Color.red);
             }
         }
         // MoveTime秒まつ

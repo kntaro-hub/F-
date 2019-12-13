@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class ItemObject : MonoBehaviour
 {
@@ -22,6 +23,13 @@ public class ItemObject : MonoBehaviour
     {
         get { return itemID; }
         set { itemID = value; }
+    }
+
+    public void Move(Point throwPoint,float time)
+    {
+        point = throwPoint;
+
+        this.transform.DOMove(MapData.GridToWorld(point),time).SetEase(Ease.Linear);
     }
 
     // Start is called before the first frame update

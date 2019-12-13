@@ -96,8 +96,10 @@ public class UI_MGR : MonoBehaviour
 
     public void ShowUI(UIType type)
     {
-        uiList.Insert(0, type);
-        ui_Array[(int)uiList[0]].ShowMenu();
+        {
+            uiList.Insert(0, type);
+            ui_Array[(int)uiList[0]].ShowMenu();
+        }
     }
 
     public void ReturnUI()
@@ -154,7 +156,8 @@ public class UI_MGR : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Escape))
         {// escキーでメニュー表示/非表示
-            ShowUI(UIType.basicMenu);
+            if (SequenceMGR.instance.seqType == SequenceMGR.SeqType.keyInput)
+                ShowUI(UIType.basicMenu);
         }
     }
 

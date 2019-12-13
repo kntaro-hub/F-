@@ -38,10 +38,11 @@ public class SequenceMGR : MonoBehaviour
 
     public enum ActSeqType
     {
-        PlayerAct = 0,  // プレイヤー行動    // 行動が選ばれた場合 
+        playerAct = 0,  // プレイヤー行動    // 行動が選ばれた場合 
         requestEnemy,   // 敵行動決め        // プレイヤーの行動の後、プレイヤー移動が決定した後
         enemyAct,       // 敵行動実行        // プレイヤーの行動場合、行動決めの後すぐに実行
         move,           // 移動              // プレイヤー移動の場合、敵行動決めの後すぐに実行
+        turnEnd,
         max
     }
 
@@ -58,6 +59,11 @@ public class SequenceMGR : MonoBehaviour
     // これがtrueの時、全員がターンエンド状態かを調べる
     private bool IsCheckTurnEnd = false;
 
+    // 自然回復
+    const int HealBorder = 150;
+    // 回復値
+    int cntHeal = 0;
+
     /// <summary>
     /// プレイヤーの行動を入力すると遷移情報がリストに追加される
     /// </summary>
@@ -70,13 +76,15 @@ public class SequenceMGR : MonoBehaviour
                 seqList.Add(ActSeqType.requestEnemy);
                 seqList.Add(ActSeqType.move);
                 seqList.Add(ActSeqType.enemyAct);
+                seqList.Add(ActSeqType.turnEnd);
                 break;
 
             case PlayerActType.act:
-                seqList.Add(ActSeqType.PlayerAct);
+                seqList.Add(ActSeqType.playerAct);
                 seqList.Add(ActSeqType.requestEnemy);
                 seqList.Add(ActSeqType.move);
                 seqList.Add(ActSeqType.enemyAct);
+                seqList.Add(ActSeqType.turnEnd);
                 break;
         }
        
@@ -99,6 +107,7 @@ public class SequenceMGR : MonoBehaviour
         {
             player = FindObjectOfType<PlayerControll>();
         }
+        cntHeal = 0;
     }
 
     // Update is called once per frame
@@ -129,7 +138,7 @@ public class SequenceMGR : MonoBehaviour
             // 予約の先頭を実行
             switch(seqList[0])
             {
-                case ActSeqType.PlayerAct:
+                case ActSeqType.playerAct:
                     // プレイヤー行動
                     seqList.RemoveAt(0);
                     player.Attack();
@@ -156,9 +165,26 @@ public class SequenceMGR : MonoBehaviour
                     // 敵行動
                     seqList.RemoveAt(0);
                     this.ActEnemy();
+                    break;
+                case ActSeqType.turnEnd:
+                    // ターンエンド処理
+                    seqList.RemoveAt(0);
+                    cntHeal += player.Param.maxHp;
+                    if (HealBorder < cntHeal)
+                    {
+                        cntHeal -= HealBorder;
+                        player.Param.AddHP(1);
+                        Actor.Parameter parameter = player.Param;
+                        parameter.hp += 1;
+                        player.Param = parameter;
+                        if(player.Param.hp > player.Param.maxHp)
+                        {
+                            parameter.hp = player.Param.maxHp;
+                            player.Param = parameter;
+                        }
+                    }
                     IsCheckTurnEnd = true;
                     break;
-
             }
 
             
@@ -191,6 +217,7 @@ public class SequenceMGR : MonoBehaviour
         {
             itr.ActProc();
         }
+        this.ActProc();
     }
 
     private void RequestEnemyAI()

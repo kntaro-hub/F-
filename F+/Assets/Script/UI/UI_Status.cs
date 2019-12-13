@@ -66,6 +66,6 @@ public class UI_Status : MonoBehaviour
     {
         Text_Floor.text = StageMGR.instance.GetFloorNum().ToString() + "階";
         Text_Lv.text    = "Lv." + player.Param.level;
-        Text_HP.text    = "HP " + player.Param.hp;
+        Text_HP.text    = "HP " + player.Param.hp + " / " + player.Param.maxHp;
     }
 }

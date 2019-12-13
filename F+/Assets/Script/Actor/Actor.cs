@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Actor : MonoBehaviour
 {
-
     public enum Direct
     {
         right = 1,
@@ -135,6 +134,10 @@ public class Actor : MonoBehaviour
 
                     // 体力UP
                     this.maxHp += 3;
+                    this.hp += 3;
+
+                    // オーバーしてしまった場合は矯正
+                    if (this.hp > this.maxHp) this.hp = this.maxHp;
                     
 
                     isUp = true;
@@ -149,11 +152,79 @@ public class Actor : MonoBehaviour
             }
         }
 
+        public void AddLevel(int addLevel)
+        {
+            this.level += addLevel;
+
+            this.exp = DataBase.instance.GetLevelTable(level).Xp;
+
+            MessageWindow.instance.AddMessage($"レベル{this.level}に上がった！", Color.white);
+        }
+        public void SubLevel(int subLevel)
+        {
+            this.level -= subLevel;
+
+            this.exp = DataBase.instance.GetLevelTable(level).Xp;
+
+            MessageWindow.instance.AddMessage($"レベルが{subLevel}下がってしまった…", Color.white);
+        }
+        public void AddHP(int addHP)
+        {
+            this.hp += addHP;
+            if (this.hp > this.maxHp) this.hp = this.maxHp;
+        }
+        public bool SubHP(int subHP)
+        {
+            this.hp -= subHP;
+
+            if (hp <= 0)
+            {
+                hp = 0;
+                return true;
+            }
+
+            return false;
+        }
+        public void AddMaxHP(int addMaxHP)
+        {
+            this.maxHp += addMaxHP;
+        }
+        public void SubMaxHP(int subMaxHP)
+        {
+            this.maxHp -= subMaxHP;
+        }
+        public void AddHunger(int addHunger)
+        {
+            this.hunger += addHunger;
+            if (this.hunger > this.maxHunger) hunger = maxHunger;
+        }
+        public bool SubHunger(int subHunger)
+        {
+            this.hunger -= subHunger;
+
+            if (hunger <= 0)
+            {
+                hunger = 0;
+                return true;
+            }
+
+            return false;
+        }
+        public void AddMaxHunger(int addMaxHunger)
+        {
+            this.maxHunger += addMaxHunger;
+        }
+        public void SubMaxHunger(int subMaxHunger)
+        {
+            this.maxHunger -= subMaxHunger;
+        }
+
         public bool CheckDestroy()
         {
             // hpが0以下なら死亡
             if (this.hp <= 0)
             {
+                this.hp = 0;
                 return true;
             }
             return false;

@@ -45,7 +45,7 @@ public class ItemMGR : MonoBehaviour
     /// <summary>
     /// マップの指定の場所にアイテムを配置する
     /// </summary>
-    public void CreateItem(Point point, int itemID)
+    public ItemObject CreateItem(Point point, int itemID)
     {
         ItemObject item = Instantiate(itemPrefab);
         item.point = point;
@@ -55,6 +55,7 @@ public class ItemMGR : MonoBehaviour
         MapData.instance.SetMapObject(point, MapData.MapObjType.item, itemID);
 
         items.Add(item);
+        return item;
     }
 
     public void UpdateMapObject()
@@ -88,18 +89,9 @@ public class ItemMGR : MonoBehaviour
     {
         ItemTableEntity item = DataBase.instance.GetItemTable(itemID);
         Actor.Parameter param = actorParam;
-        param.hp += item.HP;
+        param.AddHP(item.HP);
         param.basicAtk += item.Atk;
-        param.hunger += item.Hunger;
-
-        if(param.hp > param.maxHp)
-        {
-            param.hp = param.maxHp;
-        }
-        if(param.hunger > param.maxHunger)
-        {
-            param.hunger = param.maxHunger;
-        }
+        param.AddHunger(item.Hunger);
 
         actorParam = param;
         return actorParam;
