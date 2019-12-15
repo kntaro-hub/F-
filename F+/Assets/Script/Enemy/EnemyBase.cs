@@ -36,7 +36,7 @@ public class EnemyBase : Actor
     // Start is called before the first frame update
     void Start()
     {
-        this.transform.position = MapData.GridToWorld(status.point);
+        this.transform.position = MapData.GridToWorld(status.gridPos);
     }
 
     // Update is called once per frame
@@ -57,11 +57,11 @@ public class EnemyBase : Actor
         {
             if (this.Move())
             {
-                this.transform.DOMove(MapData.GridToWorld(this.status.point), Actor.MoveTime).SetEase(Ease.Linear);
+                this.transform.DOMove(MapData.GridToWorld(this.status.gridPos), Actor.MoveTime).SetEase(Ease.Linear);
                 this.status.actType = ActType.Move;
 
                 // マップに敵を登録
-                MapData.instance.SetMapObject(status.point, MapData.MapObjType.enemy, param.id);
+                MapData.instance.SetMapObject(status.gridPos, MapData.MapObjType.enemy, param.id);
 
                 // タイマー起動（指定秒数経過するとターンエンド状態になる）
                 StartCoroutine(Timer());
@@ -83,25 +83,22 @@ public class EnemyBase : Actor
     public void Destroy()
     {
         // マップに登録してある自分の情報を消す
-        MapData.instance.ResetMapObject(status.point);
+        MapData.instance.ResetMapObject(status.gridPos);
 
         // 確率でアイテムをドロップ
         if (Percent.Per(DataBase.instance.GetEnemyTable((int)this.enemyType).DropPer))
         {
             // アイテムをランダム生成
-            ItemMGR.instance.CreateItem(this.status.point, Random.Range(0, DataBase.instance.GetItemTableCount() - 1));
+            ItemMGR.instance.CreateItem(this.status.gridPos, Random.Range(0, DataBase.instance.GetItemTableCount() - 1));
         }
 
-        MessageWindow.instance.AddMessage($"{this.param.Name}をたおした！",Color.white);
-
         // オブジェクト消去
-        // 敵リストから自分を消す
         Destroy(this.gameObject);
     }
 
     public void MapDataUpdate()
     {
-        MapData.instance.SetMapObject(this.status.point, MapData.MapObjType.enemy, param.id);
+        MapData.instance.SetMapObject(this.status.gridPos, MapData.MapObjType.enemy, param.id);
     }
 
     // =--------- // =--------- 継承先で変更する ---------= // ---------= //

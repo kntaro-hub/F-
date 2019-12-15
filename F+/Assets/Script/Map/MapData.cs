@@ -41,7 +41,7 @@ public class MapData : MonoBehaviour
     private float initPosY = 0.0f;
 
     // 生成したマップオブジェクトリスト
-    private List<MapChipBase> mapObjects = new List<MapChipBase>();
+    private List<GameObject> mapObjects = new List<GameObject>();
 
     int width; // 幅
     int height; // 高さ
@@ -49,8 +49,7 @@ public class MapData : MonoBehaviour
 
     struct MapValue
     {
-        public MapChipBase value;           // マップチップ
-        public MapChipType mapChipType;     // マップチップの種類
+        public int value;                   // マップチップ
         public int roomNumber;              // 部屋番号
         public ObjectOnTheMap mapObject;    // マップ上のオブジェクトタイプ
     }
@@ -60,8 +59,8 @@ public class MapData : MonoBehaviour
 
     // =--------- プレハブ ---------= //
     // 壁
-    [SerializeField] private MapChip_Wall wallPrefab;
-    [SerializeField] private MapChip_Goal goalPrefab;
+    [SerializeField] private GameObject wallPrefab;
+    [SerializeField] private Goal goalPrefab;
 
     // 敵（本来は敵テーブルから）
     [SerializeField] private EnemyBase enemyPrefab;
@@ -114,19 +113,20 @@ public class MapData : MonoBehaviour
     }
 
     // 値の取得
-    public MapChipType GetMapChipType(int x, int y)
+    // 指定の座標の値（領域外を指定したら_outOfRangeを返す）
+    public int GetValue(int x, int y)
     {
-        return mapValue[x , y].mapChipType;
+        return mapValue[x , y].value;
     }
-    public MapChipType GetMapChipType(Point point)
+    public int GetValue(Point point)
     {
-        return mapValue[point.x , point.y].mapChipType;
+        return mapValue[point.x , point.y].value;
     }
 
     // 値の設定
-    public void SetMapChipType(int x, int y, int v)
+    public void SetValue(int x, int y, int v)
     {
-        mapValue[x , y].mapChipType = (MapChipType)v;
+        mapValue[x , y].value = v;
     }
 
     public void SetRoomNum(int x, int y, int v)
@@ -170,20 +170,6 @@ public class MapData : MonoBehaviour
         mapValue[x, y].mapObject.objType = MapObjType.none;
         mapValue[x, y].mapObject.id = None_Id;
     }
-    public void ActiveMapChip(int x, int y)
-    {
-        if (mapValue[x, y].value != null)
-        {
-            mapValue[x, y].value.ActiveMapChip();
-        }
-    }
-    public void ActiveMapChip(Point point)
-    {
-        if (mapValue[point.x, point.y].value != null)
-        {
-            mapValue[point.x, point.y].value.ActiveMapChip();
-        }
-    }
 
     public void Fill(int val)
     {
@@ -191,7 +177,7 @@ public class MapData : MonoBehaviour
         {
             for (int i = 0; i < Width; i++)
             {
-                this.SetMapChipType(i, j, val);
+                this.SetValue(i, j, val);
               
             }
         }
@@ -213,7 +199,7 @@ public class MapData : MonoBehaviour
             {
                 int px = x + i;
                 int py = y + j;
-                SetMapChipType(px, py, val);
+                SetValue(px, py, val);
             }
         }
     }
@@ -231,11 +217,102 @@ public class MapData : MonoBehaviour
         FillRect(left, top, right - left, bottom - top, val);
     }
 
+    // =---------  ---------= //
+
+    //private void SaveField()
+    //{
+    //    StreamWriter writer;
+
+    //    writer = new StreamWriter(Application.dataPath + "/MapData.json", false);
+
+    //    saveData.infos = new GridInfo[width, height];
+    //    //for (int i = 0; i < width; ++i)
+    //    //{
+    //    //    for (int j = 0; j < height; ++j)
+    //    //    {
+    //    //        saveData.infos[i, j] = gridInfos[i, j];
+    //    //        string jsonstr = JsonUtility.ToJson(saveData.infos[i, j]);
+    //    //        jsonstr = jsonstr + "\n";
+    //    //        writer.Write(jsonstr);
+    //    //        writer.Flush();
+    //    //    }
+    //    //}
+
+
+    //    writer.Close();
+    //}
+
+    //private void LoadField()
+    //{
+    //    string datastr = "";
+    //    StreamReader reader;
+    //    reader = new StreamReader(Application.dataPath + "/MapData.json");
+    //    datastr = reader.ReadToEnd();
+    //    reader.Close();
+
+    //    //for (int i = 0; i < width; ++i)
+    //    //{
+    //    //    for (int j = 0; j < height; ++j)
+    //    //    {
+    //    //        gridInfos[i, j] = JsonUtility.FromJson<GridInfo>(datastr);
+    //    //    }
+    //    //}
+    //    foreach (var itr in mapObjects)
+    //    {
+    //        Destroy(itr);
+    //    }
+    //    mapObjects.Clear();
+    //}    //private void SaveField()
+    //{
+    //    StreamWriter writer;
+
+    //    writer = new StreamWriter(Application.dataPath + "/MapData.json", false);
+
+    //    saveData.infos = new GridInfo[width, height];
+    //    //for (int i = 0; i < width; ++i)
+    //    //{
+    //    //    for (int j = 0; j < height; ++j)
+    //    //    {
+    //    //        saveData.infos[i, j] = gridInfos[i, j];
+    //    //        string jsonstr = JsonUtility.ToJson(saveData.infos[i, j]);
+    //    //        jsonstr = jsonstr + "\n";
+    //    //        writer.Write(jsonstr);
+    //    //        writer.Flush();
+    //    //    }
+    //    //}
+    //
+    //
+    //    writer.Close();
+    //}
+    //
+    //private void LoadField()
+    //{
+    //    string datastr = "";
+    //    StreamReader reader;
+    //    reader = new StreamReader(Application.dataPath + "/MapData.json");
+    //    datastr = reader.ReadToEnd();
+    //    reader.Close();
+
+    //    //for (int i = 0; i < width; ++i)
+    //    //{
+    //    //    for (int j = 0; j < height; ++j)
+    //    //    {
+    //    //        gridInfos[i, j] = JsonUtility.FromJson<GridInfo>(datastr);
+    //    //    }
+    //    //}
+    //    foreach (var itr in mapObjects)
+    //    {
+    //        Destroy(itr);
+    //    }
+    //    mapObjects.Clear();
+    //}
+
     public void CreateWall(int x, int y)
     {
-        mapValue[x, y].value = Instantiate(wallPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
-        mapValue[x, y].value.transform.parent = this.transform;
-        mapObjects.Add(mapValue[x, y].value);
+        mapValue[x, y].value = (int)MapData.MapChipType.wall;
+        GameObject wall = Instantiate(wallPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
+        wall.transform.parent = this.transform;
+        mapObjects.Add(wall);
     }
     
     /// <summary>
@@ -245,7 +322,8 @@ public class MapData : MonoBehaviour
     /// <param name="y"></param>
     public void CreateGoal(int x, int y)
     {
-        mapValue[x, y].value = Instantiate(goalPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
+        mapValue[x, y].value = (int)MapData.MapChipType.goal;
+        Instantiate(goalPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
     }
 
     /// <summary>
@@ -258,8 +336,18 @@ public class MapData : MonoBehaviour
         EnemyBase enemy = Instantiate(enemyPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
         enemy.transform.parent = this.transform;
         enemy.GetComponent<AStarSys>().SetStartPoint(new Point(x, y));
-        enemy.status.point = new Point(x, y);
+        enemy.status.gridPos = new Point(x, y);
         SequenceMGR.instance.Enemies.Add(enemy);
+    }
+
+    public int GetGrid(Point point)
+    {
+        if (point.x < 0 || point.x >= Width || point.y < 0 || point.y >= Height)
+        {
+            AdDebug.Log("範囲外参照");
+        }
+
+        return mapValue[point.x, point.y].value;
     }
 
     public void SetInitY(float posY)

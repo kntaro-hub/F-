@@ -179,7 +179,7 @@ public class UI_Goal : UI_Base
     {// 次のステージへ
         SceneManager.LoadScene("Interval");
         StageMGR.instance.AddFloorNum(1);
-        ActorMGR.instance.Player.SaveStatus();
+        SequenceMGR.instance.Player.SaveStatus();
     }
     /// <summary>
     /// [キャンセル]コマンド

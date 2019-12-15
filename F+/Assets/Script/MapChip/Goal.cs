@@ -1,24 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 
-public class ThrowObject : MonoBehaviour
+public class Goal : MonoBehaviour
 {
+    private Point goalPoint;
+    public Point GoalPoint
+    {
+        get { return goalPoint; }
+        set { goalPoint = value; }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-
+        
     }
 
     // Update is called once per frame
     void Update()
     {
         
-    }
-
-    public void Move(float time, Point point)
-    {
-        this.transform.DOMove(MapData.GridToWorld(point), time).SetEase(Ease.Linear);
     }
 }

@@ -169,18 +169,18 @@ public class SequenceMGR : MonoBehaviour
                 case ActSeqType.turnEnd:
                     // ターンエンド処理
                     seqList.RemoveAt(0);
-                    cntHeal += player.param.maxHp;
+                    cntHeal += player.Param.maxHp;
                     if (HealBorder < cntHeal)
                     {
                         cntHeal -= HealBorder;
-                        player.param.AddHP(1);
-                        Actor.Parameter parameter = player.param;
+                        player.Param.AddHP(1);
+                        Actor.Parameter parameter = player.Param;
                         parameter.hp += 1;
-                        player.param = parameter;
-                        if(player.param.hp > player.param.maxHp)
+                        player.Param = parameter;
+                        if(player.Param.hp > player.Param.maxHp)
                         {
-                            parameter.hp = player.param.maxHp;
-                            player.param = parameter;
+                            parameter.hp = player.Param.maxHp;
+                            player.Param = parameter;
                         }
                     }
                     IsCheckTurnEnd = true;
@@ -254,7 +254,7 @@ public class SequenceMGR : MonoBehaviour
         for (int i = enemies.Count - 1; i >= 0; i--)
         {// 逆順ループ
             // ID検索してヒットした敵を消す リストからも
-            if (enemies[i].param.id == id)
+            if (enemies[i].Param.id == id)
             {
                 enemies[i].Destroy();
                 enemies.RemoveAt(i);
@@ -271,7 +271,7 @@ public class SequenceMGR : MonoBehaviour
 
         foreach(var itr in enemies)
         {
-            if(itr.param.id == id)
+            if(itr.Param.id == id)
             {
                 return itr;
             }
@@ -312,7 +312,7 @@ public class SequenceMGR : MonoBehaviour
     {
         foreach(var itr in enemies)
         {
-            if(itr.status.point == point)
+            if(itr.status.gridPos == point)
             {
                 return itr;
             }
