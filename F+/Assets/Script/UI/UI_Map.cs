@@ -92,9 +92,9 @@ public class UI_Map : MonoBehaviour
         {// マップチップ分ループ
             for (int j = 0; j < (MapData.instance.Height); ++j)
             {
-                MapData.MapChipType num = MapData.instance.GetMapChipType(i, j);
-                if (num == MapData.MapChipType.none ||
-                    num == MapData.MapChipType.room)
+                int num = MapData.instance.GetValue(i, j);
+                if (num == (int)MapData.MapChipType.none ||
+                    num == (int)MapData.MapChipType.room)
                 {// 道に色を付ける
                     mapChips[j, i].color = new Color(0.0f, 1.0f, 0.3f, 0.2f);
                 }
@@ -117,7 +117,7 @@ public class UI_Map : MonoBehaviour
     public void UpdateMapPlayer()
     {
         // マップ上プレイヤーアップデート
-        Point playerPoint = ActorMGR.instance.Player.GetPoint();
+        Point playerPoint = SequenceMGR.instance.Player.GetPoint();
         mapPlayer.rectTransform.position = mapChips[playerPoint.y, playerPoint.x].transform.position;
         this.ShowMapUI(playerPoint.y, playerPoint.x);
 
