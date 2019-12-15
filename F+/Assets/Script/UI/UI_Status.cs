@@ -36,7 +36,7 @@ public class UI_Status : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        player = SequenceMGR.instance.Player;
+        player = ActorMGR.instance.Player;
 
         this.CreateText();
 
@@ -65,7 +65,7 @@ public class UI_Status : MonoBehaviour
     private void UpdateText()
     {
         Text_Floor.text = StageMGR.instance.GetFloorNum().ToString() + "階";
-        Text_Lv.text    = "Lv." + player.Param.level;
-        Text_HP.text    = "HP " + player.Param.hp + " / " + player.Param.maxHp;
+        Text_Lv.text    = "Lv." + player.param.level;
+        Text_HP.text    = "HP " + player.param.hp + " / " + player.param.maxHp;
     }
 }

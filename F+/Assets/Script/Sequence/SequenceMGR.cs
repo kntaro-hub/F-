@@ -169,18 +169,18 @@ public class SequenceMGR : MonoBehaviour
                 case ActSeqType.turnEnd:
                     // ターンエンド処理
                     seqList.RemoveAt(0);
-                    cntHeal += player.Param.maxHp;
+                    cntHeal += player.param.maxHp;
                     if (HealBorder < cntHeal)
                     {
                         cntHeal -= HealBorder;
-                        player.Param.AddHP(1);
-                        Actor.Parameter parameter = player.Param;
+                        player.param.AddHP(1);
+                        Actor.Parameter parameter = player.param;
                         parameter.hp += 1;
-                        player.Param = parameter;
-                        if(player.Param.hp > player.Param.maxHp)
+                        player.param = parameter;
+                        if(player.param.hp > player.param.maxHp)
                         {
-                            parameter.hp = player.Param.maxHp;
-                            player.Param = parameter;
+                            parameter.hp = player.param.maxHp;
+                            player.param = parameter;
                         }
                     }
                     IsCheckTurnEnd = true;
@@ -254,7 +254,7 @@ public class SequenceMGR : MonoBehaviour
         for (int i = enemies.Count - 1; i >= 0; i--)
         {// 逆順ループ
             // ID検索してヒットした敵を消す リストからも
-            if (enemies[i].Param.id == id)
+            if (enemies[i].param.id == id)
             {
                 enemies[i].Destroy();
                 enemies.RemoveAt(i);
@@ -271,7 +271,7 @@ public class SequenceMGR : MonoBehaviour
 
         foreach(var itr in enemies)
         {
-            if(itr.Param.id == id)
+            if(itr.param.id == id)
             {
                 return itr;
             }
@@ -312,7 +312,7 @@ public class SequenceMGR : MonoBehaviour
     {
         foreach(var itr in enemies)
         {
-            if(itr.status.gridPos == point)
+            if(itr.status.point == point)
             {
                 return itr;
             }

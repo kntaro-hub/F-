@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
 /// <summary>
 /// 確率計算用クラス
@@ -24,6 +22,6 @@ public static class Percent
         //乱数の上限と真と判定するボーダーを設定
         int randomValueLimit = 100;
         int border           = (int)(percent);
-        return Random.Range(0,randomValueLimit) <= border;
+        return UnityEngine.Random.Range(0,randomValueLimit) <= border;
     }
 }

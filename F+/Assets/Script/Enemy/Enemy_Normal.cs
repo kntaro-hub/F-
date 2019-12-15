@@ -22,7 +22,7 @@ public class Enemy_Normal : EnemyBase
     void Start()
     {
         aStar = GetComponent<AStarSys>();
-        status.gridPos = aStar.StartPoint;
+        status.point = aStar.StartPoint;
 
         // 敵情報取得
         EnemyTableEntity entity = DataBase.instance.GetEnemyTable((int)enemyType);
@@ -46,22 +46,22 @@ public class Enemy_Normal : EnemyBase
         
         Point movedPoint = new Point();
 
-        targetPoint = SequenceMGR.instance.Player.status.gridPos;
+        targetPoint = ActorMGR.instance.Player.status.point;
 
-        this.aStar.CheckWall_StartPointSet(status.gridPos);
+        this.aStar.CheckWall_StartPointSet(status.point);
         
         // 目的地更新
         this.aStar.SetGoal(targetPoint);
 
-        if (MapData.instance.GetRoomNum(status.gridPos) ==
-            MapData.instance.GetRoomNum(SequenceMGR.instance.Player.status.gridPos))
+        if (MapData.instance.GetRoomNum(status.point) ==
+            MapData.instance.GetRoomNum(ActorMGR.instance.Player.status.point))
         {// 部屋の中かつ、プレイヤーと同じ部屋
          // 一回分探索した後の座標を取得
             movedPoint = this.aStar.A_StarProc_Single();
         }
         else
         {// 経路探索を簡単なやつにする
-            movedPoint = this.aStar.SimpleProc(status.gridPos);
+            movedPoint = this.aStar.SimpleProc(status.point);
         }
 
         // 探索した座標に別のオブジェクトがあった場合は移動しない
@@ -72,9 +72,9 @@ public class Enemy_Normal : EnemyBase
         }
 
         // 今いた場所をリセット
-        MapData.instance.ResetMapObject(status.gridPos);
+        MapData.instance.ResetMapObject(status.point);
 
-        status.gridPos = movedPoint;
+        status.point = movedPoint;
         return true;
     }
 
@@ -84,8 +84,8 @@ public class Enemy_Normal : EnemyBase
         Point point;
 
         // プレイヤーへの距離を求める
-        int dx = status.gridPos.x - SequenceMGR.instance.Player.status.gridPos.x;
-        int dy = status.gridPos.y - SequenceMGR.instance.Player.status.gridPos.y;
+        int dx = status.point.x - ActorMGR.instance.Player.status.point.x;
+        int dy = status.point.y - ActorMGR.instance.Player.status.point.y;
         if (Mathf.Abs(dx) > Mathf.Abs(dy))
         {
             // X方向への距離の方が遠いのでそっちに進む
@@ -115,7 +115,7 @@ public class Enemy_Normal : EnemyBase
 
         // プレイヤー被ダメモーション
         // 攻撃が成功した場合
-        SequenceMGR.instance.Player.Damage(this.param.CalcAtk());
+        ActorMGR.instance.Player.Damage(this.param.CalcAtk());
 
         // タイマー起動（指定秒数経過するとターンエンド状態になる）
         StartCoroutine(Timer());
@@ -130,10 +130,10 @@ public class Enemy_Normal : EnemyBase
         #region 行動処理をここで決定
 
         // プレイヤーの移動後の座標を見て攻撃するか移動するか決定
-        if (MapData.instance.GetMapObject(new Point(status.gridPos.x + 1, status.gridPos.y)).objType == MapData.MapObjType.player ||
-            MapData.instance.GetMapObject(new Point(status.gridPos.x - 1, status.gridPos.y)).objType == MapData.MapObjType.player ||
-            MapData.instance.GetMapObject(new Point(status.gridPos.x, status.gridPos.y + 1)).objType == MapData.MapObjType.player ||
-            MapData.instance.GetMapObject(new Point(status.gridPos.x, status.gridPos.y - 1)).objType == MapData.MapObjType.player)
+        if (MapData.instance.GetMapObject(new Point(status.point.x + 1, status.point.y)).objType == MapData.MapObjType.player ||
+            MapData.instance.GetMapObject(new Point(status.point.x - 1, status.point.y)).objType == MapData.MapObjType.player ||
+            MapData.instance.GetMapObject(new Point(status.point.x, status.point.y + 1)).objType == MapData.MapObjType.player ||
+            MapData.instance.GetMapObject(new Point(status.point.x, status.point.y - 1)).objType == MapData.MapObjType.player)
         {// プレイヤーが真横にいる
 
             // 行動に遷移
@@ -144,7 +144,7 @@ public class Enemy_Normal : EnemyBase
             #region 移動処理をここで決定
             if (!isTarget)
             {// ターゲットを見つけられていない場合
-                if (Point.Distance(SequenceMGR.instance.Player.status.gridPos, this.status.gridPos) < searchRange)
+                if (Point.Distance(ActorMGR.instance.Player.status.point, this.status.point) < searchRange)
                 {// プレイヤーとの距離が指定の範囲内なら
 
                     // ターゲット発見フラグon

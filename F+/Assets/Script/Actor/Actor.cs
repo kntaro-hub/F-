@@ -32,7 +32,7 @@ public class Actor : MonoBehaviour
     public struct Status
     {
         public Direct direct;
-        public Point gridPos;  // グリッド座標
+        public Point point;  // グリッド座標
         public ActType actType;
     }
     public Status status;
@@ -146,7 +146,7 @@ public class Actor : MonoBehaviour
 
                 if(isUp)
                 {
-                    MessageWindow.instance.AddMessage($"レベル{this.level}に上がった！", Color.white);
+                    MessageWindow.instance.AddMessage($"{this.Name}はレベル{this.level}に上がった！", Color.white);
                 }
                 break;
             }
@@ -158,7 +158,7 @@ public class Actor : MonoBehaviour
 
             this.exp = DataBase.instance.GetLevelTable(level).Xp;
 
-            MessageWindow.instance.AddMessage($"レベル{this.level}に上がった！", Color.white);
+            MessageWindow.instance.AddMessage($"{this.Name}レベル{this.level}に上がった！", Color.white);
         }
         public void SubLevel(int subLevel)
         {
@@ -166,7 +166,7 @@ public class Actor : MonoBehaviour
 
             this.exp = DataBase.instance.GetLevelTable(level).Xp;
 
-            MessageWindow.instance.AddMessage($"レベルが{subLevel}下がってしまった…", Color.white);
+            MessageWindow.instance.AddMessage($"{this.Name}レベルが{subLevel}下がってしまった…", Color.white);
         }
         public void AddHP(int addHP)
         {
@@ -233,16 +233,7 @@ public class Actor : MonoBehaviour
         // 非装備時武器盾ID
         public static int notEquipValue = DataBase.instance.GetItemTableCount() - 1;
     }
-    protected Parameter param;
-    public Parameter Param
-    {
-        get { return param; }
-        set { param = value; }
-    }
-    public Parameter GetParam()
-    {
-        return param;
-    }
+    public Parameter param;
 
     // 移動にかかる時間
     public static float MoveTime = 0.1f;
@@ -270,5 +261,7 @@ public class Actor : MonoBehaviour
             MoveTime = 0.1f;
         }
     }
+
+    
 
 }

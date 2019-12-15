@@ -72,6 +72,7 @@ public class ItemMGR : MonoBehaviour
         {// 逆順ループ
             if (point == items[i].point)
             {
+                MapData.instance.ResetMapObject(items[i].point);
                 Destroy(items[i].gameObject);
                 items.RemoveAt(i);
                 return;
