@@ -67,6 +67,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -103,4 +104,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1bfbfe72e62d9243b9c2faec36ee7c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isDestroy: 0
+  param:
+    id: 0
+    level: 0
+    hp: 0
+    maxHp: 0
+    basicAtk: 0
+    maxAtk: 0
+    atk: 0
+    exp: 0
+    xp: 0
+    Name: 
+    weaponId: 0
+    shieldId: 0
+    hunger: 0
+    maxHunger: 0
+  enemyType: 0
+  searchRange: 7

@@ -70,7 +70,7 @@ public class PlayerControll : Actor
     void Start()
     {
         MapData.instance.SetInitY(InitPosY);
-        this.transform.position = MapData.GridToWorld(status.gridPos);
+        this.transform.position = MapData.GridToWorld(status.point);
         this.transform.position = new Vector3(
             this.transform.position.x,
             InitPosY,
@@ -80,7 +80,7 @@ public class PlayerControll : Actor
         playerItems = this.GetComponent<Player_Items>();
         ui_BasicMenu = FindObjectOfType<UI_BasicMenu>();
 
-        status.gridPos = new Point();
+        status.point = new Point();
         status.direct = Direct.forward;
 
         this.Init();
@@ -132,7 +132,7 @@ public class PlayerControll : Actor
 
     private void UpdatePosition()
     {
-        this.transform.position = MapData.GridToWorld(this.status.gridPos);
+        this.transform.position = MapData.GridToWorld(this.status.point);
     }
 
     private void CalcCameraPos()
@@ -231,7 +231,7 @@ public class PlayerControll : Actor
         {
             {
                 // この時点で移動後座標を更新する
-                movedPoint = status.gridPos;
+                movedPoint = status.point;
                 switch (status.direct)
                 {
                     case Direct.right:          movedPoint.x++; break;
@@ -248,7 +248,7 @@ public class PlayerControll : Actor
                 SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.move);
 
                 // マップ上オブジェクトの消去
-                MapData.instance.ResetMapObject(status.gridPos);    // 先に消去と登録をしなければならない
+                MapData.instance.ResetMapObject(status.point);    // 先に消去と登録をしなければならない
 
                 // マップ上オブジェクトの登録
                 MapData.instance.SetMapObject(movedPoint, MapData.MapObjType.player, param.id);
@@ -314,15 +314,15 @@ public class PlayerControll : Actor
                 return false;
             }
 
-            if (MapData.instance.GetValue(movedPoint.x, movedPoint.y)
-                 != (int)MapData.MapChipType.wall)
+            if (MapData.instance.GetMapChipType(movedPoint.x, movedPoint.y)
+                 != MapData.MapChipType.wall)
             {
                 if (IsMove)
                 {
                     playerAnimator.Play("Walking@loop");
                 }
 
-                status.gridPos = movedPoint;
+                status.point = movedPoint;
 
                 // MoveTime秒経つまで次の入力を受け付けないようにする
                 StartCoroutine(MoveTimer());
@@ -351,7 +351,7 @@ public class PlayerControll : Actor
         // 移動失敗時処理
 
         // マップを移動前の状態に戻す
-        MapData.instance.SetMapObject(status.gridPos, MapData.MapObjType.player, param.id);
+        MapData.instance.SetMapObject(status.point, MapData.MapObjType.player, param.id);
         MapData.instance.ResetMapObject(movedPoint);
     }
 
@@ -491,25 +491,19 @@ public class PlayerControll : Actor
         // マップ情報上のプレイヤーを更新
         UI_MGR.instance.Ui_Map.UpdateMapPlayer();
 
-        // 足元がゴールかチェック
-        if(MapData.instance.GetValue(this.status.gridPos) == (int)MapData.MapChipType.goal)
-        {
-            // ゴールUIを表示する
-            UI_MGR.instance.ShowUI( UI_MGR.UIType.goal);
-        }
+        // 足元のマップチップの効果を発動
+        MapData.instance.ActiveMapChip(this.status.point);
 
         // マップ情報上のアイテムを更新
         ItemMGR.instance.UpdateMapObject();
-        MapData.ObjectOnTheMap mapObject = MapData.instance.GetMapObject(this.status.gridPos);
+        MapData.ObjectOnTheMap mapObject = MapData.instance.GetMapObject(this.status.point);
         if (mapObject.objType == MapData.MapObjType.item)
         {// アイテムの上に乗った
             // インベントリに収納
             playerItems.AddItem(mapObject.id);
 
-            MapData.instance.ResetMapObject(this.status.gridPos);
-
             // 取得したアイテムをマップから消す
-            ItemMGR.instance.DestroyItem(this.status.gridPos);
+            ItemMGR.instance.DestroyItem(this.status.point);
         }
 
         // 歩数加算
@@ -552,7 +546,7 @@ public class PlayerControll : Actor
         SequenceMGR.instance.MapDataUpdate_Enemy();
 
         // 攻撃
-        MapData.ObjectOnTheMap mapObj = MapData.instance.GetMapObject(status.gridPos + this.GetDirect());
+        MapData.ObjectOnTheMap mapObj = MapData.instance.GetMapObject(status.point + this.GetDirect());
         if (mapObj.objType == MapData.MapObjType.enemy)
         {// 攻撃した先が敵
             if (Percent.Per(90))
@@ -562,18 +556,18 @@ public class PlayerControll : Actor
 
                 // ダメージ量を計算してhpから減算
                 // 一時変数に値をコピー（こうしないとParamは参照型のためコンパイルエラーとなる）
-                Parameter enemyParam = enemy.Param;
-                int damage = enemy.Param.CalcDamage(this.param.CalcAtk());
-                MessageWindow.instance.AddMessage(enemy.Param.Name + "に" + damage.ToString() + "のダメージ", Color.red);
+                Parameter enemyParam = enemy.param;
+                int damage = enemy.param.CalcDamage(this.param.CalcAtk());
+                MessageWindow.instance.AddMessage(enemy.param.Name + "に" + damage.ToString() + "のダメージ", Color.red);
                 enemyParam.hp -= damage;
-                enemy.Param = enemyParam;
+                enemy.param = enemyParam;
 
                 // hpが0以下なら死亡
-                if (enemy.Param.CheckDestroy())
+                if (enemy.param.CheckDestroy())
                 {
                     // プレイヤーに経験値加算
-                    SequenceMGR.instance.DestroyEnemyFromID(enemy.Param.id);
-                    this.param.AddXp(enemy.Param.xp);
+                    SequenceMGR.instance.DestroyEnemyFromID(enemy.param.id);
+                    this.param.AddXp(enemy.param.xp);
                 }
             }
             else

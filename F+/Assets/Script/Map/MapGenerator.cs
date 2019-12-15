@@ -75,7 +75,7 @@ public class MapGenerator : MonoBehaviour
         ConnectRooms();
 
         // 7. 部屋のどこかにプレイヤーを配置する
-        this.PlayerSet();
+        //ActorMGR.instance.CreatePlayer();
 
         // 8. ゴール設置
         this.GoalSet();
@@ -94,7 +94,7 @@ public class MapGenerator : MonoBehaviour
         {
             for (int i = 0; i < mapData.Width; i++)
             {
-                if (mapData.GetValue(i, j) == (int)MapData.MapChipType.wall)
+                if (mapData.GetMapChipType(i, j) == MapData.MapChipType.wall)
                 {
                     // 壁生成
                     float x = GetChipX(i);
@@ -118,23 +118,12 @@ public class MapGenerator : MonoBehaviour
         return new Point(X, Y);
     }
 
-    /// <summary>
-    /// プレイヤーをランダムな部屋のどこかに生成する
-    /// </summary>
-    private void PlayerSet()
-    {
-        Point point = this.RandomPointInRoom();
-
-        // プレイヤーのグリッド座標を更新
-        SequenceMGR.instance.Player.status.gridPos = point;
-        SequenceMGR.instance.Player.transform.position = MapData.GridToWorld(point);
-    }
     private void GoalSet()
     {
         Point point = this.RandomPointInRoom();
 
         // ゴールのマスを設定
-        MapData.instance.SetValue(point.x, point.y, (int)MapData.MapChipType.goal);
+        MapData.instance.SetMapChipType(point.x, point.y, (int)MapData.MapChipType.goal);
         MapData.instance.CreateGoal(point.x, point.y);
     }
 
@@ -143,14 +132,9 @@ public class MapGenerator : MonoBehaviour
     /// </summary>
     private void EnemySet()
     {
-        // 生成した部屋のリストからランダムな部屋を指定
-        Division.Div_Room room = divList[Random.Range(0, divList.Count - 1)].Room;
+        Point point = this.RandomPointInRoom();
 
-        // 指定した部屋のランダムな位置を算出
-        int X = Random.Range(room.Left + 1, room.Right);
-        int Y = Random.Range(room.Bottom - 1, room.Top);
-
-        MapData.instance.CreateEnemy(X, Y);
+        EnemyMGR.instance.CreateEnemy(EnemyMGR.EnemyType.normal, point);
     }
 
     /// <summary>
@@ -319,7 +303,7 @@ public class MapGenerator : MonoBehaviour
             {
                 for (int j = 0; j < div.Room.Bottom - div.Room.Top; ++j)
                 {
-                    MapData.instance.SetValue(div.Room.Left + i, div.Room.Top + j, (int)MapData.MapChipType.room);
+                    MapData.instance.SetMapChipType(div.Room.Left + i, div.Room.Top + j, (int)MapData.MapChipType.room);
                     MapData.instance.SetRoomNum(div.Room.Left + i, div.Room.Top + j, SetRoomNumber);
                 }
             }

@@ -94,7 +94,7 @@ public class AStarSys : MonoBehaviour
     private void Start()
     {
         // ゴール
-        goalPoint = SequenceMGR.instance.Player.GetPoint();
+        goalPoint = ActorMGR.instance.Player.GetPoint();
 
         // マネージャ作成
         nodeMGR = new NodeMGR(goalPoint.x, goalPoint.y);
@@ -164,7 +164,7 @@ public class AStarSys : MonoBehaviour
         // 総スコア計算＆返却
         public int GetGeneralCost()
         {
-            if (MapData.instance.GetGrid(new Point(X, Y)) == (int)MapData.MapChipType.wall)
+            if (MapData.instance.GetMapChipType(new Point(X, Y)) == MapData.MapChipType.wall)
             {
                 cost = 9999;
             }
@@ -301,7 +301,7 @@ public class AStarSys : MonoBehaviour
         // 指定の座標にあるノードをオープンする
         public A_StarNode OpenNode(int x, int y, int cost, A_StarNode parent)
         {
-            if (MapData.instance.GetValue(x, y) == (int)MapData.MapChipType.wall)
+            if (MapData.instance.GetMapChipType(x, y) == MapData.MapChipType.wall)
             {
                 // 通過できない
                 return null;
@@ -627,7 +627,7 @@ public class AStarSys : MonoBehaviour
     /// <param name="point">壁か判定するグリッド座標</param>
     public bool CheckWall_StartPointSet(Point point)
     {
-        if (MapData.instance.GetValue(point) != (int)MapData.MapChipType.wall)
+        if (MapData.instance.GetMapChipType(point) != MapData.MapChipType.wall)
         {
             startPoint = point;
             return true;
