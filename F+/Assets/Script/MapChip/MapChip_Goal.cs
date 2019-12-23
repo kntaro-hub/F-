@@ -2,15 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Goal : MonoBehaviour
+public class MapChip_Goal : MapChipBase
 {
-    private Point goalPoint;
-    public Point GoalPoint
-    {
-        get { return goalPoint; }
-        set { goalPoint = value; }
-    }
-
     // Start is called before the first frame update
     void Start()
     {
@@ -21,5 +14,10 @@ public class Goal : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public override void ActiveMapChip(Actor actor)
+    {
+        UI_MGR.instance.ShowUI(UI_MGR.UIType.goal);
     }
 }

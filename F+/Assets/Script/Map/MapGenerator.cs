@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.AddressableAssets;
 
 /// <summary>
 /// ダンジョンマップデータを自動生成する
@@ -85,7 +86,11 @@ public class MapGenerator : MonoBehaviour
 
         // 10. 壁を配置
         this.FillWall();
-    }
+
+        // 11. 罠を配置
+        for(int i = 0; i < 10;++i)
+        TrapMGR.instance.CreateTrap(TrapBase.TrapType.Warp);
+    }    
 
     private void FillWall()
     {
@@ -94,7 +99,7 @@ public class MapGenerator : MonoBehaviour
         {
             for (int i = 0; i < mapData.Width; i++)
             {
-                if (mapData.GetValue(i, j) == (int)MapData.MapChipType.wall)
+                if (mapData.GetMapChipType(i, j) == MapData.MapChipType.wall)
                 {
                     // 壁生成
                     float x = GetChipX(i);
@@ -126,7 +131,7 @@ public class MapGenerator : MonoBehaviour
         Point point = this.RandomPointInRoom();
 
         // プレイヤーのグリッド座標を更新
-        SequenceMGR.instance.Player.status.gridPos = point;
+        SequenceMGR.instance.Player.status.point = point;
         SequenceMGR.instance.Player.transform.position = MapData.GridToWorld(point);
     }
     private void GoalSet()
@@ -134,7 +139,7 @@ public class MapGenerator : MonoBehaviour
         Point point = this.RandomPointInRoom();
 
         // ゴールのマスを設定
-        MapData.instance.SetValue(point.x, point.y, (int)MapData.MapChipType.goal);
+       	MapData.instance.SetMapChipType(point.x, point.y, MapData.MapChipType.goal);
         MapData.instance.CreateGoal(point.x, point.y);
     }
 
@@ -319,7 +324,7 @@ public class MapGenerator : MonoBehaviour
             {
                 for (int j = 0; j < div.Room.Bottom - div.Room.Top; ++j)
                 {
-                    MapData.instance.SetValue(div.Room.Left + i, div.Room.Top + j, (int)MapData.MapChipType.room);
+                    MapData.instance.SetMapChipType(div.Room.Left + i, div.Room.Top + j, MapData.MapChipType.room);
                     MapData.instance.SetRoomNum(div.Room.Left + i, div.Room.Top + j, SetRoomNumber);
                 }
             }

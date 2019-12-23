@@ -8,14 +8,6 @@ using DG.Tweening;
 /// </summary>
 public class EnemyBase : Actor
 {
-    public enum EnemyAct
-    {
-        move = 0,   // 移動 // 敵それぞれで移動する条件を書く
-        act,        // 行動 // これもそれぞれ、内容も
-        max
-    }
-    protected EnemyAct enemyAct;
-
     public enum EnemyType
     {
         normal = 0,
@@ -36,7 +28,8 @@ public class EnemyBase : Actor
     // Start is called before the first frame update
     void Start()
     {
-        this.transform.position = MapData.GridToWorld(status.gridPos);
+        this.transform.position = MapData.GridToWorld(status.point);
+        this.status.characterType = CharaType.enemy;
     }
 
     // Update is called once per frame
@@ -53,15 +46,14 @@ public class EnemyBase : Actor
     /// <param name="setPoint">目的地</param>
     public void MoveProc()
     {
-        if (enemyAct == EnemyAct.move)
+        if (status.actType == ActType.Move)
         {
             if (this.Move())
             {
-                this.transform.DOMove(MapData.GridToWorld(this.status.gridPos), Actor.MoveTime).SetEase(Ease.Linear);
-                this.status.actType = ActType.Move;
+                this.transform.DOMove(MapData.GridToWorld(this.status.point), Actor.MoveTime).SetEase(Ease.Linear);
 
                 // マップに敵を登録
-                MapData.instance.SetMapObject(status.gridPos, MapData.MapObjType.enemy, param.id);
+                MapData.instance.SetMapObject(status.point, MapData.MapObjType.enemy, param.id);
 
                 // タイマー起動（指定秒数経過するとターンエンド状態になる）
                 StartCoroutine(Timer());
@@ -74,7 +66,7 @@ public class EnemyBase : Actor
     /// </summary>
     public void ActProc()
     {
-        if (enemyAct == EnemyAct.act)
+        if (status.actType == ActType.Act)
         {
             this.Act();
         }
@@ -83,14 +75,17 @@ public class EnemyBase : Actor
     public void Destroy()
     {
         // マップに登録してある自分の情報を消す
-        MapData.instance.ResetMapObject(status.gridPos);
+        MapData.instance.ResetMapObject(status.point);
 
         // 確率でアイテムをドロップ
         if (Percent.Per(DataBase.instance.GetEnemyTable((int)this.enemyType).DropPer))
         {
             // アイテムをランダム生成
-            ItemMGR.instance.CreateItem(this.status.gridPos, Random.Range(0, DataBase.instance.GetItemTableCount() - 1));
+            ItemMGR.instance.CreateItem(this.status.point, Random.Range(0, DataBase.instance.GetItemTableCount() - 1));
         }
+
+        // マップ上の自分を消す
+        UI_MGR.instance.Ui_Map.RemoveMapEnemy(this.status.point);
 
         // オブジェクト消去
         Destroy(this.gameObject);
@@ -98,7 +93,7 @@ public class EnemyBase : Actor
 
     public void MapDataUpdate()
     {
-        MapData.instance.SetMapObject(this.status.gridPos, MapData.MapObjType.enemy, param.id);
+        MapData.instance.SetMapObject(this.status.point, MapData.MapObjType.enemy, param.id);
     }
 
     // =--------- // =--------- 継承先で変更する ---------= // ---------= //

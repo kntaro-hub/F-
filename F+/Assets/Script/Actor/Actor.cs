@@ -29,11 +29,23 @@ public class Actor : MonoBehaviour
         TurnEnd,   // ターン終了
     };
 
+    /// <summary>
+    /// キャラクターの種類
+    /// </summary>
+    public enum CharaType
+    {
+        player = 0,
+        enemy,
+        max
+    }
+
     public struct Status
     {
         public Direct direct;
-        public Point gridPos;  // グリッド座標
+        public Point point;  // グリッド座標
+        public Point movedPoint;
         public ActType actType;
+        public CharaType characterType;
     }
     public Status status;
 

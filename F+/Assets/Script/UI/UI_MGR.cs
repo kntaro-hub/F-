@@ -151,7 +151,7 @@ public class UI_MGR : MonoBehaviour
     {
         if (uiList.Count > 0)
         {
-            SequenceMGR.instance.seqType = SequenceMGR.SeqType.menu;
+            SequenceMGR.instance.seqType = SequenceMGR.SeqType.moveImpossible;
             ui_Array[(int)uiList[0]].UpdateProc_UI();
         }
         else if (Input.GetKeyDown(KeyCode.Escape))

@@ -22,6 +22,8 @@ public class UI_ItemMenu : UI_Base
     private TextMeshProUGUI textPrefab;     // テキストプレハブ
     [SerializeField]
     private Image cursorPrefab;   // カーソルプレハブ
+    [SerializeField]
+    private ThrowObject throwObjPrefab;
 
     // =--------- パラメータ ---------= //
 
@@ -231,7 +233,7 @@ public class UI_ItemMenu : UI_Base
     /// </summary>
     private void Com_Throw()
     {// 選択しているアイテムを前方に投げる
-        Point playerPoint = SequenceMGR.instance.Player.status.gridPos;
+        Point playerPoint = SequenceMGR.instance.Player.status.point;
         Point point = new Point();
         switch (SequenceMGR.instance.Player.status.direct)
         {
@@ -248,16 +250,27 @@ public class UI_ItemMenu : UI_Base
 
         while(true)
         {
-           if(MapData.instance.GetValue(playerPoint + point) != (int)MapData.MapChipType.wall)
+            // 当たったあとの座標
+            Point hitedPoint = playerPoint + point;
+
+            bool isHit = false;
+
+            if (MapData.instance.GetMapChipType(hitedPoint) == MapData.MapChipType.wall)        isHit = true;
+            if (MapData.instance.GetMapObject(hitedPoint).objType == MapData.MapObjType.enemy)  isHit = true;
+               
+            if(!isHit)
             {// 1マス先へ
                 if (point.x != 0) point.x += (int)Mathf.Sign((float)point.x);
                 if (point.y != 0) point.y += (int)Mathf.Sign((float)point.y);
             }
            else
             {
-                // 壁にぶつかったら
+                // 壁or敵にぶつかったら1マス下がる
                 if (point.x != 0) point.x -= (int)Mathf.Sign((float)point.x);
                 if (point.y != 0) point.y -= (int)Mathf.Sign((float)point.y);
+
+                // あたる直前の座標
+                Point hitPoint = playerPoint + point;
 
                 switch (DataBase.instance.GetItemTable(selectedItemID).Type)
                 {
@@ -283,24 +296,53 @@ public class UI_ItemMenu : UI_Base
                         break;
                 }
 
-                // アイテム設置
-                ItemObject item = ItemMGR.instance.CreateItem(playerPoint, selectedItemID);
+                // メッセージ表示
+                MessageWindow.instance.AddMessage($"{DataBase.instance.GetItemTable(selectedItemID).Name}を投げた！", Color.white);
 
-                item.Move(playerPoint + point, ThrowSpeed * (int)Mathf.Max(Mathf.Abs((float)(playerPoint.x - (playerPoint.x + point.x))), Mathf.Abs((float)(playerPoint.y - (playerPoint.y + point.y)))));
-                StartCoroutine(this.ItemThrowTimer(ThrowSpeed * (int)Mathf.Max(Mathf.Abs((float)(playerPoint.x - (playerPoint.x + point.x))), Mathf.Abs((float)(playerPoint.y - (playerPoint.y + point.y))))));
-                
+                // 投げる用オブジェクト
+                ThrowObject throwItem = Instantiate(throwObjPrefab, MapData.GridToWorld(playerPoint), Quaternion.identity);
+
+                float throwTime = ThrowSpeed * (int)Mathf.Max(Mathf.Abs((float)(playerPoint.x - (playerPoint.x + point.x))), Mathf.Abs((float)(playerPoint.y - (playerPoint.y + point.y))));
+
+                throwItem.Move(hitedPoint, throwTime);
+
+                MapData.ObjectOnTheMap mapObject = MapData.instance.GetMapObject(hitedPoint);
+                if (mapObject.objType == MapData.MapObjType.enemy)
+                {// 敵に当たった場合
+                    StartCoroutine(this.ItemThrowTimer(throwTime, throwItem, selectedItemID, hitPoint, false));
+
+                    // 敵にダメージを与える
+                    EnemyBase enemy = SequenceMGR.instance.SearchEnemyFromID(mapObject.id);
+
+                    int damage = 0;
+                    ItemTableEntity item = DataBase.instance.GetItemTable(selectedItemID);
+                    switch(item.Type)
+                    {
+                        case ItemType.Consumables:  damage = 1;
+                            break;
+
+                        case ItemType.Weapon:       damage = Mathf.Abs(item.Atk - enemy.Param.atk) * 2;
+                            break;
+
+                        case ItemType.Shield:       damage = item.Def / 3;
+                            break;
+                    }
+                    enemy.Param.SubHP(damage);
+                    MessageWindow.instance.AddMessage($"{enemy.Param.Name}に{damage}のダメージ！", Color.white);
+                }
+                else
+                {// 敵以外に当たった場合
+                    StartCoroutine(this.ItemThrowTimer(throwTime, throwItem, selectedItemID, hitPoint, true));
+                }
 
                 // インベントリから使ったアイテムを削除
                 items.Erase(items.GetStockID(inventoryID));
                 UI_MGR.instance.Ui_Inventory.EraseText(inventoryID);
 
-                // メッセージ表示
-                MessageWindow.instance.AddMessage($"{DataBase.instance.GetItemTable(selectedItemID).Name}を投げた！", Color.white);
-
                 // ウィンドウを閉じる
                 UI_MGR.instance.ReturnAllUI();
 
-                SequenceMGR.instance.seqType = SequenceMGR.SeqType.menu;
+                SequenceMGR.instance.seqType = SequenceMGR.SeqType.moveImpossible;
                 break;
             }
         }
@@ -336,7 +378,7 @@ public class UI_ItemMenu : UI_Base
         }
         
         // アイテム設置
-        ItemMGR.instance.CreateItem(SequenceMGR.instance.Player.status.gridPos, selectedItemID);
+        ItemMGR.instance.CreateItem(SequenceMGR.instance.Player.status.point, selectedItemID);
 
         // インベントリから使ったアイテムを削除
         items.Erase(items.GetStockID(inventoryID));
@@ -357,7 +399,7 @@ public class UI_ItemMenu : UI_Base
         {
             case ItemType.Consumables:
                 // 一定時間操作不能に
-                SequenceMGR.instance.seqType = SequenceMGR.SeqType.menu;
+                SequenceMGR.instance.seqType = SequenceMGR.SeqType.moveImpossible;
                 StartCoroutine(this.ItemUseTimer());
 
                 // アイテムの効果を使う
@@ -452,9 +494,20 @@ public class UI_ItemMenu : UI_Base
         MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItemID).UsedMessage, Color.white);
     }
 
-    private IEnumerator ItemThrowTimer(float time)
+    private IEnumerator ItemThrowTimer(
+        float time,
+        ThrowObject throwObject,
+        int ID,
+        Point point,
+        bool isCreateItem)
     {
         yield return new WaitForSeconds(time);
+
+        Destroy(throwObject.gameObject);
+
+        if(isCreateItem)
+            ItemMGR.instance.CreateItem(point, ID);
+
         SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
     }
 }

@@ -6736,6 +6736,10 @@ MonoBehaviour:
     type: 3}
   mapPlayerPrefab: {fileID: 1247574643675336513, guid: a6c7aa49237fbc047aa3760beff6c25b,
     type: 3}
+  mapEnemyPrefab: {fileID: 1247574643675336513, guid: a6c7aa49237fbc047aa3760beff6c25b,
+    type: 3}
+  mapGoalPrefab: {fileID: 1247574643675336513, guid: a6c7aa49237fbc047aa3760beff6c25b,
+    type: 3}
 --- !u!1 &1153744372
 GameObject:
   m_ObjectHideFlags: 0
@@ -7061,6 +7065,8 @@ MonoBehaviour:
     type: 3}
   cursorPrefab: {fileID: 8551781334934228431, guid: 4aefcf9ca9d7e584fa1b6c2bc5bde02d,
     type: 3}
+  throwObjPrefab: {fileID: 2902961426946400446, guid: b36e336f20cb37441ba4cfdce5dcbac5,
+    type: 3}
   offsetText: -0.5
   initializePositionX: 15
   initializePositionY: 80
@@ -7129,9 +7135,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e89e2f5e133a32d419d5550605b4eeb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallPrefab: {fileID: 7624546719914479528, guid: e91346608ffa832498419403ad21ff63,
+  wallPrefab: {fileID: 4315502155568309577, guid: e91346608ffa832498419403ad21ff63,
     type: 3}
-  goalPrefab: {fileID: 6209832055970073042, guid: 1bbc2953835235c4da97e68d31590b27,
+  goalPrefab: {fileID: 229048949393654046, guid: 1bbc2953835235c4da97e68d31590b27,
     type: 3}
   enemyPrefab: {fileID: 2840031995818672948, guid: 7e7234cd05995bb41bd1d379bcaf9417,
     type: 3}

@@ -14,4 +14,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Interval.unity
     guid: 9a991a5240a27d242920109018a0d636
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 2f10b37ce0f1f834087ca8dd7007c543,
+      type: 2}

@@ -30,7 +30,7 @@ public class SequenceMGR : MonoBehaviour
     public enum SeqType
     {
         keyInput = 0,   // キー入力待ち      // 1番最初にこの状態
-        menu,           // メニュー表示中
+        moveImpossible,           // メニュー表示中
         max
     }
 
@@ -38,10 +38,11 @@ public class SequenceMGR : MonoBehaviour
 
     public enum ActSeqType
     {
-        playerAct = 0,  // プレイヤー行動    // 行動が選ばれた場合 
-        requestEnemy,   // 敵行動決め        // プレイヤーの行動の後、プレイヤー移動が決定した後
-        enemyAct,       // 敵行動実行        // プレイヤーの行動場合、行動決めの後すぐに実行
-        move,           // 移動              // プレイヤー移動の場合、敵行動決めの後すぐに実行
+        playerAct = 0,  // プレイヤー行動     // 行動が選ばれた場合 
+        requestEnemy,   // 敵行動決め         // プレイヤーの行動の後、プレイヤー移動が決定した後
+        enemyAct,       // 敵行動実行         // プレイヤーの行動場合、行動決めの後すぐに実行
+        move,           // 移動               // プレイヤー移動の場合、敵行動決めの後すぐに実行
+        trap,           // トラップ動作中      // プレイヤー行動直後に罠にかかっている場合すぐ実行
         turnEnd,
         max
     }
@@ -75,6 +76,7 @@ public class SequenceMGR : MonoBehaviour
             case PlayerActType.move:
                 seqList.Add(ActSeqType.requestEnemy);
                 seqList.Add(ActSeqType.move);
+                seqList.Add(ActSeqType.requestEnemy);
                 seqList.Add(ActSeqType.enemyAct);
                 seqList.Add(ActSeqType.turnEnd);
                 break;
@@ -126,17 +128,22 @@ public class SequenceMGR : MonoBehaviour
         Actor.ChangeSpeed();
     }
 
+    public void AddSeq(ActSeqType type)
+    {
+        seqList.Insert(0, type);
+    }
+
     /// <summary>
     /// 予約を一つ処理する
     /// 各キャラクター達が自分の番の最後に呼び出す
     /// </summary>
     public void ActProc()
     {
-        if(seqList.Count != 0)
+        if (seqList.Count != 0)
         {// 行動予約がある場合
 
             // 予約の先頭を実行
-            switch(seqList[0])
+            switch (seqList[0])
             {
                 case ActSeqType.playerAct:
                     // プレイヤー行動
@@ -177,7 +184,7 @@ public class SequenceMGR : MonoBehaviour
                         Actor.Parameter parameter = player.Param;
                         parameter.hp += 1;
                         player.Param = parameter;
-                        if(player.Param.hp > player.Param.maxHp)
+                        if (player.Param.hp > player.Param.maxHp)
                         {
                             parameter.hp = player.Param.maxHp;
                             player.Param = parameter;
@@ -185,9 +192,13 @@ public class SequenceMGR : MonoBehaviour
                     }
                     IsCheckTurnEnd = true;
                     break;
+
+                case ActSeqType.trap:
+                    seqList.RemoveAt(0);
+                    break;
             }
 
-            
+
         }
         else
         {// 予約が一件もない場合
@@ -244,7 +255,7 @@ public class SequenceMGR : MonoBehaviour
     public void MapDataUpdate_Enemy()
     {
         foreach (var itr in enemies)
-        {// それぞれの敵に行動を判断させる
+        {// 
             itr.MapDataUpdate();
         }
     }
@@ -312,7 +323,7 @@ public class SequenceMGR : MonoBehaviour
     {
         foreach(var itr in enemies)
         {
-            if(itr.status.gridPos == point)
+            if(itr.status.point == point)
             {
                 return itr;
             }
@@ -328,6 +339,8 @@ public class SequenceMGR : MonoBehaviour
         // 移動後は次の予約を実行
         this.ActProc();
     }
+
+    
 
     #region singleton
 
