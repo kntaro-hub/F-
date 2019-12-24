@@ -251,10 +251,6 @@ public class Actor : MonoBehaviour
         get { return param; }
         set { param = value; }
     }
-    public Parameter GetParam()
-    {
-        return param;
-    }
 
     // 移動にかかる時間
     public static float MoveTime = 0.1f;
@@ -283,4 +279,7 @@ public class Actor : MonoBehaviour
         }
     }
 
+    public virtual void Damage(int damage){}
+
+    public virtual void Destroy(){}
 }

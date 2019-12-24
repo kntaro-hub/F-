@@ -23,5 +23,6 @@ public enum ItemType
     Consumables = 0, // 消耗品
     Weapon,
     Shield,
+    Magic,
     max
 }

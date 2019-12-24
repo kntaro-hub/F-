@@ -75,7 +75,7 @@ public class PlayerControll : Actor
 
         status.point = new Point();
         status.direct = Direct.forward;
-        status.characterType = CharaType.player;
+        status.characterType = CharaType.player;       
 
         this.Init();
     }
@@ -105,6 +105,29 @@ public class PlayerControll : Actor
         {// 2階層以上の場合は前階層のデータを読み込む
             this.LoadStatus();
         }
+    }
+
+    public override void Damage(int damage)
+    {
+        int calcDamage = this.param.CalcDamage(damage);
+
+        MessageWindow.instance.AddMessage($"{this.Param.Name}は{calcDamage}のダメージをうけた！", Color.red);
+
+        // ダメージアニメーション
+        playerAnimator.Play("Damaged", 0, 0.0f);
+
+        if (this.param.SubHP(calcDamage))
+        {
+            this.Destroy();
+        }
+    }
+
+    public override void Destroy()
+    {
+        MessageWindow.instance.AddMessage($"{this.param.Name}はしんでしまった…", Color.red);
+
+        // オブジェクト消去
+        Destroy(this.gameObject);
     }
 
     // Update is called once per frame
@@ -352,27 +375,6 @@ public class PlayerControll : Actor
         // マップを移動前の状態に戻す
         MapData.instance.SetMapObject(status.point, MapData.MapObjType.player, param.id);
         MapData.instance.ResetMapObject(this.status.movedPoint);
-    }
-
-    /// <summary>
-    /// ダメージ処理
-    /// </summary>
-    public void Damage(int atk)
-    {
-        // ダメージ中にする
-        status.actType = ActType.Damage;
-
-        // ダメージ量を計算してhpから減算
-        this.param.hp -= this.param.CalcDamage(atk);
-
-        // hpが0以下なら死亡
-        if(this.param.CheckDestroy())
-        {
-            Destroy(this.gameObject);
-        }
-
-        StartCoroutine(this.DamagedTimer());
-        playerAnimator.Play("Damaged", 0, 0.0f);
     }
 
     private void ChangeRotate()

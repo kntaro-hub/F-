@@ -88,8 +88,9 @@ public class MapGenerator : MonoBehaviour
         this.FillWall();
 
         // 11. 罠を配置
-        for(int i = 0; i < 10;++i)
         TrapMGR.instance.CreateTrap(TrapBase.TrapType.Warp);
+        TrapMGR.instance.CreateTrap(TrapBase.TrapType.Spike);
+
     }    
 
     private void FillWall()

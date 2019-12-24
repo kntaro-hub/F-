@@ -65,7 +65,7 @@ public class Enemy_Normal : EnemyBase
 
         // 探索した座標に別のオブジェクトがあった場合は移動しない
         MapData.MapObjType objType = MapData.instance.GetMapObject(this.status.movedPoint).objType;
-        if (objType != MapData.MapObjType.none && objType != MapData.MapObjType.item)
+        if (objType != MapData.MapObjType.none && objType != MapData.MapObjType.item && objType != MapData.MapObjType.trap)
         {// オブジェクトがある場合
             return false;
         }
@@ -128,20 +128,7 @@ public class Enemy_Normal : EnemyBase
     public override void DecideCommand()
     {
         #region 行動処理をここで決定
-
-        if (this.status.actType == ActType.TurnEnd)
         {
-            if (MapData.instance.GetMapObject(new Point(status.point.x + 1, status.point.y)).objType != MapData.MapObjType.player &&
-            MapData.instance.GetMapObject(new Point(status.point.x - 1, status.point.y)).objType != MapData.MapObjType.player &&
-            MapData.instance.GetMapObject(new Point(status.point.x, status.point.y + 1)).objType != MapData.MapObjType.player &&
-            MapData.instance.GetMapObject(new Point(status.point.x, status.point.y - 1)).objType != MapData.MapObjType.player)
-            {// プレイヤーが真横にいない
-                return;
-            }
-        }
-        else
-        {
-
             // プレイヤーの移動後の座標を見て攻撃するか移動するか決定
             if (MapData.instance.GetMapObject(new Point(status.point.x + 1, status.point.y)).objType == MapData.MapObjType.player ||
                 MapData.instance.GetMapObject(new Point(status.point.x - 1, status.point.y)).objType == MapData.MapObjType.player ||
@@ -179,6 +166,27 @@ public class Enemy_Normal : EnemyBase
             }
 
             #endregion
+        }
+    }
+
+    /// <summary>
+    /// 行動決定　
+    /// ここで敵は挙動をもう一度判断する
+    /// </summary>
+    public override void DecideCommand2()
+    {
+        if (this.status.actType == ActType.Act)
+        {// プレイヤーに攻撃しようとしているとき
+            // プレイヤーの移動後の座標を見て攻撃するか移動するか決定
+            if (MapData.instance.GetMapObject(new Point(status.point.x + 1, status.point.y)).objType != MapData.MapObjType.player &&
+                MapData.instance.GetMapObject(new Point(status.point.x - 1, status.point.y)).objType != MapData.MapObjType.player &&
+                MapData.instance.GetMapObject(new Point(status.point.x, status.point.y + 1)).objType != MapData.MapObjType.player &&
+                MapData.instance.GetMapObject(new Point(status.point.x, status.point.y - 1)).objType != MapData.MapObjType.player)
+            {// プレイヤーが真横からいなくなった
+
+                // その場でターン終了
+                this.status.actType = ActType.TurnEnd;
+            }
         }
     }
 }

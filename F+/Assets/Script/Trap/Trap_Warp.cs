@@ -6,7 +6,6 @@ using DG.Tweening;
 public class Trap_Warp : TrapBase
 {
     private const float WarpTime = 1.0f;
-    private Actor actor;
 
     // Start is called before the first frame update
     void Start()
@@ -25,16 +24,11 @@ public class Trap_Warp : TrapBase
     /// </summary>
     public override void ActiveTrap(Actor actor)
     {
-        SequenceMGR.instance.AddSeq(SequenceMGR.ActSeqType.trap);
-
-        Point warpedPoint = MapGenerator.instance.RandomPointInRoom();
-        actor.status.point = warpedPoint;
-
-        StartCoroutine(WarpTimer(actor, warpedPoint));
+        StartCoroutine(WarpTimer(actor));
     }
 
     // =--------- コルーチン ---------= //
-    private IEnumerator WarpTimer(Actor actor, Point warpedPoint)
+    private IEnumerator WarpTimer(Actor actor)
     {
         // =--------- 飛び上がる直前 ---------= //
 
@@ -56,6 +50,8 @@ public class Trap_Warp : TrapBase
 
         // プレイヤーの座標をワープ後の座標に変更
         // 先にマップ上プレイヤーの座標をワープ後の座標に変更
+        Point warpedPoint = MapGenerator.instance.RandomPointInRoom();
+        actor.status.point = warpedPoint;
         Vector3 warpedPos = MapData.GridToWorld(warpedPoint);
         actor.transform.position = new Vector3(warpedPos.x, actor.transform.position.y, warpedPos.z);
 
@@ -80,7 +76,7 @@ public class Trap_Warp : TrapBase
                 break;
         }
 
-        
+
 
         SequenceMGR.instance.ActProc();
     }

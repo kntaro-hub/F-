@@ -97,6 +97,8 @@ public class UI_Map : MonoBehaviour
         this.ShowPlayer();
 
         this.UpdateMapPlayer();
+
+        this.gameObject.SetActive(false);
     }
 
     /// <summary>

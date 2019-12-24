@@ -10,6 +10,7 @@ public class TrapBase : MapChipBase
     public enum TrapType
     {
         Warp = 0,
+        Spike,
         max
     }
     protected TrapType trapType;
@@ -46,6 +47,8 @@ public class TrapBase : MapChipBase
         {
             
         }
+
+        SequenceMGR.instance.AddSeq(SequenceMGR.ActSeqType.trap);
 
         this.ActiveTrap(actor);
 

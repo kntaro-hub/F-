@@ -72,25 +72,6 @@ public class EnemyBase : Actor
         }
     }
 
-    public void Destroy()
-    {
-        // マップに登録してある自分の情報を消す
-        MapData.instance.ResetMapObject(status.point);
-
-        // 確率でアイテムをドロップ
-        if (Percent.Per(DataBase.instance.GetEnemyTable((int)this.enemyType).DropPer))
-        {
-            // アイテムをランダム生成
-            ItemMGR.instance.CreateItem(this.status.point, Random.Range(0, DataBase.instance.GetItemTableCount() - 1));
-        }
-
-        // マップ上の自分を消す
-        UI_MGR.instance.Ui_Map.RemoveMapEnemy(this.status.point);
-
-        // オブジェクト消去
-        Destroy(this.gameObject);
-    }
-
     public void MapDataUpdate()
     {
         MapData.instance.SetMapObject(this.status.point, MapData.MapObjType.enemy, param.id);
@@ -112,6 +93,48 @@ public class EnemyBase : Actor
     public virtual void DecideCommand()
     {
 
+    }
+
+    /// <summary>
+    /// 行動決定2
+    /// ここで敵はもう一度状況を確認する
+    /// </summary>
+    public virtual void DecideCommand2()
+    {
+
+    }
+
+    public override void Damage(int damage)
+    {
+        int calcDamage = this.param.CalcDamage(damage);
+
+        MessageWindow.instance.AddMessage($"{this.Param.Name}に{calcDamage}のダメージ！", Color.white);
+
+        if (this.param.SubHP(calcDamage))
+        {
+            this.Destroy();
+        }
+    }
+
+    public override void Destroy()
+    {
+        MessageWindow.instance.AddMessage($"{this.param.Name}をたおした！", Color.white);
+
+        // マップに登録してある自分の情報を消す
+        MapData.instance.ResetMapObject(status.point);
+
+        // 確率でアイテムをドロップ
+        if (Percent.Per(DataBase.instance.GetEnemyTable((int)this.enemyType).DropPer))
+        {
+            // アイテムをランダム生成
+            ItemMGR.instance.CreateItem(this.status.point, Random.Range(0, DataBase.instance.GetItemTableCount() - 1));
+        }
+
+        // マップ上の自分を消す
+        UI_MGR.instance.Ui_Map.RemoveMapEnemy(this.status.point);
+
+        // オブジェクト消去
+        Destroy(this.gameObject);
     }
 
     // =--------- // =--------- コルーチン ---------= // ---------= //

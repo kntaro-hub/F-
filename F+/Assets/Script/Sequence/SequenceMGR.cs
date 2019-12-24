@@ -40,6 +40,7 @@ public class SequenceMGR : MonoBehaviour
     {
         playerAct = 0,  // プレイヤー行動     // 行動が選ばれた場合 
         requestEnemy,   // 敵行動決め         // プレイヤーの行動の後、プレイヤー移動が決定した後
+        requestEnemy2,  // 敵行動決め（2回目）// プレイヤーが実際に行動した後にもう一度状況を確認する
         enemyAct,       // 敵行動実行         // プレイヤーの行動場合、行動決めの後すぐに実行
         move,           // 移動               // プレイヤー移動の場合、敵行動決めの後すぐに実行
         trap,           // トラップ動作中      // プレイヤー行動直後に罠にかかっている場合すぐ実行
@@ -76,7 +77,7 @@ public class SequenceMGR : MonoBehaviour
             case PlayerActType.move:
                 seqList.Add(ActSeqType.requestEnemy);
                 seqList.Add(ActSeqType.move);
-                seqList.Add(ActSeqType.requestEnemy);
+                seqList.Add(ActSeqType.requestEnemy2);
                 seqList.Add(ActSeqType.enemyAct);
                 seqList.Add(ActSeqType.turnEnd);
                 break;
@@ -158,6 +159,12 @@ public class SequenceMGR : MonoBehaviour
                     this.RequestEnemyAI();
                     break;
 
+                case ActSeqType.requestEnemy2:
+                    // 敵に行動を判断させる
+                    seqList.RemoveAt(0);
+                    this.RequestEnemyAI2();
+                    break;
+
                 case ActSeqType.move:
                     // 移動
                     seqList.RemoveAt(0);
@@ -236,6 +243,15 @@ public class SequenceMGR : MonoBehaviour
         foreach(var itr in enemies)
         {// それぞれの敵に行動を判断させる
             itr.DecideCommand();
+        }
+        this.ActProc();
+    }
+
+    private void RequestEnemyAI2()
+    {
+        foreach (var itr in enemies)
+        {// それぞれの敵に行動を判断させる
+            itr.DecideCommand2();
         }
         this.ActProc();
     }
