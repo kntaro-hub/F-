@@ -118,16 +118,16 @@ public class PlayerControll : Actor
 
         if (this.param.SubHP(calcDamage))
         {
-            this.Destroy();
+            this.DestroyObject();
         }
     }
 
-    public override void Destroy()
+    public override void DestroyObject()
     {
         MessageWindow.instance.AddMessage($"{this.param.Name}はしんでしまった…", Color.red);
 
         // オブジェクト消去
-        Destroy(this.gameObject);
+        DestroyObject(this.gameObject);
     }
 
     // Update is called once per frame
@@ -523,7 +523,7 @@ public class PlayerControll : Actor
             // hpが0以下なら死亡
             if(this.param.CheckDestroy())
             {
-                Destroy(this.gameObject);
+                DestroyObject(this.gameObject);
             }
         }
         else
@@ -558,20 +558,9 @@ public class PlayerControll : Actor
                 EnemyBase enemy = SequenceMGR.instance.SearchEnemyFromID(mapObj.id);
 
                 // ダメージ量を計算してhpから減算
-                // 一時変数に値をコピー（こうしないとParamは参照型のためコンパイルエラーとなる）
-                Parameter enemyParam = enemy.Param;
-                int damage = enemy.Param.CalcDamage(this.param.CalcAtk());
-                MessageWindow.instance.AddMessage(enemy.Param.Name + "に" + damage.ToString() + "のダメージ", Color.red);
-                enemyParam.hp -= damage;
-                enemy.Param = enemyParam;
-
-                // hpが0以下なら死亡
-                if (enemy.Param.CheckDestroy())
-                {
-                    // プレイヤーに経験値加算
-                    SequenceMGR.instance.DestroyEnemyFromID(enemy.Param.id);
-                    this.param.AddXp(enemy.Param.xp);
-                }
+                int damage = this.param.CalcAtk();
+                
+                enemy.Damage(damage, true);
             }
             else
             {

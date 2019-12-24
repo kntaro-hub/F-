@@ -10,29 +10,23 @@ public class UI_ItemMenu : UI_Base
     // =--------- 列挙体定義 ---------= //
     enum TextType   // 表示するテキストの種類
     {
-        use,    // 使う   1
-        throwItem,   // アイテムを投げる   2
-        put,    // 置く   3
-        max     // 最大値
+        use,         // 使う              1
+        throwItem,   // アイテムを投げる  2
+        put,         // 置く              3
+        max          // 最大値
     }
 
     // =--------- プレハブ ---------= //
 
-    [SerializeField]
-    private TextMeshProUGUI textPrefab;     // テキストプレハブ
-    [SerializeField]
-    private Image cursorPrefab;   // カーソルプレハブ
-    [SerializeField]
-    private ThrowObject throwObjPrefab;
+    [SerializeField] private TextMeshProUGUI textPrefab;     // テキストプレハブ
+    [SerializeField] private Image           cursorPrefab;   // カーソルプレハブ
+    [SerializeField] private ThrowObject     throwObjPrefab; // 投げるアイテム
 
     // =--------- パラメータ ---------= //
 
-    [SerializeField]
-    private float offsetText = 0.5f;            // テキスト同士のY座標間隔
-    [SerializeField]
-    private float initializePositionX = 0.0f;   // テキスト基準座標X
-    [SerializeField]
-    private float initializePositionY = 0.0f;   // テキスト基準座標Y
+    [SerializeField] private float offsetText = 0.5f;            // テキスト同士のY座標間隔
+    [SerializeField] private float initializePositionX = 0.0f;   // テキスト基準座標X
+    [SerializeField] private float initializePositionY = 0.0f;   // テキスト基準座標Y
 
     // =--------- 変数宣言 ---------= //
 
@@ -63,30 +57,14 @@ public class UI_ItemMenu : UI_Base
     // Start is called before the first frame update
     void Start()
     {
-        cursor = Instantiate(cursorPrefab, this.transform);
-        TextMeshProUGUI use     = Instantiate(textPrefab, this.transform); use.text     = "使う";
-        TextMeshProUGUI info    = Instantiate(textPrefab, this.transform); info.text    = "投げる";
-        TextMeshProUGUI put     = Instantiate(textPrefab, this.transform); put.text     = "置く";
-
-        textList.Add(use);
-        textList.Add(info);
-        textList.Add(put);
-
-        panel = this.GetComponent<Image>();
-        items = SequenceMGR.instance.Player.GetComponent<Player_Items>();
-        panel.color = Color.clear;
-
         // 初期化
         this.Init();
-
-        // 0番にカーソル位置合わせ
-        this.CursorSet(0);
     }
 
     // Update is called once per frame
     void Update()
     {
-        // 座標矯正
+        #region 座標矯正
         int cnt = 0;
         foreach (var itr in textList)
         {
@@ -94,10 +72,12 @@ public class UI_ItemMenu : UI_Base
                 initializePositionY - itr.rectTransform.sizeDelta.y * cnt + offsetText * cnt);
             ++cnt;
         }
+        #endregion
     }
 
     public override void UpdateProc_UI()
     {
+        #region キー入力
         if (isShow)
         {// メニュー表示中のみ
             if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -123,13 +103,7 @@ public class UI_ItemMenu : UI_Base
                 UI_MGR.instance.ReturnUI();
             }
         }
-        int cnt = 0;
-        foreach (var itr in textList)
-        {
-            itr.rectTransform.localPosition = new Vector3(initializePositionX,
-                initializePositionY - itr.rectTransform.sizeDelta.y * cnt + offsetText);
-            ++cnt;
-        }
+        #endregion        
     }
 
     /// <summary>
@@ -137,42 +111,71 @@ public class UI_ItemMenu : UI_Base
     /// </summary>
     private void Init()
     {
-        int cnt = 0;
-        foreach (var itr in textList)
-        {
-            // 透明に
-            itr.color = Color.clear;
-            itr.rectTransform.localPosition = new Vector3(initializePositionX,
-                initializePositionY - itr.rectTransform.sizeDelta.y * cnt + offsetText);
-            ++cnt;
-        }
-        // カーソルも透明に
+        // カーソル生成
+        cursor = Instantiate(cursorPrefab, this.transform);
+
+        // カーソルを透明に
         cursor.color = Color.clear;
-        // パネルも
+
+        // テキスト設定
+        TextMeshProUGUI use = Instantiate(textPrefab, this.transform); use.text = "使う";
+        TextMeshProUGUI info = Instantiate(textPrefab, this.transform); info.text = "投げる";
+        TextMeshProUGUI put = Instantiate(textPrefab, this.transform); put.text = "置く";
+
+        // テキストをすべて透明に
+        use.color = info.color = put.color = Color.clear;
+
+        // 生成したテキストをリストに追加
+        textList.Add(use);
+        textList.Add(info);
+        textList.Add(put);
+
+        // 背景パネル取得
+        panel = this.GetComponent<Image>();
+
+        // 背景パネルを透明にする
         panel.color = Color.clear;
+
+        // プレイヤーの所持アイテム情報を取得
+        items = SequenceMGR.instance.Player.GetComponent<Player_Items>();
+
+        // 0番にカーソル位置合わせ
+        this.CursorSet(0);
     }
 
-    // =--------- // =--------- メニュー表示/非表示 ---------= // ---------= //
-
+    /// <summary>
+    /// 選んだアイテムのIDを設定
+    /// </summary>
+    /// <param name="selectItemID">選んだアイテムID</param>
+    /// <param name="invID">インベントリID</param>
     public void SetItemID(int selectItemID, int invID)
     {
-        selectedItemID = selectItemID;    // 選んだアイテムのIDを登録
-        inventoryID = invID;
+        selectedItemID  = selectItemID;     // 選んだアイテムのIDを登録
+        inventoryID     = invID;            // インベントリIDを登録
     }
 
+    #region メニュー表示/非表示
     /// <summary>
     /// メニューを開く
     /// </summary>
     public override void ShowMenu()
     {
+        // テキストを表示
         foreach (var itr in textList)
         {
             itr.color = Color.white;
         }
+
+        // カーソルを表示
         cursor.color = Color.white;
+
+        // パネルを表示
         panel.color = new Color(0.0f, 0.0f, 0.0f, 0.3f);
+
+        // 生成状態on
         isShow = true;
 
+        // アイテムの種類によって表示するテキストを変える
         ItemType type = DataBase.instance.GetItemTable(selectedItemID).Type;
         switch (type)
         {
@@ -203,16 +206,25 @@ public class UI_ItemMenu : UI_Base
     /// </summary>
     public override void HideMenu()
     {
+        // テキストを透明に
         foreach (var itr in textList)
         {
             itr.color = Color.clear;
         }
+
+        // カーソルを透明に
         cursor.color = Color.clear;
+
+        // パネルを透明に
         panel.color = Color.clear;
+
+        // 表示状態off
         isShow = false;
     }
-
-    // =--------- // =--------- コマンド ---------= // ---------= //
+    #endregion
+    // =--------- // =--------------------= // ---------= //
+    #region コマンド
+    #region 「使う」
     /// <summary>
     /// [使う]コマンド
     /// </summary>
@@ -228,6 +240,9 @@ public class UI_ItemMenu : UI_Base
         // ウィンドウを閉じる
         UI_MGR.instance.ReturnUI();
     }
+    #endregion
+
+    #region 投げる
     /// <summary>
     /// [投げる]コマンド
     /// </summary>
@@ -279,19 +294,19 @@ public class UI_ItemMenu : UI_Base
 
                     case ItemType.Weapon:
                         // 武器を装備していた場合
-                        if (inventoryID == UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(UI_Inventory.EquipType.weapon))
+                        if (inventoryID == UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(EquipType.weapon))
                         {// 武器を外す
-                            UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(UI_Inventory.EquipType.weapon);
-                            SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, UI_Inventory.EquipType.weapon);
+                            UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(EquipType.weapon);
+                            SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, EquipType.weapon);
                         }
                         break;
 
                     case ItemType.Shield:
                         // 盾を装備していた場合
-                        if (inventoryID == UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(UI_Inventory.EquipType.shield))
+                        if (inventoryID == UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(EquipType.shield))
                         {// 盾を外す
-                            UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(UI_Inventory.EquipType.shield);
-                            SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, UI_Inventory.EquipType.shield);
+                            UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(EquipType.shield);
+                            SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, EquipType.shield);
                         }
                         break;
                 }
@@ -327,8 +342,7 @@ public class UI_ItemMenu : UI_Base
                         case ItemType.Shield:       damage = item.Def / 3;
                             break;
                     }
-                    enemy.Param.SubHP(damage);
-                    MessageWindow.instance.AddMessage($"{enemy.Param.Name}に{damage}のダメージ！", Color.white);
+                    enemy.Damage(damage, true);
                 }
                 else
                 {// 敵以外に当たった場合
@@ -347,6 +361,9 @@ public class UI_ItemMenu : UI_Base
             }
         }
     }
+    #endregion
+
+    #region 置く
     /// <summary>
     /// [置く]コマンド
     /// </summary>
@@ -360,19 +377,19 @@ public class UI_ItemMenu : UI_Base
 
             case ItemType.Weapon:
                 // 武器を装備していた場合
-                if (inventoryID == UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(UI_Inventory.EquipType.weapon))
+                if (inventoryID == UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(EquipType.weapon))
                 {// 武器を外す
-                    UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(UI_Inventory.EquipType.weapon);
-                    SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, UI_Inventory.EquipType.weapon);
+                    UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(EquipType.weapon);
+                    SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, EquipType.weapon);
                 }
                 break;
 
             case ItemType.Shield:
                 // 盾を装備していた場合
-                if (inventoryID == UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(UI_Inventory.EquipType.shield))
+                if (inventoryID == UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(EquipType.shield))
                 {// 盾を外す
-                    UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(UI_Inventory.EquipType.shield);
-                    SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, UI_Inventory.EquipType.shield);
+                    UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(EquipType.shield);
+                    SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, EquipType.shield);
                 }
                 break;
         }
@@ -390,60 +407,82 @@ public class UI_ItemMenu : UI_Base
         // ウィンドウを閉じる
         UI_MGR.instance.ReturnUI();
     }
+    #endregion
 
-    // =--------- // =--------- ---------= // ---------= //
+
+    #region 「使う」を選択したときの処理
 
     private void SwitchUseItemType(ItemType type)
     {
-        switch(type)
+        switch (type)
         {
-            case ItemType.Consumables:
-                // 一定時間操作不能に
-                SequenceMGR.instance.seqType = SequenceMGR.SeqType.moveImpossible;
-                StartCoroutine(this.ItemUseTimer());
-
-                // アイテムの効果を使う
-                SequenceMGR.instance.Player.Param = ItemMGR.instance.UseItem(selectedItemID, SequenceMGR.instance.Player.Param);
-
-                // インベントリから使ったアイテムを削除
-                items.Erase(items.GetStockID(inventoryID));
-                UI_MGR.instance.Ui_Inventory.EraseText(inventoryID);
-                break;
-
-            case ItemType.Weapon:
-                // 武器を装備
-                if (inventoryID != UI_MGR.instance.Ui_Inventory.GetEquipInventoryID( UI_Inventory.EquipType.weapon))
-                {
-                    SequenceMGR.instance.Player.Param = ItemMGR.instance.EquipWeapon(selectedItemID, SequenceMGR.instance.Player.Param);
-                    MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItemID).Name + "を装備した。", Color.white);
-                    UI_MGR.instance.Ui_Inventory.SetEquipIcon(inventoryID, UI_Inventory.EquipType.weapon);
-                }
-                else
-                {// 武器を外す
-                    MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItemID).Name + "を外した。", Color.white);
-                    UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(UI_Inventory.EquipType.weapon);
-                    SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, UI_Inventory.EquipType.weapon);
-
-                }
-                break;
-
-            case ItemType.Shield:
-                // 盾を装備
-                if (inventoryID != UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(UI_Inventory.EquipType.shield))
-                {
-                    SequenceMGR.instance.Player.Param = ItemMGR.instance.EquipShield(selectedItemID, SequenceMGR.instance.Player.Param);
-                    MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItemID).Name + "を装備した。", Color.white);
-                    UI_MGR.instance.Ui_Inventory.SetEquipIcon(inventoryID, UI_Inventory.EquipType.shield);
-                }
-                else
-                {// 盾を外す
-                    MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItemID).Name + "を外した。", Color.white);
-                    UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(UI_Inventory.EquipType.shield);
-                    SequenceMGR.instance.Player.Param = ItemMGR.instance.RemoveEquip(SequenceMGR.instance.Player.Param, UI_Inventory.EquipType.shield);
-                }
-                break;
+            case ItemType.Consumables:  this.UseConsumables(); break;
+            case ItemType.Weapon:       this.UseEquip(EquipType.weapon); break;
+            case ItemType.Shield:       this.UseEquip(EquipType.weapon); break;
+            case ItemType.Magic:        this.UseMagic((MagicType)DataBase.instance.GetItemTable(selectedItemID).ExType); break;
         }
     }
+
+    /// <summary>
+    /// 消耗品使用処理
+    /// </summary>
+    private void UseConsumables()
+    {
+        // 一定時間操作不能に
+        SequenceMGR.instance.seqType = SequenceMGR.SeqType.moveImpossible;
+        StartCoroutine(this.ItemUseTimer());
+
+        // アイテムの効果を使う
+        SequenceMGR.instance.Player.UseItem(selectedItemID);
+
+        // インベントリから使ったアイテムを削除
+        items.Erase(items.GetStockID(inventoryID));
+        UI_MGR.instance.Ui_Inventory.EraseText(inventoryID);
+    }
+
+    /// <summary>
+    /// 武器装備処理
+    /// </summary>
+    private void UseEquip(EquipType type)
+    {
+        // 選択した武器がすでに装備中であった場合は外す
+        if (inventoryID != UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(type))
+        {// 武器を装備
+
+            // 装備メッセージ
+            MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItemID).Name + "を装備した。", Color.white);
+
+            // インベントリの選択武器に装備アイコン(E)をつける
+            UI_MGR.instance.Ui_Inventory.SetEquipIcon(inventoryID, type);
+
+            // プレイヤーのステータスに反映
+            SequenceMGR.instance.Player.Equip(selectedItemID, type);
+        }
+        else
+        {// 武器を外す
+
+            // 装備解除メッセージ
+            MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItemID).Name + "を外した。", Color.white);
+
+            // インベントリの武器装備アイコンを消す
+            UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(type);
+
+            // プレイヤーのステータスに反映
+            SequenceMGR.instance.Player.RemoveEquip(type);
+        }
+    }
+
+    private void UseMagic(MagicType magicType)
+    {
+        MagicMGR.instance.ActivateMagic(magicType, selectedItemID);
+    }
+
+    #endregion
+    
+
+    #endregion
+    // =--------- // =--------------------= // ---------= //
+    #region カーソル処理
 
     /// <summary>
     /// テキストの横にカーソルの座標を合わせる
@@ -479,14 +518,16 @@ public class UI_ItemMenu : UI_Base
     {
         switch (buttonNum)
         {
-            case (int)TextType.use:     this.Com_Use(); break;
-            case (int)TextType.throwItem:    this.Com_Throw(); break;
-            case (int)TextType.put:     this.Com_Put(); break;
+            case (int)TextType.use:         this.Com_Use();     break;
+            case (int)TextType.throwItem:   this.Com_Throw();   break;
+            case (int)TextType.put:         this.Com_Put();     break;
             default: break;
         }
     }
 
-    // =--------- // =--------- コルーチン ---------= // ---------= //
+    #endregion
+    // =--------- // =--------------------= // ---------= //
+    #region コルーチン
     private IEnumerator ItemUseTimer()
     {
         yield return new WaitForSeconds(1.0f);
@@ -510,4 +551,6 @@ public class UI_ItemMenu : UI_Base
 
         SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
     }
+    #endregion
+    // =--------- // =--------------------= // ---------= //
 }

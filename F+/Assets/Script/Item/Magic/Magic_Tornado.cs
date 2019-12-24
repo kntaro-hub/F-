@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Magic_Tornado : MonoBehaviour
+public class Magic_Tornado : MagicBase
 {
     // Start is called before the first frame update
     void Start()
@@ -12,6 +12,11 @@ public class Magic_Tornado : MonoBehaviour
 
     // Update is called once per frame
     void Update()
+    {
+        
+    }
+
+    public override void ActivateMagic()
     {
         
     }

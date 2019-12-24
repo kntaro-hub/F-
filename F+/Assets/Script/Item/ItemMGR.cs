@@ -133,10 +133,10 @@ public class ItemMGR : MonoBehaviour
     /// </summary>
     /// <param name="itemID">アイテムID</param>
     /// <param name="actor">盾を装備させたいキャラクター</param>
-    public Actor.Parameter RemoveEquip(Actor.Parameter actorParam, UI_Inventory.EquipType type)
+    public Actor.Parameter RemoveEquip(Actor.Parameter actorParam, EquipType type)
     {
         Actor.Parameter param = actorParam;
-        if(type == UI_Inventory.EquipType.weapon)
+        if(type == EquipType.weapon)
         {
             param.weaponId = Actor.Parameter.notEquipValue;
         }

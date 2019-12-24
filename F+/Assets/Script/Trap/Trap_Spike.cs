@@ -27,7 +27,7 @@ public class Trap_Spike : TrapBase
     {
         MessageWindow.instance.AddMessage($"{actor.Param.Name}はトゲの罠にかかった！", Color.white);
         
-        actor.Damage(spikeDamage);
+        actor.Damage(spikeDamage, false);
 
         StartCoroutine(this.SpikeDamageTimer());
     }

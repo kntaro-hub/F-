@@ -241,6 +241,15 @@ public class Actor : MonoBehaviour
             }
             return false;
         }
+        
+        public void SetShieldID(int itemID)
+        {
+            this.shieldId = itemID;
+        }
+        public void SetWeaponID(int itemID)
+        {
+            this.weaponId = itemID;
+        }
 
         // 非装備時武器盾ID
         public static int notEquipValue = DataBase.instance.GetItemTableCount() - 1;
@@ -278,8 +287,40 @@ public class Actor : MonoBehaviour
             MoveTime = 0.1f;
         }
     }
+    
+    public void Equip(int itemID, EquipType equipType)
+    {
+        switch(equipType)
+        {
+            case EquipType.weapon: this.param.SetWeaponID(itemID); break;
+            case EquipType.shield: this.param.SetShieldID(itemID); break;
+        }
+    }
+
+    public void RemoveEquip(EquipType equipType)
+    {
+        switch (equipType)
+        {
+            case EquipType.weapon: this.param.SetWeaponID(Parameter.notEquipValue); break;
+            case EquipType.shield: this.param.SetShieldID(Parameter.notEquipValue); break;
+        }
+    }
+
+    /// <summary>
+    /// アイテムの効果を反映させる
+    /// </summary>
+    /// <param name="itemID">アイテムID</param>
+    public void UseItem(int itemID)
+    {
+        ItemTableEntity item = DataBase.instance.GetItemTable(itemID);
+        this.param.AddHP(item.HP);
+        this.param.basicAtk += item.Atk;
+        this.param.AddHunger(item.Hunger);
+    }
 
     public virtual void Damage(int damage){}
+    public virtual void Damage(int damage, bool isXp) { }
 
-    public virtual void Destroy(){}
+    public virtual void DestroyObject() { }
+    public virtual void DestroyObject(bool isXp) { }
 }

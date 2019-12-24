@@ -283,7 +283,6 @@ public class SequenceMGR : MonoBehaviour
             // ID検索してヒットした敵を消す リストからも
             if (enemies[i].Param.id == id)
             {
-                enemies[i].Destroy();
                 enemies.RemoveAt(i);
             }
         }

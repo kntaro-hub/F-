@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum EquipType
+{
+    weapon = 0,
+    shield,
+    max
+}
+
 public class UI_Inventory : UI_Base
 {
-    public enum EquipType
-    {
-        weapon = 0,
-        shield,
-        max
-    }
-
     // =--------- プレハブ ---------= //
 
     [SerializeField]

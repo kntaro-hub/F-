@@ -104,7 +104,7 @@ public class EnemyBase : Actor
 
     }
 
-    public override void Damage(int damage)
+    public override void Damage(int damage, bool isXp)
     {
         int calcDamage = this.param.CalcDamage(damage);
 
@@ -112,13 +112,19 @@ public class EnemyBase : Actor
 
         if (this.param.SubHP(calcDamage))
         {
-            this.Destroy();
+            MessageWindow.instance.AddMessage($"{this.param.Name}をたおした！", Color.white);
+            this.DestroyObject(isXp);
         }
     }
 
-    public override void Destroy()
+
+    public override void DestroyObject(bool isXp)
     {
-        MessageWindow.instance.AddMessage($"{this.param.Name}をたおした！", Color.white);
+        if(isXp)
+        {
+            // プレイヤーに経験値加算
+            SequenceMGR.instance.Player.Param.AddXp(this.Param.xp);
+        }
 
         // マップに登録してある自分の情報を消す
         MapData.instance.ResetMapObject(status.point);
@@ -132,6 +138,8 @@ public class EnemyBase : Actor
 
         // マップ上の自分を消す
         UI_MGR.instance.Ui_Map.RemoveMapEnemy(this.status.point);
+
+        SequenceMGR.instance.DestroyEnemyFromID(this.param.id);
 
         // オブジェクト消去
         Destroy(this.gameObject);
