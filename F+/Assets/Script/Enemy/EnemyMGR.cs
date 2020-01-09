@@ -5,10 +5,9 @@ using UnityEngine.AddressableAssets;
 
 public class EnemyMGR : MonoBehaviour
 {
-    const float MinAppearanceTime = 5.0f;   // 敵出現最小秒数
-    const float MaxAppearanceTime = 10.0f;  // 敵出現最大秒数
-    private bool isCount = false;           // 敵出現カウント中フラグ
-    private int MaxEnemy = 6;
+    public static float MinAppearanceTime = 5.0f;   // 敵出現最小秒数
+    public static float MaxAppearanceTime = 10.0f;  // 敵出現最大秒数
+    public static int MaxEnemy = 6;
 
     public enum EnemyType
     {
@@ -32,18 +31,10 @@ public class EnemyMGR : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // ランダムで敵出現
-        if(!isCount)
-        {
-            if (enemyList.Count <= MaxEnemy)
-            {
-                isCount = true;
-                StartCoroutine(AppearanceTimer(Random.Range(MinAppearanceTime, MaxAppearanceTime)));
-            }
-        }
+        
     }
 
-    private IEnumerator AppearanceTimer(float time)
+    public IEnumerator AppearanceTimer(float time)
     {
         yield return new WaitForSeconds(time);
 
@@ -77,62 +68,48 @@ public class EnemyMGR : MonoBehaviour
                 break;
             }
         }
-
-        isCount = false;
     }
 
-    /// <summary>
-    /// 入力したDictから一つを決定し、そのDictのkeyを返す
-    /// </summary>
-    public static T DetermineFromDict<T>(Dictionary<T, int> targetDict)
-    {
-        Dictionary<T, float> targetFloatDict = new Dictionary<T, float>();
-
-        foreach (KeyValuePair<T, int> pair in targetDict)
-        {
-            targetFloatDict.Add(pair.Key, (float)pair.Value);
-        }
-
-        return DetermineFromDict(targetFloatDict);
-    }
-
-    /// <summary>
-    /// 確率とその対象をまとめたDictを入力しその中から一つを決定、対象を返す
-    /// </summary>
-    public static T DetermineFromDict<T>(Dictionary<T, float> targetDict)
-    {
-
-        //累計確率
-        float totalPer = 0;
-        foreach (float per in targetDict.Values)
-        {
-            totalPer += per;
-        }
-
-        //0〜累計確率の間で乱数を作成
-        float rand = Random.Range(0, totalPer);
-
-        //乱数から各確率を引いていき、0未満になったら終了
-        foreach (KeyValuePair<T, float> pair in targetDict)
-        {
-            rand -= pair.Value;
-
-            if (rand <= 0)
-            {
-                return pair.Key;
-            }
-        }
-
-        //エラー、ここに来た時はプログラムが間違っている
-        Debug.LogError("抽選ができませんでした");
-        return new List<T>(targetDict.Keys)[0];
-    }
 
     public void CreateEnemy(EnemyType enemyType)
     {
         Point point = MapGenerator.instance.RandomPointInRoom();
 
         StartCoroutine(this.LoadEnemy(enemyType, point));
+    }
+
+    public void CreateEnemy_Random()
+    {
+        List<EnemyTableEntity> Candidates = new List<EnemyTableEntity>();
+        foreach (var itr in DataBase.instance.GetEnemyTable())
+        {
+            if (FloorMGR.instance.FloorNum <= itr.MaxFloor &&
+                FloorMGR.instance.FloorNum >= itr.MinFloor)
+            {
+                Candidates.Add(itr);
+            }
+        }
+
+        int SumAppearance = 0;
+        foreach (var itr in Candidates)
+        {
+            SumAppearance += itr.Appearance;
+        }
+
+        //0〜累計確率の間で乱数を作成
+        float rand = Random.Range(0, SumAppearance);
+
+        //乱数から各確率を引いていき、0未満になったら終了
+        foreach (var itr in Candidates)
+        {
+            rand -= itr.Appearance;
+
+            if (rand <= 0)
+            {
+                this.CreateEnemy((EnemyType)itr.TypeID);
+                break;
+            }
+        }
     }
 
     private IEnumerator LoadEnemy(EnemyType type, Point point)

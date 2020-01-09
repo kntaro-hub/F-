@@ -80,7 +80,7 @@ public class MapGenerator : MonoBehaviour
         this.GoalSet();
 
         // 9. 敵設置
-        this.EnemySet();
+        //this.EnemySet();
 
         // 10. 壁を配置
         this.FillWall();

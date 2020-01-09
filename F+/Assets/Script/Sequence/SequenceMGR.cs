@@ -108,6 +108,11 @@ public class SequenceMGR : MonoBehaviour
                 seqList.RemoveAt(0);
             }
         }
+        else
+        {
+            seqList.RemoveAt(0);
+            this.ActProc();
+        }
     }
 
     private IEnumerator NextTurnTimer(float time)
@@ -201,6 +206,16 @@ public class SequenceMGR : MonoBehaviour
 
                 // 1ターン経過したとみなして、行動可能状態に戻す（全員をwait状態にする）
                 this.ResetAct();
+
+                // ランダムで敵出現
+                if (Percent.Per(3))
+                {
+                    if (EnemyMGR.instance.EnemyList.Count <= EnemyMGR.MaxEnemy)
+                    {
+                        //StartCoroutine(EnemyMGR.instance.AppearanceTimer(Random.Range(EnemyMGR.MinAppearanceTime, EnemyMGR.MaxAppearanceTime)));
+                        EnemyMGR.instance.CreateEnemy_Random();
+                    }
+                }
             }
         }
 
