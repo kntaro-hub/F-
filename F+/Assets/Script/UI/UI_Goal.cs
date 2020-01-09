@@ -178,7 +178,7 @@ public class UI_Goal : UI_Base
     private void Com_Next()
     {// 次のステージへ
         SceneManager.LoadScene("Interval");
-        StageMGR.instance.AddFloorNum(1);
+        FloorMGR.instance.AddFloorNum(1);
         SequenceMGR.instance.Player.SaveStatus();
     }
     /// <summary>

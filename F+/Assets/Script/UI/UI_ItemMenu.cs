@@ -176,7 +176,7 @@ public class UI_ItemMenu : UI_Base
         isShow = true;
 
         // アイテムの種類によって表示するテキストを変える
-        ItemType type = DataBase.instance.GetItemTable(selectedItemID).Type;
+        ItemType type = DataBase.instance.GetItemTableEntity(selectedItemID).Type;
         switch (type)
         {
             case ItemType.Consumables:
@@ -230,11 +230,11 @@ public class UI_ItemMenu : UI_Base
     /// </summary>
     private void Com_Use()
     {// 選択しているアイテムを使う
-        this.SwitchUseItemType(DataBase.instance.GetItemTable(selectedItemID).Type);
+        this.SwitchUseItemType(DataBase.instance.GetItemTableEntity(selectedItemID).Type);
 
-        if (DataBase.instance.GetItemTable(selectedItemID).UseMessage != "")
+        if (DataBase.instance.GetItemTableEntity(selectedItemID).UseMessage != "")
         {
-            MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItemID).UseMessage, Color.white);
+            MessageWindow.instance.AddMessage(DataBase.instance.GetItemTableEntity(selectedItemID).UseMessage, Color.white);
         }
 
         // ウィンドウを閉じる
@@ -287,7 +287,7 @@ public class UI_ItemMenu : UI_Base
                 // あたる直前の座標
                 Point hitPoint = playerPoint + point;
 
-                switch (DataBase.instance.GetItemTable(selectedItemID).Type)
+                switch (DataBase.instance.GetItemTableEntity(selectedItemID).Type)
                 {
                     case ItemType.Consumables:
                         break;
@@ -312,7 +312,7 @@ public class UI_ItemMenu : UI_Base
                 }
 
                 // メッセージ表示
-                MessageWindow.instance.AddMessage($"{DataBase.instance.GetItemTable(selectedItemID).Name}を投げた！", Color.white);
+                MessageWindow.instance.AddMessage($"{DataBase.instance.GetItemTableEntity(selectedItemID).Name}を投げた！", Color.white);
 
                 // 投げる用オブジェクト
                 ThrowObject throwItem = Instantiate(throwObjPrefab, MapData.GridToWorld(playerPoint), Quaternion.identity);
@@ -330,7 +330,7 @@ public class UI_ItemMenu : UI_Base
                     EnemyBase enemy = SequenceMGR.instance.SearchEnemyFromID(mapObject.id);
 
                     int damage = 0;
-                    ItemTableEntity item = DataBase.instance.GetItemTable(selectedItemID);
+                    ItemTableEntity item = DataBase.instance.GetItemTableEntity(selectedItemID);
                     switch(item.Type)
                     {
                         case ItemType.Consumables:  damage = 1;
@@ -370,7 +370,7 @@ public class UI_ItemMenu : UI_Base
     private void Com_Put()
     {// 選択しているアイテムをその場の足元に置く
 
-        switch (DataBase.instance.GetItemTable(selectedItemID).Type)
+        switch (DataBase.instance.GetItemTableEntity(selectedItemID).Type)
         {
             case ItemType.Consumables:
                 break;
@@ -402,7 +402,7 @@ public class UI_ItemMenu : UI_Base
         UI_MGR.instance.Ui_Inventory.EraseText(inventoryID);
 
         // メッセージ表示
-        MessageWindow.instance.AddMessage($"{DataBase.instance.GetItemTable(selectedItemID).Name}を置いた。", Color.white);
+        MessageWindow.instance.AddMessage($"{DataBase.instance.GetItemTableEntity(selectedItemID).Name}を置いた。", Color.white);
 
         // ウィンドウを閉じる
         UI_MGR.instance.ReturnUI();
@@ -419,7 +419,8 @@ public class UI_ItemMenu : UI_Base
             case ItemType.Consumables:  this.UseConsumables(); break;
             case ItemType.Weapon:       this.UseEquip(EquipType.weapon); break;
             case ItemType.Shield:       this.UseEquip(EquipType.weapon); break;
-            case ItemType.Magic:        this.UseMagic((MagicType)DataBase.instance.GetItemTable(selectedItemID).ExType); break;
+            case ItemType.Magic:        this.UseMagic((MagicType)DataBase.instance.GetItemTableEntity(selectedItemID).ExType); break;
+            case ItemType.Book:         this.UseBook((BookType)DataBase.instance.GetItemTableEntity(selectedItemID).ExType); break;
         }
     }
 
@@ -450,7 +451,7 @@ public class UI_ItemMenu : UI_Base
         {// 武器を装備
 
             // 装備メッセージ
-            MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItemID).Name + "を装備した。", Color.white);
+            MessageWindow.instance.AddMessage(DataBase.instance.GetItemTableEntity(selectedItemID).Name + "を装備した。", Color.white);
 
             // インベントリの選択武器に装備アイコン(E)をつける
             UI_MGR.instance.Ui_Inventory.SetEquipIcon(inventoryID, type);
@@ -462,7 +463,7 @@ public class UI_ItemMenu : UI_Base
         {// 武器を外す
 
             // 装備解除メッセージ
-            MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItemID).Name + "を外した。", Color.white);
+            MessageWindow.instance.AddMessage(DataBase.instance.GetItemTableEntity(selectedItemID).Name + "を外した。", Color.white);
 
             // インベントリの武器装備アイコンを消す
             UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(type);
@@ -475,8 +476,20 @@ public class UI_ItemMenu : UI_Base
     private void UseMagic(MagicType magicType)
     {
         MagicMGR.instance.ActivateMagic(magicType, selectedItemID);
+
+        // インベントリから使ったアイテムを削除
+        items.Erase(items.GetStockID(inventoryID));
+        UI_MGR.instance.Ui_Inventory.EraseText(inventoryID);
     }
 
+    private void UseBook(BookType bookType)
+    {
+        BookMGR.instance.ActivateBook(bookType, selectedItemID);
+
+        // インベントリから使ったアイテムを削除
+        items.Erase(items.GetStockID(inventoryID));
+        UI_MGR.instance.Ui_Inventory.EraseText(inventoryID);
+    }
     #endregion
     
 
@@ -532,7 +545,7 @@ public class UI_ItemMenu : UI_Base
     {
         yield return new WaitForSeconds(1.0f);
         SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
-        MessageWindow.instance.AddMessage(DataBase.instance.GetItemTable(selectedItemID).UsedMessage, Color.white);
+        MessageWindow.instance.AddMessage(DataBase.instance.GetItemTableEntity(selectedItemID).UsedMessage, Color.white);
     }
 
     private IEnumerator ItemThrowTimer(

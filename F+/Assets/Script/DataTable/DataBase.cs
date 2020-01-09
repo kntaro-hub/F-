@@ -22,25 +22,46 @@ public class DataBase : MonoBehaviour
 
     // =--------- ゲッター ---------= //
 
-    public EnemyTableEntity GetEnemyTable(int id)
+    public EnemyTableEntity GetEnemyTableEntity(int id)
     {
         return table_Enemy.Table[id];
     }
-    public WeaponTableEntity GetWeaponTable(int id)
+    public WeaponTableEntity GetWeaponTableEntity(int id)
     {
         return table_weapon.Table[id];
     }
-    public ShieldTableEntity GetShiledTable(int id)
+    public ShieldTableEntity GetShiledTableEntity(int id)
     {
         return table_shield.Table[id];
     }
-    public LevelTableEntity GetLevelTable(int id)
+    public LevelTableEntity GetLevelTableEntity(int id)
     {
         return table_Level.Table[id];
     }
-    public ItemTableEntity GetItemTable(int id)
+    public ItemTableEntity GetItemTableEntity(int id)
     {
         return table_Item.Table[id];
+    }
+
+    public List<EnemyTableEntity> GetEnemyTable()
+    {
+        return table_Enemy.Table;
+    }
+    public List<WeaponTableEntity> GetWeaponTable()
+    {
+        return table_weapon.Table;
+    }
+    public List<ShieldTableEntity> GetShiledTable()
+    {
+        return table_shield.Table;
+    }
+    public List<LevelTableEntity> GetLevelTable()
+    {
+        return table_Level.Table;
+    }
+    public List<ItemTableEntity> GetItemTable()
+    {
+        return table_Item.Table;
     }
 
     public int GetEnemyTableCount()

@@ -76,7 +76,7 @@ public class Trap_Warp : TrapBase
                 break;
         }
 
-
+        UI_MGR.instance.Ui_Map.UpdateMapPlayer();
 
         SequenceMGR.instance.ActProc();
     }

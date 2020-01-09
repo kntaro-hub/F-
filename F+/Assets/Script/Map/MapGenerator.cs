@@ -1,7 +1,5 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.AddressableAssets;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// ダンジョンマップデータを自動生成する
@@ -87,6 +85,32 @@ public class MapGenerator : MonoBehaviour
         // 10. 壁を配置
         this.FillWall();
 
+        // 11. 部屋の周りを走査して通路を部屋の入口として登録する
+        foreach(var itr in divList)
+        {
+            for (int x = 0; x < itr.Room.Width; ++x)
+            {
+                for (int y = 0; y < itr.Room.Height; ++y)
+                {
+                    if(mapData.GetMapChipType(itr.Room.Left + x - 1, itr.Room.Top + y - 1) == MapData.MapChipType.none)
+                    {
+
+                        // いまは左と上がroomaround
+
+                        mapData.SetMapChipType(itr.Room.Left + x - 1, itr.Room.Top + y - 1, MapData.MapChipType.roomAround);
+                    }
+                    if (mapData.GetMapChipType(itr.Room.Left + x + 1, itr.Room.Top + y + 1) == MapData.MapChipType.none)
+                    {
+
+                        // いまは左と上がroomaround
+
+                        mapData.SetMapChipType(itr.Room.Left + x + 1, itr.Room.Top + y + 1, MapData.MapChipType.roomAround);
+                    }
+                }
+            }
+        }
+
+
         // 11. 罠を配置
         TrapMGR.instance.CreateTrap(TrapBase.TrapType.Warp);
         TrapMGR.instance.CreateTrap(TrapBase.TrapType.Spike);
@@ -149,14 +173,10 @@ public class MapGenerator : MonoBehaviour
     /// </summary>
     private void EnemySet()
     {
-        // 生成した部屋のリストからランダムな部屋を指定
-        Division.Div_Room room = divList[Random.Range(0, divList.Count - 1)].Room;
-
-        // 指定した部屋のランダムな位置を算出
-        int X = Random.Range(room.Left + 1, room.Right);
-        int Y = Random.Range(room.Bottom - 1, room.Top);
-
-        MapData.instance.CreateEnemy(X, Y);
+        EnemyMGR.instance.CreateEnemy(EnemyMGR.EnemyType.Normal);
+        EnemyMGR.instance.CreateEnemy(EnemyMGR.EnemyType.Normal);
+        EnemyMGR.instance.CreateEnemy(EnemyMGR.EnemyType.Normal);
+        EnemyMGR.instance.CreateEnemy(EnemyMGR.EnemyType.Normal);
     }
 
     /// <summary>

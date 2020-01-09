@@ -12,11 +12,8 @@ public class Enemy_Normal : EnemyBase
     // ターゲットを発見したかどうか
     private bool isTarget;
 
+    // AStarアルゴリズムで経路探索する用
     private AStarSys aStar = null;
-    public AStarSys AStar
-    {
-        get { return aStar; }
-    }
 
     // Start is called before the first frame update
     void Start()
@@ -25,14 +22,14 @@ public class Enemy_Normal : EnemyBase
         status.point = aStar.StartPoint;
 
         // 敵情報取得
-        EnemyTableEntity entity = DataBase.instance.GetEnemyTable((int)enemyType);
+        EnemyTableEntity entity = DataBase.instance.GetEnemyTableEntity((int)enemyType);
 
         // 敵パラメータ設定
-        enemyType   = (EnemyType)entity.TypeID;
-        param.hp    = entity.MaxHP;
-        param.atk   = entity.Atk;
-        param.Name  = entity.Name;
-        param.xp    = entity.Xp;
+        enemyType = (EnemyMGR.EnemyType)entity.TypeID;
+        param.hp = entity.MaxHP;
+        param.atk = entity.Atk;
+        param.Name = entity.Name;
+        param.xp = entity.Xp;
     }
 
     // Update is called once per frame
@@ -50,22 +47,29 @@ public class Enemy_Normal : EnemyBase
         // 目的地更新
         this.aStar.SetGoal(targetPoint);
 
-        if (MapData.instance.GetRoomNum(status.point) ==
-            MapData.instance.GetRoomNum(SequenceMGR.instance.Player.status.point))
-        {// 部屋の中かつ、プレイヤーと同じ部屋
-         // 一回分探索した後の座標を取得
-            this.status.movedPoint = this.aStar.A_StarProc_Single();
+        if (MapData.instance.GetMapChipType(targetPoint) == MapData.MapChipType.room)
+        {
+            if (MapData.instance.GetRoomNum(status.point) ==
+                MapData.instance.GetRoomNum(targetPoint))
+            {// 部屋の中かつ、プレイヤーと同じ部屋
+             // 一回分探索した後の座標を取得  // 4方向
+                this.status.movedPoint = this.aStar.A_StarProc_Single2(false);
+            }
+            else
+            {// 経路探索を簡単なやつにする
+                this.status.movedPoint = this.aStar.SimpleProc(status.point);
+            }
         }
         else
         {// 経路探索を簡単なやつにする
             this.status.movedPoint = this.aStar.SimpleProc(status.point);
         }
 
-        this.status.actType = ActType.TurnEnd;
-
         // 探索した座標に別のオブジェクトがあった場合は移動しない
         MapData.MapObjType objType = MapData.instance.GetMapObject(this.status.movedPoint).objType;
-        if (objType != MapData.MapObjType.none && objType != MapData.MapObjType.item && objType != MapData.MapObjType.trap)
+        if (objType != MapData.MapObjType.none && 
+            objType != MapData.MapObjType.item && 
+            objType != MapData.MapObjType.trap)
         {// オブジェクトがある場合
             return false;
         }
@@ -77,48 +81,17 @@ public class Enemy_Normal : EnemyBase
         return true;
     }
 
-    protected override void Act()
+    protected override float Act()
     {
-        // 行動処理
-        Point point;
+        this.transform.DOPunchPosition(MapData.GridToWorld(directPoint), MoveTime * 2.0f);
 
-        // プレイヤーへの距離を求める
-        int dx = status.point.x - SequenceMGR.instance.Player.status.point.x;
-        int dy = status.point.y - SequenceMGR.instance.Player.status.point.y;
-        if (Mathf.Abs(dx) > Mathf.Abs(dy))
-        {
-            // X方向への距離の方が遠いのでそっちに進む
-            if (dx < 0)
-            {
-                point = new Point(1, 0);
-            } // 左
-            else
-            {
-                point = new Point(-1, 0);
-            } // 右
-        }
-        else
-        {
-            // Y方向へ進む
-            if (dy < 0)
-            {
-                point = new Point(0, 1);
-            } // 上
-            else
-            {
-                point = new Point(0, -1);
-            } // 下
-        }
-
-        this.transform.DOPunchPosition(MapData.GridToWorld(point), MoveTime);
-
-        // プレイヤー被ダメモーション
         // 攻撃が成功した場合
         SequenceMGR.instance.Player.Damage(this.param.CalcAtk());
 
-
         // タイマー起動（指定秒数経過するとターンエンド状態になる）
-        StartCoroutine(Timer());
+        StartCoroutine(Timer(MoveTime * 3.0f));
+
+        return MoveTime * 3.0f;
     }
 
     /// <summary>
@@ -129,11 +102,26 @@ public class Enemy_Normal : EnemyBase
     {
         #region 行動処理をここで決定
         {
+            if(MapData.instance.GetMapChipType(this.status.point) == MapData.MapChipType.room &&
+                MapData.instance.GetMapChipType(SequenceMGR.instance.Player.status.point) == MapData.MapChipType.room)
+            {
+                if (MapData.instance.GetRoomNum(status.point) ==
+                MapData.instance.GetRoomNum(targetPoint))
+                {// 部屋の中かつ、プレイヤーと同じ部屋
+                    directPoint = MapData.instance.GetPointFromAround(this.status.point, MapData.MapObjType.player);
+                }
+                else
+                {
+                    directPoint = MapData.instance.GetPointFromUDRL(this.status.point, MapData.MapObjType.player);
+                }
+            }
+            else
+            {
+                directPoint = MapData.instance.GetPointFromUDRL(this.status.point, MapData.MapObjType.player);
+            }
+
             // プレイヤーの移動後の座標を見て攻撃するか移動するか決定
-            if (MapData.instance.GetMapObject(new Point(status.point.x + 1, status.point.y)).objType == MapData.MapObjType.player ||
-                MapData.instance.GetMapObject(new Point(status.point.x - 1, status.point.y)).objType == MapData.MapObjType.player ||
-                MapData.instance.GetMapObject(new Point(status.point.x, status.point.y + 1)).objType == MapData.MapObjType.player ||
-                MapData.instance.GetMapObject(new Point(status.point.x, status.point.y - 1)).objType == MapData.MapObjType.player)
+            if (directPoint != 0)
             {// プレイヤーが真横にいる
 
                 // 行動に遷移
@@ -160,6 +148,8 @@ public class Enemy_Normal : EnemyBase
                 }
                 else
                 {
+
+                    // ターゲットが見つかっていない場合はターンエンド
                     this.status.actType = ActType.TurnEnd;
                 }
                 #endregion
@@ -178,14 +168,12 @@ public class Enemy_Normal : EnemyBase
         if (this.status.actType == ActType.Act)
         {// プレイヤーに攻撃しようとしているとき
             // プレイヤーの移動後の座標を見て攻撃するか移動するか決定
-            if (MapData.instance.GetMapObject(new Point(status.point.x + 1, status.point.y)).objType != MapData.MapObjType.player &&
-                MapData.instance.GetMapObject(new Point(status.point.x - 1, status.point.y)).objType != MapData.MapObjType.player &&
-                MapData.instance.GetMapObject(new Point(status.point.x, status.point.y + 1)).objType != MapData.MapObjType.player &&
-                MapData.instance.GetMapObject(new Point(status.point.x, status.point.y - 1)).objType != MapData.MapObjType.player)
+            if (MapData.instance.GetMapObject(this.status.point + directPoint).objType != MapData.MapObjType.player)
             {// プレイヤーが真横からいなくなった
 
                 // その場でターン終了
                 this.status.actType = ActType.TurnEnd;
+                return;
             }
         }
     }

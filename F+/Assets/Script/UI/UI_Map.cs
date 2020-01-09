@@ -30,6 +30,9 @@ public class UI_Map : MonoBehaviour
     [SerializeField, Tooltip("マップ上のゴールのプレハブです。")]
     private Image mapGoalPrefab;  // マップ上ゴールのプレハブ
 
+    [SerializeField, Tooltip("マップ上のアイテムのプレハブです。")]
+    private Image mapItemPrefab;  // マップ上アイテムのプレハブ
+
     // =--------- 変数宣言 ---------= //
 
     private bool        IsShowMap = false;  // マップ表示中かどうか
@@ -37,6 +40,7 @@ public class UI_Map : MonoBehaviour
     private Image       mapPlayer;          // マップ上のプレイヤー
     private UIMapObject mapGoal;            // マップ上のゴール
     private List<UIMapObject> mapEnemies = new List<UIMapObject>();         // マップ上の敵
+    private List<UIMapObject> mapItems = new List<UIMapObject>();         // マップ上のアイテム
 
     // =---------  ---------= //
 
@@ -93,12 +97,11 @@ public class UI_Map : MonoBehaviour
         mapPlayer = Instantiate(mapPlayerPrefab, this.transform);
         mapPlayer.color = Color.clear;
 
-        //this.ShowMapUI();
         this.ShowPlayer();
 
         this.UpdateMapPlayer();
 
-        this.gameObject.SetActive(false);
+        //this.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -146,7 +149,7 @@ public class UI_Map : MonoBehaviour
 
         // マップ上敵更新
         int cnt = 0;
-        foreach(var itr in SequenceMGR.instance.Enemies)
+        foreach(var itr in EnemyMGR.instance.EnemyList)
         {
             // 敵は塗りつぶさずに位置だけ更新
             Point enemyPoint = itr.status.point;
@@ -174,6 +177,28 @@ public class UI_Map : MonoBehaviour
                 mapGoal.image.rectTransform.position = mapChips[mapGoal.point.y, mapGoal.point.x].transform.position;
             }
         }
+
+        //// マップ上アイテム更新
+        //cnt = 0;
+        //foreach (var itr in ItemMGR.instance.Items)
+        //{
+        //    // 敵は塗りつぶさずに位置だけ更新
+        //    Point itemPoint = itr.Point;
+        //    mapItems[cnt].image.rectTransform.position = mapChips[itr.Point.y, itr.Point.x].transform.position;
+        //    if (!mapItems[cnt].isShow)
+        //    {// まだ発見していない場合
+        //        // 解放されたマップなのか判定
+        //        if (mapChips[itr.Point.y, itr.Point.x].color.a > 0.0f)
+        //        {// 解放されたマップの場合は敵の姿をみえるようにする
+        //            var obj = mapItems[cnt];
+        //            obj.isShow = true;
+        //            mapItems[cnt] = obj;
+        //            obj.image.color = Color.white;
+        //        }
+        //    }
+        //    ++cnt;
+        //}
+
     }
 
     public void CreateMapEnemy(Point point)
@@ -186,6 +211,16 @@ public class UI_Map : MonoBehaviour
         mapEnemies.Add(obj);
     }
 
+    public void CreateMapItem(Point point)
+    {
+        UIMapObject obj = new UIMapObject();
+        obj.image = Instantiate(mapItemPrefab, this.transform);
+        obj.isShow = false;
+        obj.image.color = Color.clear;
+        obj.point = point;
+        mapItems.Add(obj);
+    }
+
     public void RemoveMapEnemy(Point point)
     {
         for (int i = mapEnemies.Count - 1; i >= 0; i--)
@@ -195,6 +230,20 @@ public class UI_Map : MonoBehaviour
             {
                 Destroy(mapEnemies[i].image.gameObject);
                 mapEnemies.RemoveAt(i);
+            }
+        }
+    }
+
+    public void RemoveMapItem(Point point)
+    {
+        for (int i = mapItems.Count - 1; i >= 0; i--)
+        {// 逆順ループ
+            // ID検索してヒットした敵を消す リストからも
+            if (mapItems[i].image.rectTransform.position == MapData.GridToWorld(point))
+            {
+                Destroy(mapEnemies[i].image.gameObject);
+                mapItems.RemoveAt(i);
+                return;
             }
         }
     }
@@ -222,11 +271,6 @@ public class UI_Map : MonoBehaviour
         mapGoal.isShow = false;
         mapGoal.image.color = Color.clear;
         mapGoal.point = point;
-    }
-
-    private void ShowMapGoal()
-    {
-        mapGoal.image.color = Color.white;
     }
 
     /// <summary>

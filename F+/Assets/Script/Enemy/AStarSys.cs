@@ -45,17 +45,18 @@ public struct Point
         }
         return false;
     }
-    public static bool operator !=(Point point, int point2)
+
+    public static bool operator ==(Point point, int p)
     {
-        if (point.x != point2 || point.y != point2)
+        if (point.x == p && point.y == p)
         {
             return true;
         }
         return false;
     }
-    public static bool operator ==(Point point, int point2)
+    public static bool operator !=(Point point, int point2)
     {
-        if (point.x == point2 && point.y == point2)
+        if (point.x != point2 || point.y != point2)
         {
             return true;
         }
@@ -152,6 +153,7 @@ public class AStarSys : MonoBehaviour
         public int Cost
         {// 実コストを返す
             get { return cost; }
+            set { cost = value; }
         }
 
         // コンストラクタ
@@ -184,7 +186,7 @@ public class AStarSys : MonoBehaviour
             heuristicCost = (int)(wx + wy);
 
             // 情報表示
-            this.ShowData();
+            //this.ShowData();
         }
 
         // ステータスがnoneかどうかを返す
@@ -201,7 +203,7 @@ public class AStarSys : MonoBehaviour
         // ステータスをopenに変更
         public void Open(A_StarNode parent, int setCost)
         {
-            AdDebug.Log(string.Format("Open: ({0},{1})", X, Y));
+            //AdDebug.Log(string.Format("Open: ({0},{1})", X, Y));
             State = NodeState.open;
             cost = setCost;
             parentNode = parent;
@@ -210,7 +212,7 @@ public class AStarSys : MonoBehaviour
         // ステータスをclosedに変更
         public void Close()
         {
-            AdDebug.Log(string.Format("Close: ({0},{1})", X, Y));
+            //AdDebug.Log(string.Format("Close: ({0},{1})", X, Y));
             State = NodeState.closed;
         }
 
@@ -273,7 +275,7 @@ public class AStarSys : MonoBehaviour
             var node = new A_StarNode(x, y);
             Nodes[idx] = node;
             // ヒューリスティックコストを計算する
-            node.CalcHeuristic(new Point(goal.x, goal.y));
+            node.CalcHeuristic(goal);
             return node;
         }
         // ノードをオープンリストに追加する
@@ -306,6 +308,7 @@ public class AStarSys : MonoBehaviour
                 // 通過できない
                 return null;
             }
+
             // ノードを取得する
             var node = GetNode(x, y);
             if (node.IsNone() == false)
@@ -322,7 +325,7 @@ public class AStarSys : MonoBehaviour
         }
 
         // 周りをOpenする
-        public void OpenAround(A_StarNode parent)
+        public void OpenAround(A_StarNode parent, bool isAround)
         {
             var xbase = parent.X; // 基準座標(X)
             var ybase = parent.Y; // 基準座標(Y)
@@ -335,6 +338,14 @@ public class AStarSys : MonoBehaviour
             OpenNode(x, y - 1, cost, parent); // 上
             OpenNode(x + 1, y, cost, parent); // 左
             OpenNode(x, y + 1, cost, parent); // 下
+
+            if (isAround)
+            {
+                OpenNode(x - 1, y - 1, cost, parent); // 右
+                OpenNode(x + 1, y - 1, cost, parent); // 上
+                OpenNode(x + 1, y + 1, cost, parent); // 左
+                OpenNode(x - 1, y + 1, cost, parent); // 下
+            }
         }
 
         // 最小スコアのノードを取得する
@@ -373,7 +384,7 @@ public class AStarSys : MonoBehaviour
     /// 重いほう
     /// </summary>
     /// <returns></returns>
-    public Point A_StarProc_Single2()
+    public Point A_StarProc_Single2(bool isAround)
     {
         if (startPoint.x == goalPoint.x &&
         startPoint.y == goalPoint.y)
@@ -397,7 +408,7 @@ public class AStarSys : MonoBehaviour
                 {
                     nodeMGR.RemoveOpenList(node);
                     // 周囲を開く
-                    nodeMGR.OpenAround(node);
+                    nodeMGR.OpenAround(node, isAround);
                     // 最小スコアのノードを探す
                     node = nodeMGR.SearchMinScoreNodeFromOpenList();
                     if (node == null)
@@ -415,7 +426,7 @@ public class AStarSys : MonoBehaviour
                         // 反転する
                         pointList.Reverse();
 
-                        AdDebug.Log("経路探索終了", Color.cyan, 20, true);
+                        //AdDebug.Log("経路探索終了", Color.cyan, 20, true);
 
                         nodeMGR.Reset();
 
@@ -441,7 +452,7 @@ public class AStarSys : MonoBehaviour
     /// 軽いほう
     /// </summary>
     /// <returns></returns>
-    public Point A_StarProc_Single()
+    public Point A_StarProc_Single(bool isAround)
     {
         if (startPoint.x == goalPoint.x &&
             startPoint.y == goalPoint.y)
@@ -459,7 +470,7 @@ public class AStarSys : MonoBehaviour
 
             nodeMGR.RemoveOpenList(node);
             // 周囲を開く
-            nodeMGR.OpenAround(node);
+            nodeMGR.OpenAround(node, isAround);
             // 最小スコアのノードを探す
             node = nodeMGR.SearchMinScoreNodeFromOpenList();
             if (node == null)
@@ -472,7 +483,7 @@ public class AStarSys : MonoBehaviour
             // パスを取得する
             node.GetPath(pointList);
 
-            AdDebug.Log("経路探索終了", Color.cyan, 20, true);
+            //AdDebug.Log("経路探索終了", Color.cyan, 20, true);
 
             nodeMGR.Reset();
 
@@ -488,7 +499,7 @@ public class AStarSys : MonoBehaviour
         }
     }
 
-    public Point A_StarProc_Specified(int num)
+    public Point A_StarProc_Specified(int num, bool isAround)
     {
         if (startPoint.x == goalPoint.x &&
             startPoint.y == goalPoint.y)
@@ -511,7 +522,7 @@ public class AStarSys : MonoBehaviour
                 {
                     nodeMGR.RemoveOpenList(node);
                     // 周囲を開く
-                    nodeMGR.OpenAround(node);
+                    nodeMGR.OpenAround(node, isAround);
                     // 最小スコアのノードを探す
                     node = nodeMGR.SearchMinScoreNodeFromOpenList();
                     if (node == null)
@@ -530,7 +541,7 @@ public class AStarSys : MonoBehaviour
                 // 反転する
                 pointList.Reverse();
 
-                AdDebug.Log("経路探索終了", Color.cyan, 20, true);
+                //AdDebug.Log("経路探索終了", Color.cyan, 20, true);
 
                 nodeMGR.Reset();
 
@@ -542,7 +553,7 @@ public class AStarSys : MonoBehaviour
                 }
                 else
                 {
-                    this.A_StarProc_Single();
+                    this.A_StarProc_Single(isAround);
                 }
             }
         }

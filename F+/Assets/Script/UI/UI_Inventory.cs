@@ -252,12 +252,12 @@ public class UI_Inventory : UI_Base
             {// アイテム数だけテキストを表示
                 if (textList.Count > i)
                 {// テキストがすでに生成されていたらテキストを更新するだけ
-                    textList[i].text = DataBase.instance.GetItemTable(items.GetItemID(i)).Name;
+                    textList[i].text = DataBase.instance.GetItemTableEntity(items.GetItemID(i)).Name;
                 }
                 else
-                {
+                {// 生成されていない場合は新しく生成
                     TextMeshProUGUI itemText = Instantiate(textPrefab, this.transform);
-                    itemText.text = DataBase.instance.GetItemTable(items.GetItemID(i)).Name;
+                    itemText.text = DataBase.instance.GetItemTableEntity(items.GetItemID(i)).Name;
                     textList.Add(itemText);
                 }
             }
@@ -307,12 +307,12 @@ public class UI_Inventory : UI_Base
             {// アイテム数だけテキストを表示
                 if (textList.Count > i)
                 {// テキストがすでに生成されていたらテキストを更新するだけ
-                    textList[i].text = DataBase.instance.GetItemTable(items.GetItemID(i)).Name;
+                    textList[i].text = DataBase.instance.GetItemTableEntity(items.GetItemID(i)).Name;
                 }
                 else
                 {
                     TextMeshProUGUI itemText = Instantiate(textPrefab, this.transform);
-                    itemText.text = DataBase.instance.GetItemTable(items.GetItemID(i)).Name;
+                    itemText.text = DataBase.instance.GetItemTableEntity(items.GetItemID(i)).Name;
                     textList.Add(itemText);
                 }
             }
@@ -375,7 +375,7 @@ public class UI_Inventory : UI_Base
                 textList[i].rectTransform.localPosition.y);
 
         // アイテムの説明欄を更新
-        ItemText.SetText(DataBase.instance.GetItemTable(items.GetItemID(i)).Detail);
+        ItemText.SetText(DataBase.instance.GetItemTableEntity(items.GetItemID(i)).Detail);
     }
 
     /// <summary>

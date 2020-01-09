@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StageMGR : MonoBehaviour
+public class FloorMGR : MonoBehaviour
 {
     // 階層数
     private static int floorNum = 1;   // 一階からスタート
+    public int FloorNum
+    {
+        get { return floorNum; }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -35,24 +39,24 @@ public class StageMGR : MonoBehaviour
 
     #region singleton
 
-    static StageMGR _instance;
+    static FloorMGR _instance;
 
-    public static StageMGR instance
+    public static FloorMGR instance
     {
         get
         {
             if (_instance == null)
             {
-                var previous = FindObjectOfType(typeof(StageMGR));
+                var previous = FindObjectOfType(typeof(FloorMGR));
                 if (previous)
                 {
                     Debug.LogWarning("Initialized twice. Don't use StageMGR in the scene hierarchy.");
-                    _instance = (StageMGR)previous;
+                    _instance = (FloorMGR)previous;
                 }
                 else
                 {
                     var go = new GameObject("StageMGR");
-                    _instance = go.AddComponent<StageMGR>();
+                    _instance = go.AddComponent<FloorMGR>();
                     DontDestroyOnLoad(go);
                     go.hideFlags = HideFlags.HideInHierarchy;
                 }

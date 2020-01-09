@@ -87,7 +87,7 @@ public class PlayerControll : Actor
             param.atk           = 8;    // ちから
             param.maxAtk        = 8;    // ちから最大値
             param.level         = 1;    // レベル
-            param.basicAtk      = DataBase.instance.GetLevelTable(param.level - 1).atk;    // レベルアップで増える攻撃力
+            param.basicAtk      = DataBase.instance.GetLevelTableEntity(param.level - 1).atk;    // レベルアップで増える攻撃力
             param.hp            = 15;   // 体力
             param.maxHp         = 15;   // 体力最大値
             param.hunger        = 100;  // 満腹度
@@ -116,7 +116,7 @@ public class PlayerControll : Actor
         // ダメージアニメーション
         playerAnimator.Play("Damaged", 0, 0.0f);
 
-        if (this.param.SubHP(calcDamage))
+        if (this.SubHP(calcDamage))
         {
             this.DestroyObject();
         }
@@ -127,7 +127,7 @@ public class PlayerControll : Actor
         MessageWindow.instance.AddMessage($"{this.param.Name}はしんでしまった…", Color.red);
 
         // オブジェクト消去
-        DestroyObject(this.gameObject);
+        Destroy(this.gameObject);
     }
 
     // Update is called once per frame
@@ -168,7 +168,9 @@ public class PlayerControll : Actor
 
     private void Controll()
     { 
-        if (SequenceMGR.instance.seqType == SequenceMGR.SeqType.keyInput && status.actType == ActType.Wait)
+        if (SequenceMGR.instance.seqType == SequenceMGR.SeqType.keyInput 
+            && status.actType == ActType.Wait &&
+            SequenceMGR.instance.isControll)
         {// 待機中のみ行動できる
 
             #region 移動
@@ -294,13 +296,10 @@ public class PlayerControll : Actor
             if(Input.GetKeyDown(KeyCode.P))
             {
                 // プレイヤーが行動した場合
-                SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.act);
-
-                // 行動状態にする
-                this.status.actType = ActType.Act;
+                SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.act);                
 
                 // 予約を一件実行
-                SequenceMGR.instance.ActProc();                
+                SequenceMGR.instance.ActProc();
             }
         }
     }
@@ -489,8 +488,6 @@ public class PlayerControll : Actor
             // 立ちモーション
             playerAnimator.Play("Standing@loop");
         } 
-        // マップ情報上のプレイヤーを更新
-        UI_MGR.instance.Ui_Map.UpdateMapPlayer();
 
         // 足元のオブジェクトを起動
         MapData.instance.ActiveMapChip(this.status.point, this);
@@ -509,6 +506,9 @@ public class PlayerControll : Actor
             ItemMGR.instance.DestroyItem(this.status.point);
         }
 
+        // マップ情報上のプレイヤーを更新
+        UI_MGR.instance.Ui_Map.UpdateMapPlayer();
+
         // 歩数加算
         ++cntSteps;
 
@@ -518,12 +518,12 @@ public class PlayerControll : Actor
             param.hunger = 0;
 
             // hpを1ずつ減らす
-            --param.hp;
+            this.SubHP(1);
 
             // hpが0以下なら死亡
-            if(this.param.CheckDestroy())
+            if(this.CheckDestroy())
             {
-                DestroyObject(this.gameObject);
+                Destroy(this.gameObject);
             }
         }
         else
@@ -536,12 +536,13 @@ public class PlayerControll : Actor
 
         // ターンエンド 
         status.actType = ActType.TurnEnd;
+
+        AdDebug.Log(MapData.instance.GetMapChipType(this.status.point).ToString());
     }
 
     // MoveTime後に敵のターン
     private IEnumerator ActProcTimer()
     {
-        status.actType = ActType.TurnEnd;
         // MoveTime秒まつ
         yield return new WaitForSeconds(MoveTime * 0.5f);
 
@@ -569,13 +570,9 @@ public class PlayerControll : Actor
         }
         // MoveTime秒まつ
         yield return new WaitForSeconds(MoveTime * 0.5f);
-    }
-    private IEnumerator DamagedTimer()
-    {
-        // MoveTime秒まつ
-        yield return new WaitForSeconds(MoveTime);
+        
+        StartCoroutine(SequenceMGR.instance.ActProcTimer(MoveTime));
 
-        // 操作可能にする
         status.actType = ActType.TurnEnd;
     }
 }

@@ -15,7 +15,12 @@ public class ItemObject : MonoBehaviour
     // =--------- 変数宣言 ---------= //
 
     // マップ上座標
-    public Point point;
+    private Point point;
+    public Point Point
+    {
+        get { return point; }
+        set { point = value; }
+    }
 
     // アイテムID
     private int itemID;

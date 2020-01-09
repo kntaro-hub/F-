@@ -10,7 +10,8 @@ public class MapData : MonoBehaviour
     {
         none = 0,   // 何もない
         wall,       // 壁
-        room,
+        room,       // 部屋
+        roomAround, // 部屋の周り
         goal,       // 階段
         max
     }
@@ -197,9 +198,68 @@ public class MapData : MonoBehaviour
             for (int i = 0; i < Width; i++)
             {
                 this.SetMapChipType(i, j, (MapChipType)val);
-              
+
             }
         }
+    }
+
+    public Point GetPointFromAround(Point Center, MapObjType objType)
+    {
+        Point ret;
+        ret = new Point(1, 0);
+        if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
+        ret = new Point(-1, 0);
+        if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
+        ret = new Point(0, 1);
+        if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
+        ret = new Point(0, -1);
+        if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
+        ret = new Point(1, 1);
+        if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
+        ret = new Point(1, -1);
+        if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
+        ret = new Point(-1, 1);
+        if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
+        ret = new Point(-1, -1);
+        if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
+
+        return new Point();
+    }
+    public bool IsPointFromAround(Point Center, MapObjType objType)
+    {
+        Point ret;
+        ret = new Point(Center.x + 1, Center.y);
+        if (MapData.instance.GetMapObject(ret).objType == objType) return true;
+        ret = new Point(Center.x - 1, Center.y);
+        if (MapData.instance.GetMapObject(ret).objType == objType) return true;
+        ret = new Point(Center.x, Center.y + 1);
+        if (MapData.instance.GetMapObject(ret).objType == objType) return true;
+        ret = new Point(Center.x, Center.y - 1);
+        if (MapData.instance.GetMapObject(ret).objType == objType) return true;
+        ret = new Point(Center.x + 1, Center.y + 1);
+        if (MapData.instance.GetMapObject(ret).objType == objType) return true;
+        ret = new Point(Center.x + 1, Center.y - 1);
+        if (MapData.instance.GetMapObject(ret).objType == objType) return true;
+        ret = new Point(Center.x - 1, Center.y + 1);
+        if (MapData.instance.GetMapObject(ret).objType == objType) return true;
+        ret = new Point(Center.x - 1, Center.y - 1);
+        if (MapData.instance.GetMapObject(ret).objType == objType) return true;
+
+        return false;
+    }
+
+    public Point GetPointFromUDRL(Point Center, MapObjType objType)
+    {
+        Point ret;
+        ret = new Point(1, 0);
+        if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
+        ret = new Point(-1, 0);
+        if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
+        ret = new Point(0, 1);
+        if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
+        ret = new Point(0, -1);
+        if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
+        return new Point();
     }
 
     /// <summary>
@@ -252,22 +312,6 @@ public class MapData : MonoBehaviour
     {
         mapValue[x, y].mapChip = Instantiate(goalPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
         UI_MGR.instance.Ui_Map.CreateMapGoal(new Point(x, y));
-    }
-
-    /// <summary>
-    /// 敵生成
-    /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    public void CreateEnemy(int x, int y)
-    {
-        EnemyBase enemy = Instantiate(enemyPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
-        enemy.transform.parent = this.transform;
-        enemy.GetComponent<AStarSys>().SetStartPoint(new Point(x, y));
-        enemy.status.point = new Point(x, y);
-        SequenceMGR.instance.Enemies.Add(enemy);
-
-        UI_MGR.instance.Ui_Map.CreateMapEnemy(enemy.status.point);
     }
 
     public void SetInitY(float posY)

@@ -21,7 +21,7 @@ public class SequenceMGR : MonoBehaviour
         get { return ref player; }
     }
 
-    private List<EnemyBase> enemies = new List<EnemyBase>();
+    private List<EnemyBase> enemies;
     public List<EnemyBase> Enemies
     {
         get { return enemies; }
@@ -63,8 +63,78 @@ public class SequenceMGR : MonoBehaviour
 
     // 自然回復
     const int HealBorder = 150;
+
     // 回復値
     int cntHeal = 0;
+
+    // デリゲート型宣言
+    delegate void UpdateMode();
+
+    //
+    private UpdateMode[] UpdateModes = new UpdateMode[(int)ActSeqType.max];
+
+    // 入力可かどうか
+    public bool isControll = true;
+
+
+    bool isNextEnemy = true;
+    int cntEnemy = 0;
+    private void EnemyActUpdate()
+    {
+        if (enemies.Count != 0)
+        {
+            if (isNextEnemy)
+            {
+                if (enemies[cntEnemy] != null)
+                {
+                    if (enemies[cntEnemy].status.actType == Actor.ActType.Act)
+                    {
+                        StartCoroutine(NextTurnTimer(enemies[cntEnemy].ActProc()));
+                        isNextEnemy = false;
+                    }
+                    else
+                    {
+                        isNextEnemy = true;
+                    }
+                }
+                ++cntEnemy;
+            }
+
+            if (enemies.Count <= cntEnemy)
+            {
+                this.ActProc();
+                isNextEnemy = true;
+                cntEnemy = 0;
+                seqList.RemoveAt(0);
+            }
+        }
+    }
+
+    private IEnumerator NextTurnTimer(float time)
+    {
+        yield return new WaitForSeconds(time);
+        isNextEnemy = true;
+    }
+
+    private void PlayerActUpdate()
+    {
+
+    }
+
+    private void MoveActUpdate()
+    {
+
+    }
+
+    private void TrapActUpdate()
+    {
+
+    }
+
+    private void NotActUpdate()
+    {
+        this.ActProc();
+    }
 
     /// <summary>
     /// プレイヤーの行動を入力すると遷移情報がリストに追加される
@@ -90,7 +160,7 @@ public class SequenceMGR : MonoBehaviour
                 seqList.Add(ActSeqType.turnEnd);
                 break;
         }
-       
+        isControll = false;
     }
 
     // Start is called before the first frame update
@@ -101,22 +171,30 @@ public class SequenceMGR : MonoBehaviour
 
     private void Start()
     {
-        EnemyBase[] enemy = FindObjectsOfType<EnemyBase>();
-        foreach(var itr in enemy)
-        {
-            enemies.Add(itr);
-        }
+        enemies = EnemyMGR.instance.EnemyList;
+
         if (player == null)
         {
             player = FindObjectOfType<PlayerControll>();
         }
         cntHeal = 0;
+
+        // 
+        UpdateModes[(int)ActSeqType.enemyAct]   = EnemyActUpdate;
+        UpdateModes[(int)ActSeqType.playerAct]  = PlayerActUpdate;
+        UpdateModes[(int)ActSeqType.move]       = MoveActUpdate;
+        UpdateModes[(int)ActSeqType.trap]       = TrapActUpdate;
+        UpdateModes[(int)ActSeqType.requestEnemy]   = PlayerActUpdate;
+        UpdateModes[(int)ActSeqType.requestEnemy2]  = PlayerActUpdate;
+        UpdateModes[(int)ActSeqType.turnEnd]        = NotActUpdate;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(IsCheckTurnEnd)
+        Actor.ChangeSpeed();
+
+        if (IsCheckTurnEnd)
         {// 全員がターンエンド状態か調べ続ける
             if(this.IsTurnEnd())
             {// 全員がターンエンド状態だった場合
@@ -126,7 +204,15 @@ public class SequenceMGR : MonoBehaviour
             }
         }
 
-        Actor.ChangeSpeed();
+        if (seqList.Count != 0)
+        {
+            // 現在の状態に応じた更新処理
+            UpdateModes[(int)seqList[0]]();
+        }
+        else
+        {
+            isControll = true;
+        }
     }
 
     public void AddSeq(ActSeqType type)
@@ -150,7 +236,6 @@ public class SequenceMGR : MonoBehaviour
                     // プレイヤー行動
                     seqList.RemoveAt(0);
                     player.Attack();
-                    StartCoroutine(this.MoveTimer());
                     break;
 
                 case ActSeqType.requestEnemy:
@@ -171,13 +256,12 @@ public class SequenceMGR : MonoBehaviour
                     if (player.Move())
                     {
                         this.MoveEnemy();
-                        StartCoroutine(this.MoveTimer());
+                        this.ActProc();
                     }
                     break;
 
                 case ActSeqType.enemyAct:
                     // 敵行動
-                    seqList.RemoveAt(0);
                     this.ActEnemy();
                     break;
                 case ActSeqType.turnEnd:
@@ -187,15 +271,7 @@ public class SequenceMGR : MonoBehaviour
                     if (HealBorder < cntHeal)
                     {
                         cntHeal -= HealBorder;
-                        player.Param.AddHP(1);
-                        Actor.Parameter parameter = player.Param;
-                        parameter.hp += 1;
-                        player.Param = parameter;
-                        if (player.Param.hp > player.Param.maxHp)
-                        {
-                            parameter.hp = player.Param.maxHp;
-                            player.Param = parameter;
-                        }
+                        player.AddHP(1);
                     }
                     IsCheckTurnEnd = true;
                     break;
@@ -213,14 +289,6 @@ public class SequenceMGR : MonoBehaviour
         }
     }
 
-    public void CheckTurnEnd_Reset()
-    {
-        if (this.IsTurnEnd())
-        {
-            this.ResetAct();
-        }
-    }
-
     private void MoveEnemy()
     {
         foreach(var itr in enemies)
@@ -231,11 +299,16 @@ public class SequenceMGR : MonoBehaviour
 
     private void ActEnemy()
     {
-        foreach (var itr in enemies)
-        {
-            itr.ActProc();
-        }
-        this.ActProc();
+        
+
+
+    }
+
+    private IEnumerator EnemyActTimer(float time)
+    {
+        yield return new WaitForSeconds(time);
+
+
     }
 
     private void RequestEnemyAI()
@@ -273,18 +346,6 @@ public class SequenceMGR : MonoBehaviour
         foreach (var itr in enemies)
         {// 
             itr.MapDataUpdate();
-        }
-    }
-
-    public void DestroyEnemyFromID(int id)
-    {
-        for (int i = enemies.Count - 1; i >= 0; i--)
-        {// 逆順ループ
-            // ID検索してヒットした敵を消す リストからも
-            if (enemies[i].Param.id == id)
-            {
-                enemies.RemoveAt(i);
-            }
         }
     }
 
@@ -332,6 +393,8 @@ public class SequenceMGR : MonoBehaviour
         {
             itr.status.actType = Actor.ActType.Wait;
         }
+
+        AdDebug.Log("リセット！！！！！！");
     }
 
     public EnemyBase GetEnemyFromPoint(Point point)
@@ -347,9 +410,9 @@ public class SequenceMGR : MonoBehaviour
     }
 
     // =--------- // =--------- コルーチン ---------= // ---------= //
-    private IEnumerator MoveTimer()
+    public IEnumerator ActProcTimer(float time)
     {
-        yield return new WaitForSeconds(Actor.MoveTime);
+        yield return new WaitForSeconds(time);
 
         // 移動後は次の予約を実行
         this.ActProc();
@@ -378,7 +441,7 @@ public class SequenceMGR : MonoBehaviour
                     var go = new GameObject("SequenceMGR");
                     _instance = go.AddComponent<SequenceMGR>();
                     DontDestroyOnLoad(go);
-                    go.hideFlags = HideFlags.HideInHierarchy;
+                    //go.hideFlags = HideFlags.HideInHierarchy;
                 }
             }
             return _instance;

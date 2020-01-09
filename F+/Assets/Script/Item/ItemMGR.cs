@@ -8,6 +8,10 @@ public class ItemMGR : MonoBehaviour
     private ItemObject itemPrefab;
 
     private List<ItemObject> items = new List<ItemObject>();
+    public List<ItemObject> Items
+    {
+        get { return items; }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -30,15 +34,17 @@ public class ItemMGR : MonoBehaviour
         for (int i = 0; i < cnt; ++i)
         {
             ItemObject item = Instantiate(itemPrefab);
-            item.point = MapGenerator.instance.RandomPointInRoom();
-            item.transform.position = MapData.GridToWorld(item.point);
+            item.Point = MapGenerator.instance.RandomPointInRoom();
+            item.transform.position = MapData.GridToWorld(item.Point);
 
             // ここでアイテムIDを設定する
             item.ItemID = Random.Range(0, DataBase.instance.GetItemTableCount()- 1);
 
+            UI_MGR.instance.Ui_Map.CreateMapItem(item.Point);
+
             items.Add(item);
             item.transform.parent = this.transform;
-            MapData.instance.SetMapObject(item.point, MapData.MapObjType.item, item.ItemID);
+            MapData.instance.SetMapObject(item.Point, MapData.MapObjType.item, item.ItemID);
         }
     }
 
@@ -48,8 +54,8 @@ public class ItemMGR : MonoBehaviour
     public ItemObject CreateItem(Point point, int itemID)
     {
         ItemObject item = Instantiate(itemPrefab);
-        item.point = point;
-        item.transform.position = MapData.GridToWorld(item.point);
+        item.Point = point;
+        item.transform.position = MapData.GridToWorld(item.Point);
         item.ItemID = itemID;
 
         MapData.instance.SetMapObject(point, MapData.MapObjType.item, itemID);
@@ -62,17 +68,18 @@ public class ItemMGR : MonoBehaviour
     {
         foreach(var itr in items)
         {
-            MapData.instance.SetMapObject(itr.point, MapData.MapObjType.item, itr.ItemID);
+            MapData.instance.SetMapObject(itr.Point, MapData.MapObjType.item, itr.ItemID);
         }
     }
 
     public void DestroyItem(Point point)
     {
+        UI_MGR.instance.Ui_Map.RemoveMapItem(point);
         for (int i = items.Count - 1; i >= 0; i--)
         {// 逆順ループ
-            if (point == items[i].point)
+            if (point == items[i].Point)
             {
-                MapData.instance.ResetMapObject(items[i].point);
+                MapData.instance.ResetMapObject(items[i].Point);
                 Destroy(items[i].gameObject);
                 items.RemoveAt(i);
                 return;
@@ -86,16 +93,12 @@ public class ItemMGR : MonoBehaviour
     /// </summary>
     /// <param name="itemID">アイテムID</param>
     /// <param name="actor">効果を反映させたいキャラクター</param>
-    public Actor.Parameter UseItem(int itemID, Actor.Parameter actorParam)
+    public void UseItem(int itemID, Actor actor)
     {
-        ItemTableEntity item = DataBase.instance.GetItemTable(itemID);
-        Actor.Parameter param = actorParam;
-        param.AddHP(item.HP);
-        param.basicAtk += item.Atk;
-        param.AddHunger(item.Hunger);
-
-        actorParam = param;
-        return actorParam;
+        ItemTableEntity item = DataBase.instance.GetItemTableEntity(itemID);
+        actor.AddHP(item.HP);
+        actor.AddAtk(item.Atk);
+        actor.AddHunger(item.Hunger);
     }
 
     /// <summary>
@@ -105,7 +108,7 @@ public class ItemMGR : MonoBehaviour
     /// <param name="actor">武器を装備させたいキャラクター</param>
     public Actor.Parameter EquipWeapon(int itemID, Actor.Parameter actorParam)
     {
-        ItemTableEntity item = DataBase.instance.GetItemTable(itemID);
+        ItemTableEntity item = DataBase.instance.GetItemTableEntity(itemID);
         Actor.Parameter param = actorParam;
         param.weaponId = itemID;
 
@@ -120,7 +123,7 @@ public class ItemMGR : MonoBehaviour
     /// <param name="actor">盾を装備させたいキャラクター</param>
     public Actor.Parameter EquipShield(int itemID, Actor.Parameter actorParam)
     {
-        ItemTableEntity item = DataBase.instance.GetItemTable(itemID);
+        ItemTableEntity item = DataBase.instance.GetItemTableEntity(itemID);
         Actor.Parameter param = actorParam;
         param.shieldId = itemID;
 

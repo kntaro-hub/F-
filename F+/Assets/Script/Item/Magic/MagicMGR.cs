@@ -31,8 +31,6 @@ public class MagicMGR : MonoBehaviour
 
     public void ActivateMagic(MagicType magicType, int itemID)
     {
-        // 杖の残り回数を1減らす
-
         // 魔法生成
         MagicBase magic = Instantiate(magicPrefabs[(int)magicType], this.transform);
 
@@ -47,6 +45,9 @@ public class MagicMGR : MonoBehaviour
 
         // 魔法リストに追加
         magicList.Add(magic);
+
+        // 杖の残り回数を1減らす
+
     }
 
     public void Destroy(int id)

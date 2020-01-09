@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 3905233481848330125}
   - component: {fileID: 7797864147817876553}
   - component: {fileID: 1727865850917048733}
-  - component: {fileID: 2146196822235046354}
+  - component: {fileID: 1236900563877754943}
   m_Layer: 0
-  m_Name: Magic_Fire 1
+  m_Name: Magic_Tornado
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -79,7 +79,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &2146196822235046354
+--- !u!114 &1236900563877754943
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -88,6 +88,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 2940279298851306868}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d918b9ea0345114b899ff0a1fbb7bf2, type: 3}
+  m_Script: {fileID: 11500000, guid: 98cb02db9f17b604eb1aaeb41af7bfca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

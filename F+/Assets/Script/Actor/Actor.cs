@@ -81,7 +81,7 @@ public class Actor : MonoBehaviour
             float WeaponAtk;
             if (this.weaponId != DataBase.instance.GetItemTableCount() - 1)
             {
-                WeaponAtk = (this.basicAtk * (DataBase.instance.GetItemTable(this.weaponId).Atk + this.atk - 8.0f) / 16.0f);
+                WeaponAtk = (this.basicAtk * (DataBase.instance.GetItemTableEntity(this.weaponId).Atk + this.atk - 8.0f) / 16.0f);
             }
             else // なにも装備していない場合
             {
@@ -103,7 +103,7 @@ public class Actor : MonoBehaviour
             if (this.shieldId != DataBase.instance.GetItemTableCount() - 1)
             {
                 // 防御力計算
-                Atk = (int)(Atk * Mathf.Pow((15.0f / 16.0f), DataBase.instance.GetItemTable(this.weaponId).Def));  // 攻撃力と基本ダメージ
+                Atk = (int)(Atk * Mathf.Pow((15.0f / 16.0f), DataBase.instance.GetItemTableEntity(this.weaponId).Def));  // 攻撃力と基本ダメージ
                 Atk = (int)Mathf.Floor(Atk * Random.Range(112, 143) / 128);   // 結果
             }
             else
@@ -121,125 +121,6 @@ public class Actor : MonoBehaviour
 
             // 計算結果を返す
             return Atk;
-        }
-
-        /// <summary>
-        /// 経験値加算（規定値を超えた場合はレベルアップ）
-        /// </summary>
-        public void AddXp(int addXp)
-        {
-            // 経験値加算
-            this.exp += addXp;
-
-            bool isUp = false;
-
-            // 現経験値からレベル最大値まで上げる
-            while (true)
-            {
-                // レベルテーブルから情報取得
-                LevelTableEntity levelTableEntity = DataBase.instance.GetLevelTable(level);
-                if(levelTableEntity.Xp <= this.exp)
-                {
-                    // レベルアップ
-                    this.level = levelTableEntity.Level;
-                    this.atk = levelTableEntity.atk;
-
-                    // 体力UP
-                    this.maxHp += 3;
-                    this.hp += 3;
-
-                    // オーバーしてしまった場合は矯正
-                    if (this.hp > this.maxHp) this.hp = this.maxHp;
-                    
-
-                    isUp = true;
-                    continue;
-                }
-
-                if(isUp)
-                {
-                    MessageWindow.instance.AddMessage($"レベル{this.level}に上がった！", Color.white);
-                }
-                break;
-            }
-        }
-
-        public void AddLevel(int addLevel)
-        {
-            this.level += addLevel;
-
-            this.exp = DataBase.instance.GetLevelTable(level).Xp;
-
-            MessageWindow.instance.AddMessage($"レベル{this.level}に上がった！", Color.white);
-        }
-        public void SubLevel(int subLevel)
-        {
-            this.level -= subLevel;
-
-            this.exp = DataBase.instance.GetLevelTable(level).Xp;
-
-            MessageWindow.instance.AddMessage($"レベルが{subLevel}下がってしまった…", Color.white);
-        }
-        public void AddHP(int addHP)
-        {
-            this.hp += addHP;
-            if (this.hp > this.maxHp) this.hp = this.maxHp;
-        }
-        public bool SubHP(int subHP)
-        {
-            this.hp -= subHP;
-
-            if (hp <= 0)
-            {
-                hp = 0;
-                return true;
-            }
-
-            return false;
-        }
-        public void AddMaxHP(int addMaxHP)
-        {
-            this.maxHp += addMaxHP;
-        }
-        public void SubMaxHP(int subMaxHP)
-        {
-            this.maxHp -= subMaxHP;
-        }
-        public void AddHunger(int addHunger)
-        {
-            this.hunger += addHunger;
-            if (this.hunger > this.maxHunger) hunger = maxHunger;
-        }
-        public bool SubHunger(int subHunger)
-        {
-            this.hunger -= subHunger;
-
-            if (hunger <= 0)
-            {
-                hunger = 0;
-                return true;
-            }
-
-            return false;
-        }
-        public void AddMaxHunger(int addMaxHunger)
-        {
-            this.maxHunger += addMaxHunger;
-        }
-        public void SubMaxHunger(int subMaxHunger)
-        {
-            this.maxHunger -= subMaxHunger;
-        }
-
-        public bool CheckDestroy()
-        {
-            // hpが0以下なら死亡
-            if (this.hp <= 0)
-            {
-                this.hp = 0;
-                return true;
-            }
-            return false;
         }
         
         public void SetShieldID(int itemID)
@@ -280,11 +161,11 @@ public class Actor : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.D))
         {
-            MoveTime = 0.01f;
+            Time.timeScale = 10;
         }
         if (Input.GetKeyUp(KeyCode.D))
         {
-            MoveTime = 0.1f;
+            Time.timeScale = 1.0f;
         }
     }
     
@@ -312,14 +193,147 @@ public class Actor : MonoBehaviour
     /// <param name="itemID">アイテムID</param>
     public void UseItem(int itemID)
     {
-        ItemTableEntity item = DataBase.instance.GetItemTable(itemID);
-        this.param.AddHP(item.HP);
+        ItemTableEntity item = DataBase.instance.GetItemTableEntity(itemID);
+        this.AddHP(item.HP);
         this.param.basicAtk += item.Atk;
-        this.param.AddHunger(item.Hunger);
+        this.AddHunger(item.Hunger);
     }
 
     public virtual void Damage(int damage){}
     public virtual void Damage(int damage, bool isXp) { }
+
+    /// <summary>
+    /// 経験値加算（規定値を超えた場合はレベルアップ）
+    /// </summary>
+    public void AddXp(int addXp)
+    {
+        // 経験値加算
+        this.param.exp += addXp;
+
+        bool isUp = false;
+
+        // 現経験値からレベル最大値まで上げる
+        while (true)
+        {
+            // レベルテーブルから情報取得
+            LevelTableEntity levelTableEntity = DataBase.instance.GetLevelTableEntity(this.param.level);
+            if (levelTableEntity.Xp <= this.param.exp)
+            {
+                // レベルアップ
+                this.param.level = levelTableEntity.Level;
+                this.param.atk = levelTableEntity.atk;
+
+                // 体力UP
+                this.param.maxHp += 3;
+                this.param.hp += 3;
+
+                // オーバーしてしまった場合は矯正
+                if (this.param.hp > this.param.maxHp) this.param.hp = this.param.maxHp;
+
+
+                isUp = true;
+                continue;
+            }
+
+            if (isUp)
+            {
+                MessageWindow.instance.AddMessage($"レベル{this.param.level}に上がった！", Color.white);
+            }
+            break;
+        }
+    }
+
+    public void AddLevel(int addLevel)
+    {
+        this.param.level += addLevel;
+
+        this.param.exp = DataBase.instance.GetLevelTableEntity(this.param.level).Xp;
+
+        MessageWindow.instance.AddMessage($"レベル{this.param.level}に上がった！", Color.white);
+    }
+    public void SubLevel(int subLevel)
+    {
+        this.param.level -= subLevel;
+
+        this.param.exp = DataBase.instance.GetLevelTableEntity(this.param.level).Xp;
+
+        MessageWindow.instance.AddMessage($"レベルが{subLevel}下がってしまった…", Color.white);
+    }
+
+    public void AddAtk(int addAtk)
+    {
+        this.param.atk += addAtk;
+
+        MessageWindow.instance.AddMessage($"ちからが{addAtk}あがった！", Color.white);
+    }
+    public void SubAtk(int subAtk)
+    {
+        this.param.atk -= subAtk;
+
+        MessageWindow.instance.AddMessage($"ちからが{subAtk}さがってしまった…", Color.white);
+    }
+
+    public void AddHP(int addHP)
+    {
+        this.param.hp += addHP;
+        if (this.param.hp > this.param.maxHp) this.param.hp = this.param.maxHp;
+    }
+    public bool SubHP(int subHP)
+    {
+        this.param.hp -= subHP;
+
+        if (this.param.hp <= 0)
+        {
+            this.param.hp = 0;
+            return true;
+        }
+
+        return false;
+    }
+    public void AddMaxHP(int addMaxHP)
+    {
+        this.param.maxHp += addMaxHP;
+    }
+    public void SubMaxHP(int subMaxHP)
+    {
+        this.param.maxHp -= subMaxHP;
+    }
+    public void AddHunger(int addHunger)
+    {
+        this.param.hunger += addHunger;
+        if (this.param.hunger > this.param.maxHunger) this.param.hunger = this.param.maxHunger;
+    }
+    public bool SubHunger(int subHunger)
+    {
+        this.param.hunger -= subHunger;
+
+        if (this.param.hunger <= 0)
+        {
+            this.param.hunger = 0;
+            return true;
+        }
+
+        return false;
+    }
+    public void AddMaxHunger(int addMaxHunger)
+    {
+        this.param.maxHunger += addMaxHunger;
+    }
+    public void SubMaxHunger(int subMaxHunger)
+    {
+        this.param.maxHunger -= subMaxHunger;
+    }
+
+    public bool CheckDestroy()
+    {
+        // hpが0以下なら死亡
+        if (this.param.hp <= 0)
+        {
+            this.param.hp = 0;
+            return true;
+        }
+        return false;
+    }
 
     public virtual void DestroyObject() { }
     public virtual void DestroyObject(bool isXp) { }

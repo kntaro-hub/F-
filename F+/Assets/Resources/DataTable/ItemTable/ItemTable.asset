@@ -194,6 +194,36 @@ MonoBehaviour:
     UseMessage: 
     UsedMessage: 
   - ID: 12
+    Type: 4
+    Name: "\u3070\u304F\u306F\u3064\u306E\u66F8"
+    HP: 0
+    Hunger: 0
+    Atk: 0
+    Def: 0
+    Ex: None
+    ExValue: 0
+    Buy: 10
+    Sell: 3
+    ExType: 0
+    Detail: "\u7070\u8272\u306E\u672C\u3002\u8AAD\u3080\u3068\u3042\u305F\u308A\u304C\u7206\u767A\u3059\u308B\u3002"
+    UseMessage: 
+    UsedMessage: 
+  - ID: 13
+    Type: 4
+    Name: "\u307E\u3093\u3077\u304F\u306E\u66F8"
+    HP: 0
+    Hunger: 0
+    Atk: 0
+    Def: 0
+    Ex: None
+    ExValue: 0
+    Buy: 10
+    Sell: 3
+    ExType: 1
+    Detail: "\u6A59\u8272\u306E\u672C\u3002\u8AAD\u3080\u3068\u306A\u305C\u304B\u307E\u3093\u3077\u304F\u306B\u306A\u308B\u3002\u6B63\u76F4\u6016\u3044\u3002"
+    UseMessage: 
+    UsedMessage: 
+  - ID: 14
     Type: 0
     Name: "\u30C0\u30DF\u30FC"
     HP: 0

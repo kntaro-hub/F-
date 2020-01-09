@@ -6596,6 +6596,52 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &904074633
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 904074635}
+  - component: {fileID: 904074634}
+  m_Layer: 0
+  m_Name: BookMGR
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &904074634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 904074633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcef82add7087a1419cb9803b445fee8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bookPrefabs:
+  - {fileID: 6620775748405796350, guid: 1276e1fc42002d44f80abec6db557d2e, type: 3}
+  - {fileID: 3850951386855583861, guid: ca75542ebcacfcf439580f70c0cd739d, type: 3}
+--- !u!4 &904074635
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 904074633}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 12
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &992881439
 GameObject:
   m_ObjectHideFlags: 0
@@ -6736,9 +6782,11 @@ MonoBehaviour:
     type: 3}
   mapPlayerPrefab: {fileID: 1247574643675336513, guid: a6c7aa49237fbc047aa3760beff6c25b,
     type: 3}
-  mapEnemyPrefab: {fileID: 1247574643675336513, guid: a6c7aa49237fbc047aa3760beff6c25b,
+  mapEnemyPrefab: {fileID: 7612575005057277549, guid: dc63d02ad843e7a47a020f9db02ff9a4,
     type: 3}
-  mapGoalPrefab: {fileID: 1247574643675336513, guid: a6c7aa49237fbc047aa3760beff6c25b,
+  mapGoalPrefab: {fileID: 4270804058258153314, guid: fbb06da10dea4b24ca5bd9df66d1f860,
+    type: 3}
+  mapItemPrefab: {fileID: 37085038482579199, guid: 76dcba956e51b5a42b48d4db9ae1f212,
     type: 3}
 --- !u!1 &1153744372
 GameObject:
@@ -7481,7 +7529,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   magicPrefabs:
   - {fileID: -2362638780932392873, guid: 5cf2ec109fced6249981895b62383099, type: 3}
-  - {fileID: 2146196822235046354, guid: e8d5117fa5e3a0349ab7cadf0a6136a6, type: 3}
+  - {fileID: 1236900563877754943, guid: e8d5117fa5e3a0349ab7cadf0a6136a6, type: 3}
 --- !u!4 &1865853708
 Transform:
   m_ObjectHideFlags: 0

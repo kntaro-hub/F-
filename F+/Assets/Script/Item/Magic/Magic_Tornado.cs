@@ -1,13 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class Magic_Tornado : MagicBase
 {
+    // ワープが終わるまでの時間
+    private const float WarpTime = 1.0f;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        magicType = MagicType.shot;
     }
 
     // Update is called once per frame
@@ -16,8 +20,57 @@ public class Magic_Tornado : MagicBase
         
     }
 
-    public override void ActivateMagic()
+    public override void MagicEffect_HitEnemy()
     {
-        
+        // 敵にダメージを与える
+        EnemyBase enemy = SequenceMGR.instance.SearchEnemyFromID(hitObjID);
+
+        StartCoroutine(WarpTimer(enemy));
+
+        StartCoroutine(DestroyTimer(WarpTime));
+    }
+
+    public override void MagicEffect_HitWall()
+    {
+        // 何も起こらない
+    }
+
+    // =--------- コルーチン ---------= //
+    private IEnumerator WarpTimer(Actor actor)
+    {
+        // =--------- 飛び上がる直前 ---------= //
+
+        // 乗ったキャラクターが飛び上がる
+        actor.transform.DOLocalMoveY(10.0f, WarpTime * 0.5f);
+
+        // キャラクターの位置のマップ情報をリセット
+        MapData.instance.ResetMapObject(actor.status.movedPoint);
+
+        // その間はプレイヤーの入力は無視する
+        SequenceMGR.instance.seqType = SequenceMGR.SeqType.moveImpossible;
+
+        yield return new WaitForSeconds(WarpTime * 0.5f);
+
+        // =--------- 飛び上がった頂点位置 ---------= //
+
+        // 元の位置に降りる
+        actor.transform.DOLocalMoveY(0.0f, WarpTime * 0.5f);
+
+        // プレイヤーの座標をワープ後の座標に変更
+        // 先にマップ上プレイヤーの座標をワープ後の座標に変更
+        Point warpedPoint = MapGenerator.instance.RandomPointInRoom();
+        actor.status.point = warpedPoint;
+        Vector3 warpedPos = MapData.GridToWorld(warpedPoint);
+        actor.transform.position = new Vector3(warpedPos.x, actor.transform.position.y, warpedPos.z);
+
+        yield return new WaitForSeconds(WarpTime * 0.5f);
+
+        // =--------- 完全に降りた瞬間 ---------= //
+
+        // プレイヤーの入力を許可する
+        SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
+
+        // ワープ後座標にキャラクターを登録
+        MapData.instance.SetMapObject(actor.status.point, MapData.MapObjType.enemy, actor.Param.id);
     }
 }

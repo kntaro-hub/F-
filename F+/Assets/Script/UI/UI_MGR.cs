@@ -160,16 +160,16 @@ public class UI_MGR : MonoBehaviour
                 ShowUI(UIType.basicMenu);
         }
 
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            // マップ出現
-            this.ui_Map.gameObject.SetActive(true);
-        }
-        else if (Input.GetKeyUp(KeyCode.D))
-        {
-            // マップを消す
-            this.ui_Map.gameObject.SetActive(false);
-        }
+        //if (Input.GetKeyDown(KeyCode.D))
+        //{
+        //    // マップ出現
+        //    this.ui_Map.gameObject.SetActive(true);
+        //}
+        //else if (Input.GetKeyUp(KeyCode.D))
+        //{
+        //    // マップを消す
+        //    this.ui_Map.gameObject.SetActive(false);
+        //}
     }
 
     #region singleton

@@ -8,13 +8,7 @@ using DG.Tweening;
 /// </summary>
 public class EnemyBase : Actor
 {
-    public enum EnemyType
-    {
-        normal = 0,
-        max
-    }
-    public EnemyType enemyType;
-
+    public EnemyMGR.EnemyType enemyType;
 
     protected Point targetPoint;    // 目標地点
     public Point TargetPoint
@@ -23,12 +17,13 @@ public class EnemyBase : Actor
         set { targetPoint = value; }
     }
 
+    protected Point directPoint;
+
     // =--------- // =--------- unity execution ---------= // ---------= //
 
     // Start is called before the first frame update
     void Start()
     {
-        this.transform.position = MapData.GridToWorld(status.point);
         this.status.characterType = CharaType.enemy;
     }
 
@@ -46,17 +41,22 @@ public class EnemyBase : Actor
     /// <param name="setPoint">目的地</param>
     public void MoveProc()
     {
+        // DecideCommand()で決定したコマンドが移動だった場合
         if (status.actType == ActType.Move)
         {
             if (this.Move())
-            {
+            {// 移動先が確定した場合
                 this.transform.DOMove(MapData.GridToWorld(this.status.point), Actor.MoveTime).SetEase(Ease.Linear);
 
                 // マップに敵を登録
                 MapData.instance.SetMapObject(status.point, MapData.MapObjType.enemy, param.id);
 
                 // タイマー起動（指定秒数経過するとターンエンド状態になる）
-                StartCoroutine(Timer());
+                StartCoroutine(Timer(MoveTime));
+            }
+            else
+            {// 移動先に移動できない場合
+                this.status.actType = ActType.TurnEnd;
             }
         }
     }
@@ -64,12 +64,14 @@ public class EnemyBase : Actor
     /// <summary>
     /// 攻撃
     /// </summary>
-    public void ActProc()
+    public float ActProc()
     {
-        if (status.actType == ActType.Act)
+        if (status.actType == ActType.Act &&
+            SequenceMGR.instance.Player != null)
         {
-            this.Act();
+            return this.Act();
         }
+        else return 0.0f;
     }
 
     public void MapDataUpdate()
@@ -82,8 +84,9 @@ public class EnemyBase : Actor
     {
         return false;
     }
-    protected virtual void Act()
+    protected virtual float Act()
     {
+        return 0.0f;
         // 各敵ごとに処理が異なる
     }
     /// <summary>
@@ -110,10 +113,12 @@ public class EnemyBase : Actor
 
         MessageWindow.instance.AddMessage($"{this.Param.Name}に{calcDamage}のダメージ！", Color.white);
 
-        if (this.param.SubHP(calcDamage))
+        if (this.SubHP(calcDamage))
         {
             MessageWindow.instance.AddMessage($"{this.param.Name}をたおした！", Color.white);
-            this.DestroyObject(isXp);
+
+            // 敵削除
+            EnemyMGR.instance.DestroyEnemy(this.param.id, isXp);
         }
     }
 
@@ -123,14 +128,14 @@ public class EnemyBase : Actor
         if(isXp)
         {
             // プレイヤーに経験値加算
-            SequenceMGR.instance.Player.Param.AddXp(this.Param.xp);
+            SequenceMGR.instance.Player.AddXp(this.Param.xp);
         }
 
         // マップに登録してある自分の情報を消す
         MapData.instance.ResetMapObject(status.point);
 
         // 確率でアイテムをドロップ
-        if (Percent.Per(DataBase.instance.GetEnemyTable((int)this.enemyType).DropPer))
+        if (Percent.Per(DataBase.instance.GetEnemyTableEntity((int)this.enemyType).DropPer))
         {
             // アイテムをランダム生成
             ItemMGR.instance.CreateItem(this.status.point, Random.Range(0, DataBase.instance.GetItemTableCount() - 1));
@@ -139,10 +144,30 @@ public class EnemyBase : Actor
         // マップ上の自分を消す
         UI_MGR.instance.Ui_Map.RemoveMapEnemy(this.status.point);
 
-        SequenceMGR.instance.DestroyEnemyFromID(this.param.id);
-
-        // オブジェクト消去
+        // オブジェクト削除
         Destroy(this.gameObject);
+    }
+
+    /// <summary>
+    /// 座標を返す
+    /// </summary>
+    public Point GetPoint()
+    {
+        return this.status.point;
+    }
+
+    public int GetID()
+    {
+        return this.param.id;
+    }
+    public void SetPoint(Point point)
+    {
+        this.status.point = point;
+    }
+
+    public void SetID(int id)
+    {
+        this.param.id = id;
     }
 
     // =--------- // =--------- コルーチン ---------= // ---------= //
@@ -154,9 +179,9 @@ public class EnemyBase : Actor
     /// 行動は敵の種類によってターンエンドのタイミングが違うため
     /// BaseのActには書いていない（個別のscriptで書く）
     /// </summary>
-    protected IEnumerator Timer()
+    protected IEnumerator Timer(float time)
     {
-        yield return new WaitForSeconds(MoveTime);
+        yield return new WaitForSeconds(time);
 
         status.actType = ActType.TurnEnd;
     }

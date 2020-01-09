@@ -35,7 +35,8 @@ public class Player_Items : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.GetKeyDown(KeyCode.Alpha1)) stocks.Add(new StockItem(12, this.GetID()));
+        if (Input.GetKeyDown(KeyCode.Alpha1)) stocks.Add(new StockItem(13, this.GetID()));
     }
 
     public int StockCount()
@@ -55,7 +56,9 @@ public class Player_Items : MonoBehaviour
 
     public void AddItem(int itemId)
     {
-        stocks.Add(new StockItem(itemId, this.GetID()));
+        StockItem stock = new StockItem(itemId, this.GetID());
+
+        stocks.Add(stock);
     }
     public void Erase(int StockID)
     {

@@ -21,8 +21,6 @@ public class TrapMGR : MonoBehaviour
 
     public void CreateTrap(TrapBase.TrapType type)
     {
-        TrapBase trap = null;
-
         Point point = MapGenerator.instance.RandomPointInRoom();
 
         StartCoroutine(this.LoadTrap(type, point));

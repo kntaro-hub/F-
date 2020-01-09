@@ -16,21 +16,7 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: e71913d7fbcdee148ac6bbfd62d7b57d
-  m_SerializeEntries:
-  - m_GUID: 433de517fce3a5147961062f66095ab5
-    m_Address: Trap_Spike
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Trap
-    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  - m_GUID: 6429d2090d55ec34598743955c84ded4
-    m_Address: Trap_Warp
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Trap
-    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 0764ad6e5bd18514fa43383551e1fb04, type: 2}
   m_SchemaSet:
