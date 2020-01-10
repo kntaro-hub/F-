@@ -115,7 +115,14 @@ public class MapGenerator : MonoBehaviour
         TrapMGR.instance.CreateTrap(TrapBase.TrapType.Warp);
         TrapMGR.instance.CreateTrap(TrapBase.TrapType.Spike);
         TrapMGR.instance.CreateTrap(TrapBase.TrapType.Hunger);
+        TrapMGR.instance.CreateTrap(TrapBase.TrapType.EnemySpawn);
+        TrapMGR.instance.CreateTrap(TrapBase.TrapType.Pitfall);
 
+        ItemMGR.instance.CreateItem(RandomPointInRoom(),11);
+        ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
+        ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
+        ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
+        ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
     }    
 
     private void FillWall()

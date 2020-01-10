@@ -14,6 +14,7 @@ public class EnemyMGR : MonoBehaviour
         Normal = 0,
         Around,
         Around_2X,
+        Random,
         max
     }
 
@@ -79,6 +80,11 @@ public class EnemyMGR : MonoBehaviour
         StartCoroutine(this.LoadEnemy(enemyType, point));
     }
 
+    public void CreateEnemy(Point point, EnemyType enemyType)
+    {
+        StartCoroutine(this.LoadEnemy(enemyType, point));
+    }
+
     public void CreateEnemy_Random()
     {
         List<EnemyTableEntity> Candidates = new List<EnemyTableEntity>();
@@ -113,8 +119,51 @@ public class EnemyMGR : MonoBehaviour
         }
     }
 
+    public void CreateEnemy_Random(Point point)
+    {
+        List<EnemyTableEntity> Candidates = new List<EnemyTableEntity>();
+        foreach (var itr in DataBase.instance.GetEnemyTable())
+        {
+            if (FloorMGR.instance.FloorNum <= itr.MaxFloor &&
+                FloorMGR.instance.FloorNum >= itr.MinFloor)
+            {
+                Candidates.Add(itr);
+            }
+        }
+
+        int SumAppearance = 0;
+        foreach (var itr in Candidates)
+        {
+            SumAppearance += itr.Appearance;
+        }
+
+        //0〜累計確率の間で乱数を作成
+        float rand = Random.Range(0, SumAppearance);
+
+        //乱数から各確率を引いていき、0未満になったら終了
+        foreach (var itr in Candidates)
+        {
+            rand -= itr.Appearance;
+
+            if (rand <= 0)
+            {
+                this.CreateEnemy(point,(EnemyType)itr.TypeID);
+                break;
+            }
+        }
+    }
+
     private IEnumerator LoadEnemy(EnemyType type, Point point)
     {
+        foreach(var itr in enemyList)
+        {
+            // すでに出現予定の場所に敵がいた場合
+            if(itr.status.point == point)
+            {
+                yield break;
+            }
+        }
+
         //Alchemist_ManというAddressのSpriteを非同期でロードの開始
         var handle = Addressables.InstantiateAsync($"Enemy_{type.ToString()}", MapData.GridToWorld(point), Quaternion.identity, MapData.instance.transform);
 

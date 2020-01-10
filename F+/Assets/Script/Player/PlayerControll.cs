@@ -19,6 +19,13 @@ public class PlayerControll : Actor
     // 初期化済みかどうか
     private static bool isInitialize = false;
 
+    private bool isCameraSet = true;
+    public bool IsCameraSet
+    {
+        get { return isCameraSet; }
+        set { isCameraSet = value; }
+    }
+
     int cntDirect = 0;          // 方向を決めるためのカウンタ
     int cntInput = 0;           // 押されたキー数
     bool IsRotButton = false;   // 回転キーが押されているか
@@ -141,7 +148,9 @@ public class PlayerControll : Actor
 
         if(Input.GetKeyDown( KeyCode.Space))
         {
-            this.SaveStatus();
+            //this.SaveStatus();
+
+            
         }
 
         if(Input.GetKeyDown(KeyCode.N))
@@ -157,11 +166,14 @@ public class PlayerControll : Actor
 
     private void CalcCameraPos()
     {
-        Camera.main.transform.position = new Vector3(
-            this.transform.position.x,
-            this.transform.position.y + 7.0f,
-            this.transform.position.z - 4.0f);
-        Camera.main.transform.LookAt(this.transform.position);
+        if (isCameraSet)
+        {
+            Camera.main.transform.position = new Vector3(
+                this.transform.position.x,
+                this.transform.position.y + 7.0f,
+                this.transform.position.z - 4.0f);
+            Camera.main.transform.LookAt(this.transform.position);
+        }
     }
 
     private void Controll()

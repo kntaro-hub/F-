@@ -203,7 +203,7 @@ public class MapData : MonoBehaviour
         }
     }
 
-    public Point GetPointFromAround(Point Center, MapObjType objType)
+    public static Point GetPointFromAround(Point Center, MapObjType objType)
     {
         Point ret;
         ret = new Point(1, 0);
@@ -225,7 +225,7 @@ public class MapData : MonoBehaviour
 
         return new Point();
     }
-    public bool IsPointFromAround(Point Center, MapObjType objType)
+    public static bool IsPointFromAround(Point Center, MapObjType objType)
     {
         Point ret;
         ret = new Point(Center.x + 1, Center.y);
@@ -248,7 +248,7 @@ public class MapData : MonoBehaviour
         return false;
     }
 
-    public Point GetPointFromUDRL(Point Center, MapObjType objType)
+    public static Point GetPointFromUDRL(Point Center, MapObjType objType)
     {
         Point ret;
         ret = new Point(1, 0);
@@ -260,6 +260,22 @@ public class MapData : MonoBehaviour
         ret = new Point(0, -1);
         if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
         return new Point();
+    }
+
+    public static Point GetRandomPointFromAround(Point Center)
+    {
+        switch(Random.Range(1, (int)Actor.Direct.max - 1))
+        {
+            case (int)Actor.Direct.right:           return (Center + new Point( 1, 0));
+            case (int)Actor.Direct.left:            return (Center + new Point(-1, 0));
+            case (int)Actor.Direct.forward:         return (Center + new Point( 0, 1));
+            case (int)Actor.Direct.back:            return (Center + new Point( 0,-1));
+            case (int)Actor.Direct.right_forward:   return (Center + new Point( 1, 1));
+            case (int)Actor.Direct.left_forward:    return (Center + new Point(-1, 1));
+            case (int)Actor.Direct.right_back:      return (Center + new Point( 1,-1));
+            case (int)Actor.Direct.left_back:       return (Center + new Point(-1,-1));
+            default:return new Point();
+        }
     }
 
     /// <summary>

@@ -21,15 +21,7 @@ public class Enemy_Around : EnemyBase
         aStar = GetComponent<AStarSys>();
         status.point = aStar.StartPoint;
 
-        // 敵情報取得
-        EnemyTableEntity entity = DataBase.instance.GetEnemyTableEntity((int)enemyType);
-
-        // 敵パラメータ設定
-        enemyType = (EnemyMGR.EnemyType)entity.TypeID;
-        param.hp = entity.MaxHP;
-        param.atk = entity.Atk;
-        param.Name = entity.Name;
-        param.xp = entity.Xp;
+        base.Init();
     }
 
     // Update is called once per frame
@@ -108,16 +100,16 @@ public class Enemy_Around : EnemyBase
                 if (MapData.instance.GetRoomNum(status.point) ==
                 MapData.instance.GetRoomNum(targetPoint))
                 {// 部屋の中かつ、プレイヤーと同じ部屋
-                    directPoint = MapData.instance.GetPointFromAround(this.status.point, MapData.MapObjType.player);
+                    directPoint = MapData.GetPointFromAround(this.status.point, MapData.MapObjType.player);
                 }
                 else
                 {
-                    directPoint = MapData.instance.GetPointFromUDRL(this.status.point, MapData.MapObjType.player);
+                    directPoint = MapData.GetPointFromUDRL(this.status.point, MapData.MapObjType.player);
                 }
             }
             else
             {
-                directPoint = MapData.instance.GetPointFromUDRL(this.status.point, MapData.MapObjType.player);
+                directPoint = MapData.GetPointFromUDRL(this.status.point, MapData.MapObjType.player);
             }
 
             // プレイヤーの移動後の座標を見て攻撃するか移動するか決定

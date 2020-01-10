@@ -38,6 +38,13 @@ MonoBehaviour:
     - Enemy
     m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
+  - m_GUID: d3777046a89e93143b960a89c0f61531
+    m_Address: Enemy_Random
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Enemy
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 0764ad6e5bd18514fa43383551e1fb04, type: 2}
   m_SchemaSet:

@@ -50,6 +50,9 @@ public class TrapMGR : MonoBehaviour
             // リストに登録
             this.AddTrapList(trap);
 
+            // 座標設定
+            trap.Point = point;
+
             // マップ情報に登録
             MapData.instance.SetMapObject(point, MapData.MapObjType.trap, trap.GetID());
             MapData.instance.SetMapChip(point, trap);
@@ -74,7 +77,7 @@ public class TrapMGR : MonoBehaviour
         foreach(var itr in trapList)
         {
             // ほかのオブジェクトに更新されたのを元に戻す
-            MapData.instance.SetMapObject(itr.GetPoint(), MapData.MapObjType.trap, itr.GetID());
+            MapData.instance.SetMapObject(itr.Point, MapData.MapObjType.trap, itr.GetID());
         }
     }
 

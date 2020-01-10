@@ -12,6 +12,8 @@ public class TrapBase : MapChipBase
         Warp = 0,
         Spike,
         Hunger,
+        EnemySpawn,
+        Pitfall,
         max
     }
     protected TrapType trapType;
@@ -60,14 +62,6 @@ public class TrapBase : MapChipBase
     /// 罠起動（罠ごとに効果が違う）
     /// </summary>
     public virtual void ActiveTrap(Actor actor) { }
-
-    /// <summary>
-    /// 座標を返す
-    /// </summary>
-    public Point GetPoint()
-    {
-        return this.point;
-    }
 
     public int GetID()
     {

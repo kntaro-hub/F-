@@ -177,9 +177,7 @@ public class UI_Goal : UI_Base
     /// </summary>
     private void Com_Next()
     {// 次のステージへ
-        SceneManager.LoadScene("Interval");
-        FloorMGR.instance.AddFloorNum(1);
-        SequenceMGR.instance.Player.SaveStatus();
+        FloorMGR.instance.NextFloor();
     }
     /// <summary>
     /// [キャンセル]コマンド

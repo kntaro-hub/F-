@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class FloorMGR : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class FloorMGR : MonoBehaviour
     public int FloorNum
     {
         get { return floorNum; }
+        set { floorNum = value; }
     }
 
     // Start is called before the first frame update
@@ -27,14 +29,11 @@ public class FloorMGR : MonoBehaviour
     {
         floorNum += num;
     }
-
-    public int GetFloorNum()
+    public void NextFloor()
     {
-        return floorNum;
-    }
-    public void SetFloorNum(int num)
-    {
-        floorNum = num;
+        floorNum++;
+        SequenceMGR.instance.Player.SaveStatus();
+        SceneManager.LoadScene("Interval");
     }
 
     #region singleton

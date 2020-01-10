@@ -11,6 +11,12 @@ public class MapChipBase : MonoBehaviour
     // マップ上座標
     protected Point point;
 
+    public Point Point
+    {
+        get { return point; }
+        set { point = value; }
+    }
+
     // マップチップID
     protected int ID;
 

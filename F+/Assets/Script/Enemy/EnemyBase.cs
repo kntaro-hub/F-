@@ -24,7 +24,23 @@ public class EnemyBase : Actor
     // Start is called before the first frame update
     void Start()
     {
+        
+    }
+
+    public void Init()
+    {
         this.status.characterType = CharaType.enemy;
+
+        // 敵情報取得
+        EnemyTableEntity entity = DataBase.instance.GetEnemyTableEntity((int)enemyType);
+
+        // 敵パラメータ設定
+        enemyType = (EnemyMGR.EnemyType)entity.TypeID;
+        param.hp = entity.MaxHP;
+        param.atk = entity.Atk;
+        param.def = entity.Def;
+        param.Name = entity.Name;
+        param.xp = entity.Xp;
     }
 
     // Update is called once per frame
