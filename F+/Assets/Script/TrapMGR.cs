@@ -123,7 +123,6 @@ public class TrapMGR : MonoBehaviour
                 {
                     var go = new GameObject("TrapMGR");
                     _instance = go.AddComponent<TrapMGR>();
-                    DontDestroyOnLoad(go);
                     go.hideFlags = HideFlags.HideInHierarchy;
                 }
             }

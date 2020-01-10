@@ -13,6 +13,7 @@ public class EnemyMGR : MonoBehaviour
     {
         Normal = 0,
         Around,
+        Around_2X,
         max
     }
 
@@ -238,7 +239,7 @@ public class EnemyMGR : MonoBehaviour
                 {
                     var go = new GameObject("EnemyMGR");
                     _instance = go.AddComponent<EnemyMGR>();
-                    DontDestroyOnLoad(go);
+                    //DontDestroyOnLoad(go);
                     go.hideFlags = HideFlags.HideInHierarchy;
                 }
             }

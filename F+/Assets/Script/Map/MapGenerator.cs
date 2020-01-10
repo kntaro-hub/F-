@@ -114,6 +114,7 @@ public class MapGenerator : MonoBehaviour
         // 11. 罠を配置
         TrapMGR.instance.CreateTrap(TrapBase.TrapType.Warp);
         TrapMGR.instance.CreateTrap(TrapBase.TrapType.Spike);
+        TrapMGR.instance.CreateTrap(TrapBase.TrapType.Hunger);
 
     }    
 

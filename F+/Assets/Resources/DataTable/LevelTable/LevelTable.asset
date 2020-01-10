@@ -14,113 +14,113 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Table:
   - Level: 1
-    atk: 0
+    Atk: 5
     Xp: 0
   - Level: 2
-    atk: 0
+    Atk: 7
     Xp: 10
   - Level: 3
-    atk: 0
+    Atk: 9
     Xp: 30
   - Level: 4
-    atk: 0
+    Atk: 11
     Xp: 60
   - Level: 5
-    atk: 0
+    Atk: 13
     Xp: 100
   - Level: 6
-    atk: 0
+    Atk: 16
     Xp: 150
   - Level: 7
-    atk: 0
+    Atk: 19
     Xp: 230
   - Level: 8
-    atk: 0
+    Atk: 22
     Xp: 350
   - Level: 9
-    atk: 0
+    Atk: 25
     Xp: 500
   - Level: 10
-    atk: 0
+    Atk: 29
     Xp: 700
   - Level: 11
-    atk: 0
+    Atk: 33
     Xp: 950
   - Level: 12
-    atk: 0
+    Atk: 37
     Xp: 1200
   - Level: 13
-    atk: 0
+    Atk: 41
     Xp: 1500
   - Level: 14
-    atk: 0
+    Atk: 46
     Xp: 1800
   - Level: 15
-    atk: 0
+    Atk: 51
     Xp: 2300
   - Level: 16
-    atk: 0
+    Atk: 56
     Xp: 3000
   - Level: 17
-    atk: 0
+    Atk: 61
     Xp: 4000
   - Level: 18
-    atk: 0
+    Atk: 65
     Xp: 6000
   - Level: 19
-    atk: 0
+    Atk: 71
     Xp: 9000
   - Level: 20
-    atk: 0
+    Atk: 74
     Xp: 15000
   - Level: 21
-    atk: 0
+    Atk: 77
     Xp: 23000
   - Level: 22
-    atk: 0
+    Atk: 80
     Xp: 33000
   - Level: 23
-    atk: 0
+    Atk: 83
     Xp: 45000
   - Level: 24
-    atk: 0
+    Atk: 86
     Xp: 60000
   - Level: 25
-    atk: 0
+    Atk: 89
     Xp: 80000
   - Level: 26
-    atk: 0
+    Atk: 90
     Xp: 100000
   - Level: 27
-    atk: 0
+    Atk: 91
     Xp: 130000
   - Level: 28
-    atk: 0
+    Atk: 92
     Xp: 180000
   - Level: 29
-    atk: 0
+    Atk: 93
     Xp: 240000
   - Level: 30
-    atk: 0
+    Atk: 94
     Xp: 300000
   - Level: 31
-    atk: 0
+    Atk: 95
     Xp: 400000
   - Level: 32
-    atk: 0
+    Atk: 96
     Xp: 500000
   - Level: 33
-    atk: 0
+    Atk: 97
     Xp: 600000
   - Level: 34
-    atk: 0
+    Atk: 98
     Xp: 700000
   - Level: 35
-    atk: 0
+    Atk: 99
     Xp: 800000
   - Level: 36
-    atk: 0
+    Atk: 100
     Xp: 900000
   - Level: 37
-    atk: 0
+    Atk: 100
     Xp: 999999

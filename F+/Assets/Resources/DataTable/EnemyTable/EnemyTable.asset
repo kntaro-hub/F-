@@ -16,16 +16,18 @@ MonoBehaviour:
   - TypeID: 0
     Name: "\u4EEE\u65751"
     MaxHP: 5
-    Atk: 3
-    Xp: 10
+    Atk: 2
+    Def: 1
+    Xp: 1
     DropPer: 100
     MinFloor: 1
     MaxFloor: 2
     Appearance: 100
   - TypeID: 1
     Name: "\u4EEE\u65752"
-    MaxHP: 30
+    MaxHP: 10
     Atk: 2
+    Def: 2
     Xp: 1
     DropPer: 10
     MinFloor: 2
@@ -33,8 +35,9 @@ MonoBehaviour:
     Appearance: 50
   - TypeID: 2
     Name: "\u4EEE\u65753"
-    MaxHP: 10
+    MaxHP: 20
     Atk: 4
+    Def: 3
     Xp: 3
     DropPer: 50
     MinFloor: 3
@@ -44,6 +47,7 @@ MonoBehaviour:
     Name: "\u4EEE\u65754"
     MaxHP: 50
     Atk: 6
+    Def: 4
     Xp: 6
     DropPer: 30
     MinFloor: 4

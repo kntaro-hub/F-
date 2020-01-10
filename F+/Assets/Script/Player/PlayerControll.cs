@@ -18,10 +18,6 @@ public class PlayerControll : Actor
 
     // 初期化済みかどうか
     private static bool isInitialize = false;
-    public bool IsInitialize
-    {
-        get { return isInitialize; }
-    }
 
     int cntDirect = 0;          // 方向を決めるためのカウンタ
     int cntInput = 0;           // 押されたキー数
@@ -75,28 +71,30 @@ public class PlayerControll : Actor
 
         status.point = new Point();
         status.direct = Direct.forward;
-        status.characterType = CharaType.player;       
+        status.characterType = CharaType.player;
+
+        this.param.Name = "ユニティちゃん";
 
         this.Init();
     }
 
     public void Init()
     {
-        if (!IsInitialize)
+        if (!isInitialize)
         {// 1階層からの場合初期化をかける
-            param.atk           = 8;    // ちから
-            param.maxAtk        = 8;    // ちから最大値
-            param.level         = 1;    // レベル
-            param.basicAtk      = DataBase.instance.GetLevelTableEntity(param.level - 1).atk;    // レベルアップで増える攻撃力
-            param.hp            = 15;   // 体力
-            param.maxHp         = 15;   // 体力最大値
-            param.hunger        = 100;  // 満腹度
-            param.maxHunger     = 100;  // 満腹度最大値
-            param.exp           = 0;    // 今まで取得した経験値
-            param.id            = 0;    // キャラクターID
+            this.param.atk           = 8;    // ちから
+            this.param.maxAtk        = 8;    // ちから最大値
+            this.param.level         = 1;    // レベル
+            this.param.basicAtk      = DataBase.instance.GetLevelTableEntity(param.level - 1).Atk;    // レベルアップで増える攻撃力
+            this.param.hp            = 15;   // 体力
+            this.param.maxHp         = 15;   // 体力最大値
+            this.param.hunger        = 100;  // 満腹度
+            this.param.maxHunger     = 100;  // 満腹度最大値
+            this.param.exp           = 0;    // 今まで取得した経験値
+            this.param.id            = 0;    // キャラクターID
             // 非装備にする
-            param.weaponId = DataBase.instance.GetItemTableCount() - 1;
-            param.shieldId = DataBase.instance.GetItemTableCount() - 1;
+            this.param.weaponId = DataBase.instance.GetItemTableCount() - 1;
+            this.param.shieldId = DataBase.instance.GetItemTableCount() - 1;
             UI_MGR.instance.Ui_Inventory.EquipInventoryID[0] = Actor.Parameter.notEquipValue;
             UI_MGR.instance.Ui_Inventory.EquipInventoryID[1] = Actor.Parameter.notEquipValue;
             isInitialize = true;
@@ -109,7 +107,7 @@ public class PlayerControll : Actor
 
     public override void Damage(int damage)
     {
-        int calcDamage = this.param.CalcDamage(damage);
+        int calcDamage = this.CalcDamage(damage);
 
         MessageWindow.instance.AddMessage($"{this.Param.Name}は{calcDamage}のダメージをうけた！", Color.red);
 
@@ -559,7 +557,7 @@ public class PlayerControll : Actor
                 EnemyBase enemy = SequenceMGR.instance.SearchEnemyFromID(mapObj.id);
 
                 // ダメージ量を計算してhpから減算
-                int damage = this.param.CalcAtk();
+                int damage = this.CalcAtk();
                 
                 enemy.Damage(damage, true);
             }
@@ -575,4 +573,61 @@ public class PlayerControll : Actor
 
         status.actType = ActType.TurnEnd;
     }
+
+    #region ダメージ計算
+
+    /// <summary>
+    /// トルネコ式攻撃力計算
+    /// </summary>
+    /// <returns>整数の攻撃値</returns>
+    public override int CalcAtk()
+    {
+        // Atk計算                                                                                      // 力の初期値
+        float WeaponAtk;
+        if (this.param.weaponId != DataBase.instance.GetItemTableCount() - 1)
+        {
+            WeaponAtk = (this.param.basicAtk * (DataBase.instance.GetItemTableEntity(this.param.weaponId).Atk + this.param.atk - 8.0f) / 16.0f);
+        }
+        else // なにも装備していない場合
+        {
+            WeaponAtk = (this.param.basicAtk * 0 + (this.param.atk - 8.0f) / 16.0f);
+        }
+        int Atk = (int)(this.param.basicAtk + Mathf.Round(WeaponAtk));
+
+        // 計算結果を返す
+        return Atk;
+    }
+
+    /// <summary>
+    /// トルネコ式ダメージ計算
+    /// 1を下回った場合、最低1ダメージ
+    /// </summary>
+    /// <param name="atk">攻撃側の計算後攻撃力</param>
+    /// <returns>整数のダメージ値</returns>
+    public override int CalcDamage(int Atk)
+    {
+        if (this.param.shieldId != DataBase.instance.GetItemTableCount() - 1)
+        {
+            // 防御力計算
+            Atk = (int)(Atk * Mathf.Pow((15.0f / 16.0f), DataBase.instance.GetItemTableEntity(this.param.weaponId).Def));  // 攻撃力と基本ダメージ
+            Atk = (int)Mathf.Floor(Atk * Random.Range(112, 143) / 128);   // 結果
+        }
+        else
+        {// なにも装備していない場合
+         // 防御力計算
+            Atk = (int)Mathf.Floor(Atk * Random.Range(112, 143) / 128);   // 結果
+        }
+
+        if (Atk < 1)
+        {// 計算結果が1を下回った場合
+
+            // 最低でも1ダメージ
+            Atk = 1;
+        }
+
+        // 計算結果を返す
+        return Atk;
+    }
+
+    #endregion
 }

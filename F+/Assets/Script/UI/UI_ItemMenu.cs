@@ -418,7 +418,7 @@ public class UI_ItemMenu : UI_Base
         {
             case ItemType.Consumables:  this.UseConsumables(); break;
             case ItemType.Weapon:       this.UseEquip(EquipType.weapon); break;
-            case ItemType.Shield:       this.UseEquip(EquipType.weapon); break;
+            case ItemType.Shield:       this.UseEquip(EquipType.shield); break;
             case ItemType.Magic:        this.UseMagic((MagicType)DataBase.instance.GetItemTableEntity(selectedItemID).ExType); break;
             case ItemType.Book:         this.UseBook((BookType)DataBase.instance.GetItemTableEntity(selectedItemID).ExType); break;
         }

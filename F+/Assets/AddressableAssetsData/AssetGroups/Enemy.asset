@@ -31,6 +31,13 @@ MonoBehaviour:
     - Enemy
     m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
+  - m_GUID: 91d5f76faef8a214fba7c6717739dfe8
+    m_Address: Enemy_Around_2X
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Enemy
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 0764ad6e5bd18514fa43383551e1fb04, type: 2}
   m_SchemaSet:

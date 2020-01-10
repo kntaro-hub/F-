@@ -109,7 +109,7 @@ public class EnemyBase : Actor
 
     public override void Damage(int damage, bool isXp)
     {
-        int calcDamage = this.param.CalcDamage(damage);
+        int calcDamage = this.CalcDamage(damage);
 
         MessageWindow.instance.AddMessage($"{this.Param.Name}に{calcDamage}のダメージ！", Color.white);
 
@@ -187,4 +187,50 @@ public class EnemyBase : Actor
     }
 
     // =--------- // =--------- ---------= // ---------= //
+
+    #region ダメージ計算
+
+    /// <summary>
+    /// トルネコ式攻撃力計算
+    /// </summary>
+    /// <returns>整数の攻撃値</returns>
+    public override int CalcAtk()
+    { 
+        // 計算結果を返す
+        return this.param.atk;
+    }
+
+    /// <summary>
+    /// トルネコ式ダメージ計算
+    /// 1を下回った場合、最低1ダメージ
+    /// </summary>
+    /// <param name="atk">攻撃側の計算後攻撃力</param>
+    /// <returns>整数のダメージ値</returns>
+    public override int CalcDamage(int Atk)
+    {
+        if (this.param.shieldId != DataBase.instance.GetItemTableCount() - 1)
+        {
+            // 防御力計算
+            Atk = (int)(Atk * Mathf.Pow((15.0f / 16.0f), this.param.def));  // 攻撃力と基本ダメージ
+            Atk = (int)Mathf.Floor(Atk * Random.Range(112, 143) / 128);   // 結果
+        }
+        else
+        {// なにも装備していない場合
+         // 防御力計算
+            Atk = (int)Mathf.Floor(Atk * Random.Range(112, 143) / 128);   // 結果
+        }
+
+        if (Atk < 1)
+        {// 計算結果が1を下回った場合
+
+            // 最低でも1ダメージ
+            Atk = 1;
+        }
+
+        // 計算結果を返す
+        return Atk;
+    }
+
+    #endregion
+
 }

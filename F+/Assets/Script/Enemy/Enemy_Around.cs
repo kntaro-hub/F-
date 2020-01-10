@@ -86,7 +86,7 @@ public class Enemy_Around : EnemyBase
         this.transform.DOPunchPosition(MapData.GridToWorld(directPoint), MoveTime * 2.0f);
 
         // 攻撃が成功した場合
-        SequenceMGR.instance.Player.Damage(this.param.CalcAtk());
+        SequenceMGR.instance.Player.Damage(this.CalcAtk());
 
         // タイマー起動（指定秒数経過するとターンエンド状態になる）
         StartCoroutine(Timer(MoveTime * 3.0f));

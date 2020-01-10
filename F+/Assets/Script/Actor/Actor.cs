@@ -60,6 +60,7 @@ public class Actor : MonoBehaviour
         public int basicAtk;// 基本攻撃力（レベルで上昇）
         public int maxAtk;  // ちから最大値
         public int atk;     // ちから
+        public int def;
         public int exp;     // 今まで取得した経験値
         public int xp;      // 倒したとき得られる経験値
 
@@ -70,68 +71,7 @@ public class Actor : MonoBehaviour
 
         public int hunger;      // 満腹度
         public int maxHunger;   // 満腹度（最大値）
-
-        /// <summary>
-        /// トルネコ式攻撃力計算
-        /// </summary>
-        /// <returns>整数の攻撃値</returns>
-        public int CalcAtk()
-        {
-            // Atk計算                                                                                      // 力の初期値
-            float WeaponAtk;
-            if (this.weaponId != DataBase.instance.GetItemTableCount() - 1)
-            {
-                WeaponAtk = (this.basicAtk * (DataBase.instance.GetItemTableEntity(this.weaponId).Atk + this.atk - 8.0f) / 16.0f);
-            }
-            else // なにも装備していない場合
-            {
-                WeaponAtk = (this.basicAtk + (this.atk - 8.0f) / 16.0f);
-            }
-            int Atk = (int)(this.basicAtk * Mathf.Round(WeaponAtk));
-            // 計算結果を返す
-            return Atk;
-        }
-
-        /// <summary>
-        /// トルネコ式ダメージ計算
-        /// 1を下回った場合、最低1ダメージ
-        /// </summary>
-        /// <param name="atk">攻撃側の計算後攻撃力</param>
-        /// <returns>整数のダメージ値</returns>
-        public int CalcDamage(int Atk)
-        {
-            if (this.shieldId != DataBase.instance.GetItemTableCount() - 1)
-            {
-                // 防御力計算
-                Atk = (int)(Atk * Mathf.Pow((15.0f / 16.0f), DataBase.instance.GetItemTableEntity(this.weaponId).Def));  // 攻撃力と基本ダメージ
-                Atk = (int)Mathf.Floor(Atk * Random.Range(112, 143) / 128);   // 結果
-            }
-            else
-            {// なにも装備していない場合
-                // 防御力計算
-                Atk = (int)Mathf.Floor(Atk * Random.Range(112, 143) / 128);   // 結果
-            }
-
-            if (Atk < 1)
-            {// 計算結果が1を下回った場合
-
-                // 最低でも1ダメージ
-                Atk = 1;
-            }
-
-            // 計算結果を返す
-            return Atk;
-        }
         
-        public void SetShieldID(int itemID)
-        {
-            this.shieldId = itemID;
-        }
-        public void SetWeaponID(int itemID)
-        {
-            this.weaponId = itemID;
-        }
-
         // 非装備時武器盾ID
         public static int notEquipValue = DataBase.instance.GetItemTableCount() - 1;
     }
@@ -173,8 +113,8 @@ public class Actor : MonoBehaviour
     {
         switch(equipType)
         {
-            case EquipType.weapon: this.param.SetWeaponID(itemID); break;
-            case EquipType.shield: this.param.SetShieldID(itemID); break;
+            case EquipType.weapon: this.SetWeaponID(itemID); break;
+            case EquipType.shield: this.SetShieldID(itemID); break;
         }
     }
 
@@ -182,8 +122,8 @@ public class Actor : MonoBehaviour
     {
         switch (equipType)
         {
-            case EquipType.weapon: this.param.SetWeaponID(Parameter.notEquipValue); break;
-            case EquipType.shield: this.param.SetShieldID(Parameter.notEquipValue); break;
+            case EquipType.weapon: this.SetWeaponID(Parameter.notEquipValue); break;
+            case EquipType.shield: this.SetShieldID(Parameter.notEquipValue); break;
         }
     }
 
@@ -221,7 +161,7 @@ public class Actor : MonoBehaviour
             {
                 // レベルアップ
                 this.param.level = levelTableEntity.Level;
-                this.param.atk = levelTableEntity.atk;
+                this.param.atk = levelTableEntity.Atk;
 
                 // 体力UP
                 this.param.maxHp += 3;
@@ -324,6 +264,15 @@ public class Actor : MonoBehaviour
         this.param.maxHunger -= subMaxHunger;
     }
 
+    public void SetShieldID(int itemID)
+    {
+        this.param.shieldId = itemID;
+    }
+    public void SetWeaponID(int itemID)
+    {
+        this.param.weaponId = itemID;
+    }
+
     public bool CheckDestroy()
     {
         // hpが0以下なら死亡
@@ -333,6 +282,26 @@ public class Actor : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    /// <summary>
+    /// トルネコ式攻撃力計算
+    /// </summary>
+    /// <returns>整数の攻撃値</returns>
+    public virtual int CalcAtk()
+    {
+        return 0;
+    }
+
+    /// <summary>
+    /// トルネコ式ダメージ計算
+    /// 1を下回った場合、最低1ダメージ
+    /// </summary>
+    /// <param name="atk">攻撃側の計算後攻撃力</param>
+    /// <returns>整数のダメージ値</returns>
+    public virtual int CalcDamage(int Atk)
+    {
+        return 0;
     }
 
     public virtual void DestroyObject() { }

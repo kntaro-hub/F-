@@ -31,6 +31,13 @@ MonoBehaviour:
     - Trap
     m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
+  - m_GUID: ca3b6e20e3446db48a9b92b5de731f61
+    m_Address: Trap_Hunger
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Trap
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 0764ad6e5bd18514fa43383551e1fb04, type: 2}
   m_SchemaSet:

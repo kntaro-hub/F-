@@ -6,6 +6,6 @@ using UnityEngine;
 public class LevelTableEntity
 {
     public int  Level; // publicでエクセルでインポートしたい型と名前を定義
-    public int  atk;
+    public int  Atk;
     public int  Xp; 
 }

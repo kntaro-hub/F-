@@ -9,6 +9,7 @@ public class EnemyTableEntity
     public string   Name;           // 名前
     public int      MaxHP;          // 体力
     public int      Atk;            // 攻撃力
+    public int      Def;            // 防御力
     public int      Xp;             // 経験値
     public int      DropPer;        // アイテムドロップ率
     public int      MinFloor;       // 出現する最低階層

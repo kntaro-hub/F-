@@ -11,6 +11,7 @@ public class TrapBase : MapChipBase
     {
         Warp = 0,
         Spike,
+        Hunger,
         max
     }
     protected TrapType trapType;
