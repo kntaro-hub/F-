@@ -326,7 +326,8 @@ public class MapData : MonoBehaviour
     /// <param name="y"></param>
     public void CreateGoal(int x, int y)
     {
-        mapValue[x, y].mapChip = Instantiate(goalPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
+        mapValue[x, y].mapChip = Instantiate(goalPrefab);
+        mapValue[x, y].mapChip.transform.position = GridToWorld(new Point(x, y));
         UI_MGR.instance.Ui_Map.CreateMapGoal(new Point(x, y));
     }
 

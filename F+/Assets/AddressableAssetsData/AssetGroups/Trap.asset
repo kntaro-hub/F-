@@ -48,7 +48,8 @@ MonoBehaviour:
   - m_GUID: d332c3dab95e1b740a718020747776b4
     m_Address: Trap_Pitfall
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - Trap
     m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_ReadOnly: 0

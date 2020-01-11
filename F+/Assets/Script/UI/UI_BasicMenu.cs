@@ -60,12 +60,17 @@ public class UI_BasicMenu : UI_Base
     // Start is called before the first frame update
     void Start()
     {
+        
+    }
+
+    public void CreateUI()
+    {
         cursor = Instantiate(cursorPrefab, this.transform);
-        TextMeshProUGUI item         = Instantiate(textPrefab, this.transform);     item.text         = "道具";
-        TextMeshProUGUI map          = Instantiate(textPrefab, this.transform);     map.text          = "マップ";
-        TextMeshProUGUI inspect      = Instantiate(textPrefab, this.transform);     inspect.text      = "調べる";
-        TextMeshProUGUI interruption = Instantiate(textPrefab, this.transform);     interruption.text = "中断";
-        TextMeshProUGUI close        = Instantiate(textPrefab, this.transform);     close.text        = "閉じる";
+        TextMeshProUGUI item = Instantiate(textPrefab, this.transform); item.text = "道具";
+        TextMeshProUGUI map = Instantiate(textPrefab, this.transform); map.text = "マップ";
+        TextMeshProUGUI inspect = Instantiate(textPrefab, this.transform); inspect.text = "調べる";
+        TextMeshProUGUI interruption = Instantiate(textPrefab, this.transform); interruption.text = "中断";
+        TextMeshProUGUI close = Instantiate(textPrefab, this.transform); close.text = "閉じる";
 
         ui_Map = FindObjectOfType<UI_Map>();
 
@@ -80,7 +85,7 @@ public class UI_BasicMenu : UI_Base
         panel.color = Color.clear;
 
         int cnt = 0;
-        foreach(var itr in textList)
+        foreach (var itr in textList)
         {
             // 透明に
             itr.color = Color.clear;

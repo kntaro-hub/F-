@@ -50,6 +50,12 @@ public class MapGenerator : MonoBehaviour
 
     void Start()
     {
+        
+    }    
+    
+    // マップ生成
+    public void GenerateMap()
+    {
         MapData mapData = MapData.instance;
 
         // 1. 初期化
@@ -86,13 +92,13 @@ public class MapGenerator : MonoBehaviour
         this.FillWall();
 
         // 11. 部屋の周りを走査して通路を部屋の入口として登録する
-        foreach(var itr in divList)
+        foreach (var itr in divList)
         {
             for (int x = 0; x < itr.Room.Width; ++x)
             {
                 for (int y = 0; y < itr.Room.Height; ++y)
                 {
-                    if(mapData.GetMapChipType(itr.Room.Left + x - 1, itr.Room.Top + y - 1) == MapData.MapChipType.none)
+                    if (mapData.GetMapChipType(itr.Room.Left + x - 1, itr.Room.Top + y - 1) == MapData.MapChipType.none)
                     {
 
                         // いまは左と上がroomaround
@@ -118,12 +124,12 @@ public class MapGenerator : MonoBehaviour
         TrapMGR.instance.CreateTrap(TrapBase.TrapType.EnemySpawn);
         TrapMGR.instance.CreateTrap(TrapBase.TrapType.Pitfall);
 
-        ItemMGR.instance.CreateItem(RandomPointInRoom(),11);
         ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
         ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
         ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
         ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
-    }    
+        ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
+    }
 
     private void FillWall()
     {

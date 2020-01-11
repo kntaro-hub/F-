@@ -145,14 +145,6 @@ public class PlayerControll : Actor
         if(status.actType == ActType.TurnEnd)
           this.UpdatePosition();
 
-
-        if(Input.GetKeyDown( KeyCode.Space))
-        {
-            //this.SaveStatus();
-
-            
-        }
-
         if(Input.GetKeyDown(KeyCode.N))
         {
             Debug.Log(KeyCode.None.ToString());
@@ -548,6 +540,8 @@ public class PlayerControll : Actor
         status.actType = ActType.TurnEnd;
 
         AdDebug.Log(MapData.instance.GetMapChipType(this.status.point).ToString());
+
+        SequenceMGR.instance.ActProc();
     }
 
     // MoveTime後に敵のターン

@@ -271,7 +271,6 @@ public class SequenceMGR : MonoBehaviour
                     if (player.Move())
                     {
                         this.MoveEnemy();
-                        this.ActProc();
                     }
                     break;
 

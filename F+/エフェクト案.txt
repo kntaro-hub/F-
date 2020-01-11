@@ -1,0 +1,59 @@
+// =--------- パラメータ変化系 ---------= //
+体力回復した時:
+
+満腹度回復した時:
+
+ちからアップ:
+
+レベルアップ:
+
+// =--------- プレイヤー回り ---------= //
+武器装備時:
+
+盾装備時:CFX2_PickupDiamond2
+
+歩いているときの煙:
+
+攻撃ヒット:CFX_MagicPoof
+
+プレイヤー死亡:
+
+
+
+// =--------- 杖 ---------= //
+炎の杖：
+ヒット時:CFX3_Fire_Explosion
+
+竜巻の杖:
+ヒット時:CFX_Tornado
+
+// =--------- 本 ---------= //
+爆発の書:CFX2_WWExplosion_C
+
+満腹の書:
+
+帰還の書:CFX3_ResurrectionLight_Circle
+
+// =--------- 罠 ---------= //
+罠出現:
+
+トゲ罠ヒット:CFX_Hit_C White
+
+ハラヘリ罠ヒット:
+
+呼び寄せの罠ヒット:けむり
+
+落とし穴の罠:CFX2_RockHit 足元が崩れる
+			:CFX4 Drill Air Hit(NO COLLISION)
+or 
+落とし穴の罠;CFX3_Vortex_Ground 回転しながら床に沈んでいく
+
+ワープの罠:
+
+// =--------- 敵 ---------= //
+敵の攻撃ヒット:CFX_Hit_C White
+
+敵死亡:CFX2_EnemyDeathSkull
+
+// =--------- 地形 ---------= //
+☆ゴール地点:CFX3_ResurrectionLight_Circle

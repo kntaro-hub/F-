@@ -20,6 +20,7 @@ MonoBehaviour:
     Hunger: 1
     Atk: 0
     Def: 0
+    Ammo: 0
     Ex: None
     ExValue: 0
     Buy: 0
@@ -27,7 +28,7 @@ MonoBehaviour:
     ExType: 0
     Detail: "\u8A66\u9A13\u7684\u306B\u7528\u610F\u3055\u308C\u305F\u30A2\u30A4\u30C6\u30E0\u3002\u6E80\u8179\u5EA6\u304C1\u56DE\u5FA9\u3002"
     UseMessage: "\u6D88\u8CBB\u30A2\u30A4\u30C6\u30E01\u3092\u98DF\u3079\u3066\u307F\u305F\u3002"
-    UsedMessage: "\u3046\u307E\u304B\u3063\u305F\u3002"
+    UsedMessage: "\u6D88\u8CBB\u5F8C\u30E1\u30C3\u30BB\u30FC\u30B8"
   - ID: 1
     Type: 0
     Name: "\u6D88\u8CBB\u30A2\u30A4\u30C6\u30E02"
@@ -35,6 +36,7 @@ MonoBehaviour:
     Hunger: 0
     Atk: 0
     Def: 0
+    Ammo: 0
     Ex: None
     ExValue: 0
     Buy: 0
@@ -42,7 +44,7 @@ MonoBehaviour:
     ExType: 0
     Detail: "\u8A66\u9A13\u7684\u306B\u7528\u610F\u3055\u308C\u305F\u30A2\u30A4\u30C6\u30E0\u3002HP\u304C1\u56DE\u5FA9\u3002"
     UseMessage: "\u6D88\u8CBB\u30A2\u30A4\u30C6\u30E02\u3092\u98DF\u3079\u3066\u307F\u305F\u3002"
-    UsedMessage: "\u3046\u307E\u304B\u3063\u305F\u3002"
+    UsedMessage: "\u6D88\u8CBB\u5F8C\u30E1\u30C3\u30BB\u30FC\u30B8"
   - ID: 2
     Type: 0
     Name: "\u6D88\u8CBB\u30A2\u30A4\u30C6\u30E03"
@@ -50,6 +52,7 @@ MonoBehaviour:
     Hunger: 0
     Atk: 0
     Def: 0
+    Ammo: 0
     Ex: None
     ExValue: 0
     Buy: 0
@@ -57,7 +60,7 @@ MonoBehaviour:
     ExType: 0
     Detail: "\u8A66\u9A13\u7684\u306B\u7528\u610F\u3055\u308C\u305F\u30A2\u30A4\u30C6\u30E0\u3002\u4E2D\u8EAB\u306F\u7A7A\u3063\u307D\u3002"
     UseMessage: "\u6D88\u8CBB\u30A2\u30A4\u30C6\u30E03\u3092\u98DF\u3079\u3088\u3046\u3068\u3057\u3066\u307F\u305F\u3002"
-    UsedMessage: "\u7A7A\u6C17\u306E\u5473\u304C\u3059\u308B\u3002"
+    UsedMessage: "\u6D88\u8CBB\u5F8C\u30E1\u30C3\u30BB\u30FC\u30B8"
   - ID: 3
     Type: 0
     Name: "\u6D88\u8CBB\u30A2\u30A4\u30C6\u30E04"
@@ -65,14 +68,15 @@ MonoBehaviour:
     Hunger: 0
     Atk: 0
     Def: 0
+    Ammo: 0
     Ex: None
     ExValue: 0
     Buy: 0
     Sell: 0
     ExType: 0
-    Detail: "\u8A66\u9A13\u7684\u306B\u7528\u610F\u3055\u308C\u305F\u30A2\u30A4\u30C6\u30E0\u3002\u898B\u308B\u304B\u3089\u306B\u6BD2\u3005\u3057\u3044\u3002"
+    Detail: "\u8A66\u9A13\u7684\u306B\u7528\u610F\u3055\u308C\u305F\u30A2\u30A4\u30C6\u30E0\u3002"
     UseMessage: "\u6D88\u8CBB\u30A2\u30A4\u30C6\u30E04\u3092\u98DF\u3079\u3066\u307F\u305F\u3002"
-    UsedMessage: "\u2026\u6BD2\u3060\uFF01"
+    UsedMessage: "\u6D88\u8CBB\u5F8C\u30E1\u30C3\u30BB\u30FC\u30B8"
   - ID: 4
     Type: 1
     Name: "\u7D20\u624B"
@@ -80,6 +84,7 @@ MonoBehaviour:
     Hunger: 0
     Atk: 1000
     Def: 0
+    Ammo: 0
     Ex: None
     ExValue: 0
     Buy: 0
@@ -95,6 +100,7 @@ MonoBehaviour:
     Hunger: 0
     Atk: 2
     Def: 0
+    Ammo: 0
     Ex: None
     ExValue: 0
     Buy: 2
@@ -110,6 +116,7 @@ MonoBehaviour:
     Hunger: 0
     Atk: 5
     Def: 0
+    Ammo: 0
     Ex: None
     ExValue: 0
     Buy: 10
@@ -125,6 +132,7 @@ MonoBehaviour:
     Hunger: 0
     Atk: 0
     Def: 1000
+    Ammo: 0
     Ex: None
     ExValue: 0
     Buy: 10
@@ -140,6 +148,7 @@ MonoBehaviour:
     Hunger: 0
     Atk: 0
     Def: 2
+    Ammo: 0
     Ex: None
     ExValue: 0
     Buy: 10
@@ -155,6 +164,7 @@ MonoBehaviour:
     Hunger: 0
     Atk: 0
     Def: 5
+    Ammo: 0
     Ex: None
     ExValue: 0
     Buy: 10
@@ -170,6 +180,7 @@ MonoBehaviour:
     Hunger: 0
     Atk: 100
     Def: 0
+    Ammo: 4
     Ex: None
     ExValue: 0
     Buy: 10
@@ -185,6 +196,7 @@ MonoBehaviour:
     Hunger: 0
     Atk: 5
     Def: 0
+    Ammo: 3
     Ex: None
     ExValue: 0
     Buy: 10
@@ -200,6 +212,7 @@ MonoBehaviour:
     Hunger: 0
     Atk: 0
     Def: 0
+    Ammo: 0
     Ex: None
     ExValue: 0
     Buy: 10
@@ -215,12 +228,13 @@ MonoBehaviour:
     Hunger: 0
     Atk: 0
     Def: 0
+    Ammo: 0
     Ex: None
     ExValue: 0
     Buy: 10
     Sell: 3
     ExType: 1
-    Detail: "\u6A59\u8272\u306E\u672C\u3002\u8AAD\u3080\u3068\u306A\u305C\u304B\u307E\u3093\u3077\u304F\u306B\u306A\u308B\u3002\u6B63\u76F4\u6016\u3044\u3002"
+    Detail: "\u6A59\u8272\u306E\u672C\u3002\u8AAD\u3080\u3068\u306A\u305C\u304B\u307E\u3093\u3077\u304F\u306B\u306A\u308B\u3002"
     UseMessage: 
     UsedMessage: 
   - ID: 14
@@ -230,6 +244,7 @@ MonoBehaviour:
     Hunger: 0
     Atk: 0
     Def: 0
+    Ammo: 0
     Ex: None
     ExValue: 0
     Buy: 0
