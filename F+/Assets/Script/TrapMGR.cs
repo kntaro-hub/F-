@@ -23,48 +23,20 @@ public class TrapMGR : MonoBehaviour
     {
         Point point = MapGenerator.instance.RandomPointInRoom();
 
-        trapList.Add(Instantiate(LoadAssets.instance.GetTrapPrefab(type)).GetComponent<TrapBase>());
+        TrapBase trap = Instantiate(LoadAssets.instance.GetTrapPrefab(type), MapData.GridToWorld(point), Quaternion.identity, this.transform).GetComponent<TrapBase>();
 
-        //StartCoroutine(this.LoadTrap(type, point));
-    }
+        // ID設定
+        trap.SetID(this.SetUniqueID());
 
-    private IEnumerator LoadTrap(TrapBase.TrapType type, Point point)
-    {
-        //Alchemist_ManというAddressのSpriteを非同期でロードの開始
-        var handle = Addressables.InstantiateAsync($"Trap_{type.ToString()}", MapData.GridToWorld(point), Quaternion.identity, MapData.instance.transform);
+        // リストに登録
+        this.AddTrapList(trap);
 
-        //ロードが完了するまで待機
-        yield return new WaitUntil(() => handle.IsDone);
+        // 座標設定
+        trap.Point = point;
 
-        TrapBase trap = null;
-        // エラーがなければロードしたSpriteの名前表示
-        if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
-        {
-            Debug.Log(handle.Result.name);
-            {
-                // 生成したオブジェクトからトラップを取得
-                trap = handle.Result.GetComponent<TrapBase>();
-            };
-
-            // ID設定
-            trap.SetID(this.SetUniqueID());
-
-            // リストに登録
-            this.AddTrapList(trap);
-
-            // 座標設定
-            trap.Point = point;
-
-            // マップ情報に登録
-            MapData.instance.SetMapObject(point, MapData.MapObjType.trap, trap.GetID());
-            MapData.instance.SetMapChip(point, trap);
-            
-        }
-        //エラー表示
-        else
-        {
-            Debug.LogError(handle.Status);
-        }
+        // マップ情報に登録
+        MapData.instance.SetMapObject(point, MapData.MapObjType.trap, trap.GetID());
+        MapData.instance.SetMapChip(point, trap);
     }
 
     private void AddTrapList(TrapBase trap)

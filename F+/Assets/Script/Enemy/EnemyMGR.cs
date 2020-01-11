@@ -33,7 +33,10 @@ public class EnemyMGR : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (enemyList.Count != 0)
+        {
+            Debug.Log(enemyList[0].status.point.x);
+        }
     }
 
     public IEnumerator AppearanceTimer(float time)
@@ -77,12 +80,36 @@ public class EnemyMGR : MonoBehaviour
     {
         Point point = MapGenerator.instance.RandomPointInRoom();
 
-        StartCoroutine(this.LoadEnemy(enemyType, point));
+        GameObject game = LoadAssets.instance.GetEnemyPrefab(enemyType);
+
+        EnemyBase enemy = Instantiate(game, MapData.GridToWorld(point), Quaternion.identity, this.transform).GetComponent<EnemyBase>();
+
+        // ID設定     
+        enemy.SetID(this.SetUniqueID());
+
+        // 座標設定
+        enemy.status.point = point;
+
+        // マップ情報に登録
+        MapData.instance.SetMapObject(point, MapData.MapObjType.enemy, enemy.GetID());
+
+        this.AddEnemyList(enemy);
     }
 
     public void CreateEnemy(Point point, EnemyType enemyType)
     {
-        StartCoroutine(this.LoadEnemy(enemyType, point));
+        EnemyBase enemy = Instantiate(LoadAssets.instance.GetEnemyPrefab(enemyType), MapData.GridToWorld(point), Quaternion.identity, this.transform).GetComponent<EnemyBase>();
+
+        // ID設定
+        enemy.SetID(this.SetUniqueID());
+
+        // 座標設定
+        enemy.status.point = point;
+
+        // マップ情報に登録
+        MapData.instance.SetMapObject(point, MapData.MapObjType.enemy, enemy.GetID());
+
+        this.AddEnemyList(enemy);
     }
 
     public void CreateEnemy_Random()
@@ -150,58 +177,6 @@ public class EnemyMGR : MonoBehaviour
                 this.CreateEnemy(point,(EnemyType)itr.TypeID);
                 break;
             }
-        }
-    }
-
-    private IEnumerator LoadEnemy(EnemyType type, Point point)
-    {
-        foreach(var itr in enemyList)
-        {
-            // すでに出現予定の場所に敵がいた場合
-            if(itr.status.point == point)
-            {
-                yield break;
-            }
-        }
-
-        //Alchemist_ManというAddressのSpriteを非同期でロードの開始
-        var handle = Addressables.InstantiateAsync($"Enemy_{type.ToString()}", MapData.GridToWorld(point), Quaternion.identity, MapData.instance.transform);
-
-        //ロードが完了するまで待機
-        yield return new WaitUntil(() => handle.IsDone);
-
-        EnemyBase enemy = null;
-        // エラーがなければロードしたSpriteの名前表示
-        if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
-        {
-            {
-                // 生成したオブジェクトからトラップを取得
-                enemy = handle.Result.GetComponent<EnemyBase>();
-            };
-
-            // ID設定
-            enemy.SetID(this.SetUniqueID());
-
-            // 敵座標設定
-            enemy.SetPoint(point);
-
-            // 途中で出現した敵はターンエンド状態からスタート
-            enemy.status.actType = Actor.ActType.TurnEnd;
-
-            // マップUI上の敵生成
-            UI_MGR.instance.Ui_Map.CreateMapEnemy(point);
-
-            // リストに登録
-            this.AddEnemyList(enemy);
-
-            // マップ情報に登録
-            MapData.instance.SetMapObject(point, MapData.MapObjType.enemy, enemy.GetID());
-
-        }
-        //エラー表示
-        else
-        {
-            Debug.LogError(handle.Status);
         }
     }
 

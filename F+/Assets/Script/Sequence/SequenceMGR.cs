@@ -77,6 +77,20 @@ public class SequenceMGR : MonoBehaviour
     public bool isControll = true;
 
 
+    // =--------- // =--------------------= // ---------= //
+
+    public void GameStart()
+    {
+        MapGenerator.instance.GenerateMap();
+
+        UI_MGR.instance.Ui_BasicMenu.CreateUI();
+
+        ItemMGR.instance.CreateItems();
+    }
+
+    // =--------- // =--------------------= // ---------= //
+
+
     bool isNextEnemy = true;
     int cntEnemy = 0;
     private void EnemyActUpdate()
@@ -327,6 +341,7 @@ public class SequenceMGR : MonoBehaviour
 
     private void RequestEnemyAI()
     {
+        enemies = EnemyMGR.instance.EnemyList;
         foreach(var itr in enemies)
         {// それぞれの敵に行動を判断させる
             itr.DecideCommand();

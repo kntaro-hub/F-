@@ -12,10 +12,11 @@ public class LoadAssets : MonoBehaviour
         max
     }
 
-    private bool[] Progress = new bool[(int)AssetsType.max - 1];
+    private bool[] Progress = new bool[(int)AssetsType.max];
+    private bool isStart = false;
 
-    private GameObject[] TrapPrefabs = new GameObject[(int)TrapBase.TrapType.max - 1];
-    private GameObject[] EnemyPrefabs = new GameObject[(int)EnemyMGR.EnemyType.max - 1];
+    private GameObject[] TrapPrefabs = new GameObject[(int)TrapBase.TrapType.max];
+    private GameObject[] EnemyPrefabs = new GameObject[(int)EnemyMGR.EnemyType.max];
 
     public GameObject GetEnemyPrefab(EnemyMGR.EnemyType type)
     {
@@ -37,10 +38,14 @@ public class LoadAssets : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(this.IsDone())
+        if (!isStart)
         {
-            // すべてロードしたらゲーム開始
-            
+            if (this.IsDone())
+            {
+                // すべてロードしたらゲーム開始
+                SequenceMGR.instance.GameStart();
+                isStart = true;
+            }
         }
     }
 
@@ -62,13 +67,18 @@ public class LoadAssets : MonoBehaviour
         int cntTrap = 0;
 
         AdDebug.Log("トラップのロード中");
-        for (int i = 0; i < (int)TrapBase.TrapType.max - 1; ++i)
+        for (int i = 0; i < (int)TrapBase.TrapType.max; ++i)
         {
             //Assetのロード
-            Addressables.LoadAssetAsync<GameObject>($"Trap_{((TrapBase.TrapType)cntTrap).ToString()}").Completed += op =>
+            Addressables.LoadAssetAsync<GameObject>($"Trap_{((TrapBase.TrapType)i).ToString()}").Completed += op =>
             {
                 TrapPrefabs[cntTrap] = op.Result;
                 ++cntTrap;
+
+                if (cntTrap >= (int)TrapBase.TrapType.max - 1)
+                {
+                    Progress[(int)AssetsType.trap] = true;
+                }
             };
         }
 
@@ -81,13 +91,18 @@ public class LoadAssets : MonoBehaviour
         int cntEnemy = 0;
 
         AdDebug.Log("敵のロード中");
-        for (int i = 0; i < (int)EnemyMGR.EnemyType.max - 1; ++i)
+        for (int i = 0; i < (int)EnemyMGR.EnemyType.max; ++i)
         {
             //Assetのロード
-            Addressables.LoadAssetAsync<GameObject>($"Enemy_{((EnemyMGR.EnemyType)cntEnemy).ToString()}").Completed += op =>
+            Addressables.LoadAssetAsync<GameObject>($"Enemy_{((EnemyMGR.EnemyType)i).ToString()}").Completed += op =>
             {
                 EnemyPrefabs[cntEnemy] = op.Result;
                 ++cntEnemy;
+
+                if(cntEnemy >= (int)EnemyMGR.EnemyType.max - 1)
+                {
+                    Progress[(int)AssetsType.enemy] = true;
+                }
             };
         }
 

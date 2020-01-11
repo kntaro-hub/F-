@@ -16,7 +16,7 @@ public class ItemMGR : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        this.CreateItems();
+        
     }
 
     // Update is called once per frame
@@ -28,7 +28,7 @@ public class ItemMGR : MonoBehaviour
     /// <summary>
     /// マップの部屋のどこかにランダムで4～7個のアイテムを配置する
     /// </summary>
-    private void CreateItems()
+    public void CreateItems()
     {
         int cnt = Random.Range(4, 7);
         for (int i = 0; i < cnt; ++i)
