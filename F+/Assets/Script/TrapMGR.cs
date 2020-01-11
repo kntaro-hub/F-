@@ -23,9 +23,7 @@ public class TrapMGR : MonoBehaviour
     {
         Point point = MapGenerator.instance.RandomPointInRoom();
 
-        trapList.Add(Instantiate(LoadAssets.instance.GetTrapPrefab(type)).GetComponent<TrapBase>());
-
-        //StartCoroutine(this.LoadTrap(type, point));
+        StartCoroutine(this.LoadTrap(type, point));
     }
 
     private IEnumerator LoadTrap(TrapBase.TrapType type, Point point)

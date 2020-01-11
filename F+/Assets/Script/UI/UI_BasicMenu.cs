@@ -60,7 +60,7 @@ public class UI_BasicMenu : UI_Base
     // Start is called before the first frame update
     void Start()
     {
-        
+        this.CreateUI();
     }
 
     public void CreateUI()

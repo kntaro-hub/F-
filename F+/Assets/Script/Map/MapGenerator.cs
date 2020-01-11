@@ -50,7 +50,7 @@ public class MapGenerator : MonoBehaviour
 
     void Start()
     {
-        
+        this.GenerateMap();
     }    
     
     // マップ生成

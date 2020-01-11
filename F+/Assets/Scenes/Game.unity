@@ -7229,7 +7229,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wallPrefab: {fileID: 145359693940807355, guid: 373dd8593f5b13041844c65ace9b2418,
     type: 3}
-  goalPrefab: {fileID: 229048949393654046, guid: 1bbc2953835235c4da97e68d31590b27,
+  goalPrefab: {fileID: 449088642526868727, guid: 5eb4923c3265efa469d74f3b2a49996c,
     type: 3}
   enemyPrefab: {fileID: 2840031995818672948, guid: 7e7234cd05995bb41bd1d379bcaf9417,
     type: 3}
