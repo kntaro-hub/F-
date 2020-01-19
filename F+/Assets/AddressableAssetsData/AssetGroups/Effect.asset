@@ -1,0 +1,144 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Effect
+  m_EditorClassIdentifier: 
+  m_GroupName: Effect
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 76719c4732420e44f8777f759dcfd611
+  m_SerializeEntries:
+  - m_GUID: 0b15b427bb1a92142a986a4f1b5413cc
+    m_Address: Effect_Hunger_Recovery
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: 123a178805b3a6b449353e942faf4d03
+    m_Address: Effect_Hit_White
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: 29d8f77bbe808284685b1998ad758ba5
+    m_Address: Effect_PowerUp
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: 4e5a6e366862f034ca3547f67de7f56f
+    m_Address: Effect_Book_Hunger
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: 7237137d01ccd6041b3376fc0828aba3
+    m_Address: Effect_Player_EquipShield
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: 785c90916c68dce41aa0a4b96323c127
+    m_Address: Effect_Player_Attack_Hit
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: 88065eddb9f47554fb5d3330c4a28c97
+    m_Address: Effect_Trap_Warp
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: 9893ba7345b1784469738bdf6e0ba874
+    m_Address: Effect_Wand_Tornado_Hit
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: 99ed628d3897e46428d1e034db22c6bf
+    m_Address: Effect_Wand_Fire_Hit
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: 9ae2329b454cd3d479eb109bd163e2da
+    m_Address: Effect_Trap_Pitfall
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: a662f872d1e66f64ab495ca33b2dc832
+    m_Address: Effect_Enemy_Dead
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: a9a18f54f2de18d41bc5fbac9c0b04fd
+    m_Address: Effect_Book_Fire
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: cec7c25565f4b3a409fe466ead7a96b0
+    m_Address: Effect_Heal
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: d03d6d8962e9b404588bd4d16a4c739c
+    m_Address: Effect_Player_EquipWeapon
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: d12f965ecda42c543b49368cc3e08725
+    m_Address: Effect_Trap_EnemySpawn_Hit
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: d1d96dc3db3ec3342b37cc6c0e9e0560
+    m_Address: Effect_LevelUp
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - m_GUID: dd31398937d506f46ac2879f71693bbe
+    m_Address: Effect_Player_Dead
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Effect
+    m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 0764ad6e5bd18514fa43383551e1fb04, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: f325bb0c7995f57409ff3001ddaccdd0, type: 2}
+    - {fileID: 11400000, guid: 36efa113ff6a09745912509401d77c30, type: 2}

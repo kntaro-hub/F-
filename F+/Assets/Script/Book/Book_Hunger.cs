@@ -23,5 +23,8 @@ public class Book_Hunger : BookBase
         SequenceMGR.instance.Player.AddHunger(100);
 
         MessageWindow.instance.AddMessage($"まほうのちからでおなかがふくれた！", Color.white);
+
+        // エフェクト生成
+        EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Hunger_Recovery, SequenceMGR.instance.Player.transform.position);
     }
 }

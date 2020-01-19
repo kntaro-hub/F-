@@ -29,6 +29,10 @@ public class Trap_EnemySpawn : TrapBase
             EnemyMGR.instance.CreateEnemy_Random(MapData.GetRandomPointFromAround(point));
         }
 
+        GameObject effect = EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Trap_EnemySpawn_Hit, point);
+        effect.transform.localScale = new Vector3(5.0f, 5.0f, 5.0f);
+        effect.transform.rotation = Quaternion.Euler(90.0f,0.0f,0.0f);
+
         // 時間間隔
         StartCoroutine(Timer());
     }

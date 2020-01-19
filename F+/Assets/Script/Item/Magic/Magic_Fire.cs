@@ -25,6 +25,9 @@ public class Magic_Fire : MagicBase
         enemy.Damage(item.Atk, true);
 
         StartCoroutine(DestroyTimer(0.1f));
+
+        // エフェクト生成
+        EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Wand_Fire_Hit, enemy.transform.position);
     }
 
     public override void MagicEffect_HitWall()

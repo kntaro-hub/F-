@@ -38,6 +38,11 @@ public class Book_Explosion : BookBase
             }
         }
 
+        // エフェクト生成
+        GameObject effect = EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Book_Fire, this.transform.position);
+        effect.transform.rotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
+        effect.transform.localScale = new Vector3(6.0f, 6.0f, 6.0f);
+
         if (!isDestroy)
         {
             MessageWindow.instance.AddMessage($"しかしなにもおこらなかった…", Color.white);

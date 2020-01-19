@@ -94,6 +94,7 @@ public class Enemy_Normal : EnemyBase
     {
         #region 行動処理をここで決定
         {
+            
             if(MapData.instance.GetMapChipType(this.status.point) == MapData.MapChipType.room &&
                 MapData.instance.GetMapChipType(SequenceMGR.instance.Player.status.point) == MapData.MapChipType.room)
             {

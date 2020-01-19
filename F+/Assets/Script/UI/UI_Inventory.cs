@@ -36,6 +36,10 @@ public class UI_Inventory : UI_Base
     [SerializeField]
     private Image equipIconPrefab;
 
+    [SerializeField] private PageArrow leftArrow;
+    [SerializeField] private PageArrow rightArrow;
+    [SerializeField] private TextMeshProUGUI pageNumText;
+
     // =--------- 変数宣言 ---------= //
 
     private int buttonNum = 0;        // 選択しているボタン番号
@@ -46,7 +50,8 @@ public class UI_Inventory : UI_Base
     private UI_Map ui_Map = null;     // マップ表示用
     private bool isShow = false;    // メニューを表示しているか
 
-    private int pageNum = 0;
+    private int crntPageNum = 0;
+    private int maxPageNum = 0;
 
     private List<TextMeshProUGUI> textList = new List<TextMeshProUGUI>();   // 生成したテキストリスト
 
@@ -64,7 +69,7 @@ public class UI_Inventory : UI_Base
         get { return equipInventoryID; }
         set { equipInventoryID = value; }
     }
-
+    
     // =--------- // =--------- ---------= // ---------= //
 
     private void Awake()
@@ -91,12 +96,21 @@ public class UI_Inventory : UI_Base
 
         // 初期化
         this.Init();
+
+        pageNumText.color = Color.clear;
     }
 
     // Update is called once per frame
     void Update()
     {
         this.PositionSet();
+
+        this.UpdateMaxPage();
+    }
+
+    private void UpdateMaxPage()
+    {
+        maxPageNum = (items.StockCount() - 1) / ShowItemNum;
     }
 
     public override void UpdateProc_UI()
@@ -120,19 +134,28 @@ public class UI_Inventory : UI_Base
                 else if (Input.GetKeyDown(KeyCode.RightArrow))
                 {// ←キーでカーソルを左に
                     buttonNum -= (ShowItemNum / 2);
-                    this.CheckFlow();
+                    this.CheckFlow_Page();
                     this.CursorSet(buttonNum);
                 }
                 else if (Input.GetKeyDown(KeyCode.LeftArrow))
                 {// ↓キーでカーソルを下に
                     buttonNum += (ShowItemNum / 2);
-                    this.CheckFlow();
+                    this.CheckFlow_Page();
                     this.CursorSet(buttonNum);
                 }
 
                 if (Input.GetKeyDown(KeyCode.Return))
                 {// エンターキーで決定
                     this.SwitchCommand();
+                }
+
+                if(Input.GetKeyDown(KeyCode.I))
+                {
+                    this.NextPage();
+                }
+                if (Input.GetKeyDown(KeyCode.U))
+                {
+                    this.PrevPage();
                 }
             }
 
@@ -148,60 +171,49 @@ public class UI_Inventory : UI_Base
     /// </summary>
     private void Init()
     {
-        // 座標矯正
-        int cnt = 0;
-        foreach (var itr in textList)
-        {
-            if (cnt < (ShowItemNum / 2))
-            {// 4つまでは左
-                // 透明に
-                itr.color = Color.clear;
-                itr.rectTransform.localPosition = new Vector3(initializePositionX,
-                    initializePositionY + cnt * offsetText);
-            }
-            else
-            {// 4つ以降右
-                // 透明に
-                itr.color = Color.clear;
-                itr.rectTransform.localPosition = new Vector3(initializePositionX + this.panel.rectTransform.sizeDelta.x * 0.5f,
-                    initializePositionY + (cnt - (ShowItemNum / 2)) * offsetText);
-            }
-
-            ++cnt;
-        }
-
         // カーソルも透明に
         cursor.color = Color.clear;
         // パネルも
         panel.color = Color.clear;
         // アイテム説明欄も
-        ItemText.Hide();        
+        ItemText.Hide();
+
+        
     }
 
     public void EraseText(int inventoryID)
     {
         Destroy(textList[inventoryID]);
         textList.RemoveAt(inventoryID);
+        this.ResetCursor();
     }
 
     private void PositionSet()
     {
         // 座標矯正
         int cnt = 0;
-        foreach (var itr in textList)
+        for (int i = 0; i < textList.Count; ++i)
         {
+            cnt = i % ShowItemNum;
+
             if (cnt < (ShowItemNum / 2))
             {// 4つまでは左
-                itr.rectTransform.localPosition = new Vector3(initializePositionX,
+                textList[i].rectTransform.localPosition = new Vector3(initializePositionX,
                     initializePositionY + cnt * offsetText);
             }
             else
             {// 4つ以降右
-                itr.rectTransform.localPosition = new Vector3(initializePositionX + this.panel.rectTransform.sizeDelta.x * 0.5f,
+                textList[i].rectTransform.localPosition = new Vector3(initializePositionX + this.panel.rectTransform.sizeDelta.x * 0.5f,
                     initializePositionY + (cnt - (ShowItemNum / 2)) * offsetText);
             }
+        }
 
-            ++cnt;
+        for(int i = 0; i < (textList.Count % ShowItemNum); ++i)
+        {
+            if (isShow)
+            {
+                textList[i + (crntPageNum * ShowItemNum)].color = Color.white;
+            }
         }
     }
     public void SetEquipIcon(int InventoryID, EquipType type)
@@ -246,6 +258,7 @@ public class UI_Inventory : UI_Base
     /// </summary>
     public override void ShowMenu()
     {
+        crntPageNum = 0;
         if (items.StockCount() > 0)
         {
             for (int i = 0; i < items.StockCount(); i++)
@@ -260,13 +273,10 @@ public class UI_Inventory : UI_Base
                     itemText.text = DataBase.instance.GetItemTableEntity(items.GetItemID(i)).Name;
                     textList.Add(itemText);
                 }
-            }
-            foreach (var itr in textList)
-            {
-                itr.color = Color.white;
-            }
-            cursor.color = Color.white;
 
+                if (i >= ShowItemNum) textList[i].color = Color.clear;
+                else textList[i].color = Color.white;
+            }
             for (int i = 0; i < (int)EquipType.max; ++i)
             {
                 if(equipInventoryID[i] != Actor.Parameter.notEquipValue)
@@ -281,8 +291,12 @@ public class UI_Inventory : UI_Base
             this.PositionSet();
 
             // 0番にカーソル位置を合わせる
-            buttonNum = 0;
-            this.CursorSet(buttonNum);
+            if (items.StockCount() > 0)
+            {
+                cursor.color = Color.white;
+                buttonNum = 0;
+                this.CursorSet(buttonNum);
+            }
         }
         else
         {
@@ -294,6 +308,18 @@ public class UI_Inventory : UI_Base
 
         UI_MGR.instance.Ui_Inventory.SetEquipIcon(equipInventoryID[(int)EquipType.weapon], EquipType.weapon);
         UI_MGR.instance.Ui_Inventory.SetEquipIcon(equipInventoryID[(int)EquipType.shield], EquipType.shield);
+
+
+        // 矢印
+        if (textList.Count > ShowItemNum)
+        {
+            leftArrow.Active();
+            rightArrow.Active();
+        }
+
+        // ページ数表示
+        pageNumText.color = Color.white;
+        pageNumText.text = $"{crntPageNum + 1} / {maxPageNum + 1}";
     }
 
     /// <summary>
@@ -340,28 +366,15 @@ public class UI_Inventory : UI_Base
             itr.color = Color.clear;
         }
 
+        leftArrow.Clear();
+        rightArrow.Clear();
+
+        pageNumText.color = Color.clear;
+
         // アイテム説明欄も
         ItemText.Hide();
         isShow = false;
     }
-
-    // =--------- // =--------- コマンド ---------= // ---------= //
-    /// <summary>
-    /// [先へ進む]コマンド
-    /// </summary>
-    private void Com_Next()
-    {// 次のステージへ
-
-    }
-    /// <summary>
-    /// [キャンセル]コマンド
-    /// </summary>
-    private void Com_Cancel()
-    {// マップUIを消す
-        this.HideMenu();
-    }
-
-    // =--------- // =--------- ---------= // ---------= //
     
     /// <summary>
     /// テキストの横にカーソルの座標を合わせる
@@ -371,11 +384,29 @@ public class UI_Inventory : UI_Base
     {
         cursor.rectTransform.localPosition =
             new Vector3(
-                textList[i].rectTransform.localPosition.x - textList[i].rectTransform.sizeDelta.x * 0.55f,
-                textList[i].rectTransform.localPosition.y);
+                textList[i + crntPageNum * ShowItemNum].rectTransform.localPosition.x - textList[i].rectTransform.sizeDelta.x * 0.55f,
+                textList[i + crntPageNum * ShowItemNum].rectTransform.localPosition.y);
 
         // アイテムの説明欄を更新
-        ItemText.SetText(DataBase.instance.GetItemTableEntity(items.GetItemID(i)).Detail);
+        ItemText.SetText(DataBase.instance.GetItemTableEntity(items.GetItemID(i + crntPageNum * ShowItemNum)).Detail);
+    }
+
+    public void ResetCursor()
+    {
+        --buttonNum;
+        if(buttonNum < 0)
+        {
+            if (crntPageNum > 0)
+            {
+                PrevPage();
+                buttonNum = ShowItemNum - 1;
+            }
+            else
+            {
+                buttonNum = 0;
+            }
+        }
+        this.CursorSet(buttonNum);
     }
 
     /// <summary>
@@ -383,14 +414,40 @@ public class UI_Inventory : UI_Base
     /// </summary>
     private void CheckFlow()
     {
-        if (buttonNum >= (int)textList.Count)
+        if(maxPageNum == crntPageNum)
         {
-            buttonNum = 0;
+            if (buttonNum < 0)
+            {
+                buttonNum = ((textList.Count) % ShowItemNum) - 1;
+            }
+            else if (buttonNum > (textList.Count % ShowItemNum) - 1)
+            {
+                buttonNum = 0;
+            }
         }
-        else if (buttonNum < 0)
+        else
         {
-            buttonNum = (int)textList.Count - 1;
+            if (buttonNum < 0)
+            {
+                buttonNum = ShowItemNum - 1;
+            }
+            else if (buttonNum > (ShowItemNum - 1))
+            {
+                buttonNum = 0;
+            }
         }
+    }
+
+    private void CheckFlow_Page()
+    {
+            if (buttonNum < 0)
+            {
+                buttonNum += ShowItemNum;
+            }
+            else if (buttonNum > ShowItemNum - 1)
+            {
+                buttonNum -= ShowItemNum;
+            }
     }
 
     /// <summary>
@@ -399,8 +456,112 @@ public class UI_Inventory : UI_Base
     private void SwitchCommand()
     {
         // インベントリ番号からアイテムIDとプレイヤーのアイテムストックIDを取得
-        itemMenu.SetItemID(items.GetItemID(buttonNum + pageNum * ShowItemNum), (buttonNum + pageNum * ShowItemNum));
+        itemMenu.SetItemID(items.GetItemID(buttonNum + crntPageNum * ShowItemNum), (buttonNum + crntPageNum * ShowItemNum));
         UI_MGR.instance.ShowUI(UI_MGR.UIType.itemMenu);
-        UI_MGR.instance.UpdatePosUI(UI_MGR.UIType.itemMenu, this.textList[buttonNum + pageNum * ShowItemNum].rectTransform.position);
+        UI_MGR.instance.UpdatePosUI(UI_MGR.UIType.itemMenu, this.textList[buttonNum + crntPageNum * ShowItemNum].rectTransform.position);
+    }
+
+    /// <summary>
+    /// インベントリのページを1進める
+    /// </summary>
+    private bool NextPage()
+    {
+        // 現ページ数保存
+        int lastPageNum = crntPageNum;
+
+        // ページ数加算
+        ++crntPageNum;
+
+        // 最大アイテム数を基に最大ページ数矯正
+        if((textList.Count / ShowItemNum) < crntPageNum)
+        {
+            crntPageNum = (textList.Count / ShowItemNum);
+        }
+
+        // ページ数が変わっていたら
+        if(lastPageNum != crntPageNum)
+        {
+            // 現テキストを透明に
+            for(int i = lastPageNum * ShowItemNum; i < crntPageNum * ShowItemNum; ++i)
+            {
+                textList[i].color = Color.clear;
+            }
+
+            int d = (crntPageNum * ShowItemNum + (textList.Count % ShowItemNum));
+            for (int j = crntPageNum * ShowItemNum; j < d; ++j)
+            {
+                textList[j].color = Color.white;
+            }
+
+            buttonNum = 0;
+            this.CursorSet(buttonNum);
+
+            rightArrow.Light();
+            pageNumText.text = $"{crntPageNum + 1} / {maxPageNum + 1}";
+
+            // ページ数が変わったかを返す
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool PrevPage()
+    {
+        // 現ページ数保存
+        int lastPageNum = crntPageNum;
+
+        // ページ数減算
+        --crntPageNum;
+
+        if (0 > crntPageNum)
+        {
+            crntPageNum = 0;
+        }
+
+        // 最大アイテム数を基に最大ページ数矯正
+        if ((textList.Count / ShowItemNum) < crntPageNum)
+        {
+            crntPageNum = (textList.Count / ShowItemNum);
+        }
+
+        // ページ数が変わっていたら
+        if (lastPageNum != crntPageNum)
+        {
+            // 現テキストを透明に
+            foreach(var itr in textList)
+            {
+                itr.color = Color.clear;
+            }
+
+            int d = (crntPageNum * ShowItemNum + ShowItemNum);
+            for (int j = crntPageNum * ShowItemNum; j < d; ++j)
+            {
+                textList[j].color = Color.white;
+            }
+
+            buttonNum = 0;
+            this.CursorSet(buttonNum);
+
+            leftArrow.Light();
+            pageNumText.text = $"{crntPageNum + 1} / {maxPageNum + 1}";
+
+            // ページが変わったかを返す
+            return true;
+        }
+
+        return false;
+    }
+
+    private void CheckFlow_ButtonNum()
+    {
+        this.UpdateMaxPage();
+        if (crntPageNum == maxPageNum)
+        {
+            if(buttonNum > (textList.Count % ShowItemNum))
+            {
+                buttonNum = (textList.Count % ShowItemNum) + 1;
+            }
+        }
     }
 }

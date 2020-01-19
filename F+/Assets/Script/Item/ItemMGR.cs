@@ -96,7 +96,7 @@ public class ItemMGR : MonoBehaviour
     public void UseItem(int itemID, Actor actor)
     {
         ItemTableEntity item = DataBase.instance.GetItemTableEntity(itemID);
-        actor.AddHP(item.HP);
+        actor.AddHP(item.HP, true);
         actor.AddAtk(item.Atk);
         actor.AddHunger(item.Hunger);
     }

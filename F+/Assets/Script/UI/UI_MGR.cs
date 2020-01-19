@@ -159,17 +159,6 @@ public class UI_MGR : MonoBehaviour
             if (SequenceMGR.instance.seqType == SequenceMGR.SeqType.keyInput)
                 ShowUI(UIType.basicMenu);
         }
-
-        //if (Input.GetKeyDown(KeyCode.D))
-        //{
-        //    // マップ出現
-        //    this.ui_Map.gameObject.SetActive(true);
-        //}
-        //else if (Input.GetKeyUp(KeyCode.D))
-        //{
-        //    // マップを消す
-        //    this.ui_Map.gameObject.SetActive(false);
-        //}
     }
 
     #region singleton

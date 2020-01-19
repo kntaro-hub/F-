@@ -29,6 +29,8 @@ public class Trap_Hunger : TrapBase
         actor.SubHunger(SubHungerValue);
 
         StartCoroutine(this.SubHungerTimer());
+
+        EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Hit_White, point);
     }
 
     private IEnumerator SubHungerTimer()

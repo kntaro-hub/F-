@@ -35,7 +35,7 @@ public class TrapMGR : MonoBehaviour
         yield return new WaitUntil(() => handle.IsDone);
 
         TrapBase trap = null;
-        // エラーがなければロードしたSpriteの名前表示
+        // エラーがなければ
         if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
         {
             Debug.Log(handle.Result.name);

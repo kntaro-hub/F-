@@ -30,6 +30,8 @@ public class Trap_Spike : TrapBase
         actor.Damage(spikeDamage);
 
         StartCoroutine(this.SpikeDamageTimer());
+
+        EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Hit_White, point);
     }
 
     private IEnumerator SpikeDamageTimer()

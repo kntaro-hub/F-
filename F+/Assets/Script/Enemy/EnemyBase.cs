@@ -82,8 +82,7 @@ public class EnemyBase : Actor
     /// </summary>
     public float ActProc()
     {
-        if (status.actType == ActType.Act &&
-            SequenceMGR.instance.Player != null)
+        if (status.actType == ActType.Act)
         {
             return this.Act();
         }
@@ -132,6 +131,8 @@ public class EnemyBase : Actor
         if (this.SubHP(calcDamage))
         {
             MessageWindow.instance.AddMessage($"{this.param.Name}をたおした！", Color.white);
+
+            EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Enemy_Dead, this.status.point);
 
             // 敵削除
             EnemyMGR.instance.DestroyEnemy(this.param.id, isXp);

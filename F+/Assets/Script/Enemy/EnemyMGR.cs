@@ -197,6 +197,9 @@ public class EnemyMGR : MonoBehaviour
             // マップ情報に登録
             MapData.instance.SetMapObject(point, MapData.MapObjType.enemy, enemy.GetID());
 
+            // 敵出現エフェクト
+            EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Hit_White, point);
+
         }
         //エラー表示
         else

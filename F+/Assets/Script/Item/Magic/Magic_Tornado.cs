@@ -49,6 +49,9 @@ public class Magic_Tornado : MagicBase
         // その間はプレイヤーの入力は無視する
         SequenceMGR.instance.seqType = SequenceMGR.SeqType.moveImpossible;
 
+        // エフェクト生成
+       EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Wand_Tornado_Hit, actor.transform.position).transform.rotation = Quaternion.Euler(-90.0f,0.0f,0.0f);
+
         yield return new WaitForSeconds(WarpTime * 0.5f);
 
         // =--------- 飛び上がった頂点位置 ---------= //

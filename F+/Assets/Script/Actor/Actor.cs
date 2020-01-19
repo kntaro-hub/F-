@@ -113,8 +113,15 @@ public class Actor : MonoBehaviour
     {
         switch(equipType)
         {
-            case EquipType.weapon: this.SetWeaponID(itemID); break;
-            case EquipType.shield: this.SetShieldID(itemID); break;
+            case EquipType.weapon:
+                this.SetWeaponID(itemID);
+                EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Player_EquipWeapon, this.status.point);
+                break;
+
+            case EquipType.shield:
+                this.SetShieldID(itemID);
+                EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Player_EquipShield, this.status.point);
+                break;
         }
     }
 
@@ -134,7 +141,7 @@ public class Actor : MonoBehaviour
     public void UseItem(int itemID)
     {
         ItemTableEntity item = DataBase.instance.GetItemTableEntity(itemID);
-        this.AddHP(item.HP);
+        this.AddHP(item.HP, true);
         this.param.basicAtk += item.Atk;
         this.AddHunger(item.Hunger);
     }
@@ -190,6 +197,8 @@ public class Actor : MonoBehaviour
         this.param.exp = DataBase.instance.GetLevelTableEntity(this.param.level).Xp;
 
         MessageWindow.instance.AddMessage($"レベル{this.param.level}に上がった！", Color.white);
+
+        EffectMGR.instance.CreateEffect(EffectMGR.EffectType.LevelUp, this.status.point);
     }
     public void SubLevel(int subLevel)
     {
@@ -205,6 +214,8 @@ public class Actor : MonoBehaviour
         this.param.atk += addAtk;
 
         MessageWindow.instance.AddMessage($"ちからが{addAtk}あがった！", Color.white);
+
+        EffectMGR.instance.CreateEffect(EffectMGR.EffectType.PowerUp, this.status.point);
     }
     public void SubAtk(int subAtk)
     {
@@ -213,10 +224,13 @@ public class Actor : MonoBehaviour
         MessageWindow.instance.AddMessage($"ちからが{subAtk}さがってしまった…", Color.white);
     }
 
-    public void AddHP(int addHP)
+    public void AddHP(int addHP, bool isEffect)
     {
         this.param.hp += addHP;
         if (this.param.hp > this.param.maxHp) this.param.hp = this.param.maxHp;
+
+        if(isEffect)
+            EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Heal, this.status.point);
     }
     public bool SubHP(int subHP)
     {
@@ -242,6 +256,8 @@ public class Actor : MonoBehaviour
     {
         this.param.hunger += addHunger;
         if (this.param.hunger > this.param.maxHunger) this.param.hunger = this.param.maxHunger;
+
+        EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Hunger_Recovery, this.status.point);
     }
     public bool SubHunger(int subHunger)
     {

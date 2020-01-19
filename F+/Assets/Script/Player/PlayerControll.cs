@@ -121,6 +121,9 @@ public class PlayerControll : Actor
         // ダメージアニメーション
         playerAnimator.Play("Damaged", 0, 0.0f);
 
+        // ダメージエフェクト
+        EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Hit_White, this.transform.position);
+
         if (this.SubHP(calcDamage))
         {
             this.DestroyObject();
@@ -133,6 +136,9 @@ public class PlayerControll : Actor
 
         // オブジェクト消去
         Destroy(this.gameObject);
+
+        // 死亡エフェクト
+        EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Player_Dead, this.status.point);
     }
 
     // Update is called once per frame
@@ -142,9 +148,6 @@ public class PlayerControll : Actor
 
         this.CalcCameraPos();
 
-        if(status.actType == ActType.TurnEnd)
-          this.UpdatePosition();
-
         if(Input.GetKeyDown(KeyCode.N))
         {
             Debug.Log(KeyCode.None.ToString());
@@ -153,7 +156,7 @@ public class PlayerControll : Actor
 
     private void UpdatePosition()
     {
-        this.transform.position = MapData.GridToWorld(this.status.point);
+        
     }
 
     private void CalcCameraPos()
@@ -539,9 +542,9 @@ public class PlayerControll : Actor
         // ターンエンド 
         status.actType = ActType.TurnEnd;
 
-        AdDebug.Log(MapData.instance.GetMapChipType(this.status.point).ToString());
-
         SequenceMGR.instance.ActProc();
+
+        AdDebug.Log(MapData.instance.GetMapChipType(this.status.point).ToString());
     }
 
     // MoveTime後に敵のターン
@@ -566,6 +569,8 @@ public class PlayerControll : Actor
                 int damage = this.CalcAtk();
                 
                 enemy.Damage(damage, true);
+
+                EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Player_Attack_Hit, enemy.status.point);
             }
             else
             {
@@ -574,7 +579,7 @@ public class PlayerControll : Actor
         }
         // MoveTime秒まつ
         yield return new WaitForSeconds(MoveTime * 0.5f);
-        
+
         StartCoroutine(SequenceMGR.instance.ActProcTimer(MoveTime));
 
         status.actType = ActType.TurnEnd;

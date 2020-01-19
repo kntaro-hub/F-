@@ -62,7 +62,7 @@ public class MapData : MonoBehaviour
 
     // =--------- プレハブ ---------= //
     // 壁
-    [SerializeField] private MapChip_Wall wallPrefab;
+    [SerializeField] private MapChip_Wall[] wallPrefab = new MapChip_Wall[6];
     [SerializeField] private MapChip_Goal goalPrefab;
 
     // 敵（本来は敵テーブルから）
@@ -314,11 +314,22 @@ public class MapData : MonoBehaviour
 
     public void CreateWall(int x, int y)
     {
-        mapValue[x, y].mapChip = Instantiate(wallPrefab, GridToWorld(new Point(x, y)), Quaternion.identity);
+        mapValue[x, y].mapChip = Instantiate(wallPrefab[0], GridToWorld(new Point(x, y)), Quaternion.identity);
         mapValue[x, y].mapChip.transform.parent = this.transform;
         mapObjects.Add(mapValue[x, y].mapChip);
+        
     }
-    
+
+    public void CreateFloor(int x, int y)
+    {
+        Vector3 position = GridToWorld(new Point(x, y)) - new Vector3(0.0f, GridSize, 0.0f);
+
+        MapChip_Wall floor = Instantiate(wallPrefab[Random.Range(0, 5)], position, Quaternion.identity);
+
+        floor.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+        floor.transform.parent = this.transform;
+    }
+
     /// <summary>
     /// 階段生成
     /// </summary>

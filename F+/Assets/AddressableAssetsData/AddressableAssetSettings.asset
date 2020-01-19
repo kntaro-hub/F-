@@ -26,6 +26,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3cfb13730064666408f3d9d0367475b9, type: 2}
   - {fileID: 11400000, guid: fbb81bb45858e424d9cb1f321d95d0d3, type: 2}
   - {fileID: 11400000, guid: 6c3bb872c5b6b35498628fcd1e65dc91, type: 2}
+  - {fileID: 11400000, guid: 4acf51a90ffa1a94fa77569a02803bc3, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1
@@ -69,6 +70,7 @@ MonoBehaviour:
     - default
     - Trap
     - Enemy
+    - Effect
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: b1f339778e0636448b8602830759c8eb, type: 2}

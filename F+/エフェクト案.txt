@@ -1,14 +1,14 @@
 // =--------- パラメータ変化系 ---------= //
-体力回復した時:
+体力回復した時:CFX2_PickupHeart
 
-満腹度回復した時:
+満腹度回復した時:CFX2_PickupSmiley2
 
-ちからアップ:
+ちからアップ:CFX2_PickupMuscle
 
-レベルアップ:
+レベルアップ:CFX2_PickupStar
 
 // =--------- プレイヤー回り ---------= //
-武器装備時:
+武器装備時:CFX2_PickupSword
 
 盾装備時:CFX2_PickupDiamond2
 
@@ -16,7 +16,7 @@
 
 攻撃ヒット:CFX_MagicPoof
 
-プレイヤー死亡:
+プレイヤー死亡:CFX2_EnemyDeathSkull
 
 
 
@@ -30,25 +30,26 @@
 // =--------- 本 ---------= //
 爆発の書:CFX2_WWExplosion_C
 
-満腹の書:
+満腹の書:CFX_Poof
 
 帰還の書:CFX3_ResurrectionLight_Circle
 
 // =--------- 罠 ---------= //
-罠出現:
+罠出現:CFX_Hit_C White
 
 トゲ罠ヒット:CFX_Hit_C White
 
-ハラヘリ罠ヒット:
+ハラヘリ罠ヒット:CFX_Hit_C White
 
-呼び寄せの罠ヒット:けむり
+
+呼び寄せの罠ヒット:CFX2_WWExplosion_C けむり
 
 落とし穴の罠:CFX2_RockHit 足元が崩れる
 			:CFX4 Drill Air Hit(NO COLLISION)
 or 
 落とし穴の罠;CFX3_Vortex_Ground 回転しながら床に沈んでいく
 
-ワープの罠:
+ワープの罠:CFX2_Big_Splash(NO Collision)
 
 // =--------- 敵 ---------= //
 敵の攻撃ヒット:CFX_Hit_C White

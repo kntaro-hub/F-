@@ -123,12 +123,6 @@ public class MapGenerator : MonoBehaviour
         TrapMGR.instance.CreateTrap(TrapBase.TrapType.Hunger);
         TrapMGR.instance.CreateTrap(TrapBase.TrapType.EnemySpawn);
         TrapMGR.instance.CreateTrap(TrapBase.TrapType.Pitfall);
-
-        ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
-        ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
-        ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
-        ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
-        ItemMGR.instance.CreateItem(RandomPointInRoom(), 11);
     }
 
     private void FillWall()
@@ -145,6 +139,10 @@ public class MapGenerator : MonoBehaviour
                     float y = GetChipY(j);
 
                     mapData.CreateWall(i, j);
+                }
+                else
+                {
+                    mapData.CreateFloor(i, j);
                 }
             }
         }
