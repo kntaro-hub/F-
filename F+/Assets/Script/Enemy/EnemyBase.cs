@@ -77,6 +77,26 @@ public class EnemyBase : Actor
         }
     }
 
+    public void SkipProc()
+    {
+        // DecideCommand()で決定したコマンドが移動だった場合
+        if (status.actType == ActType.Move)
+        {
+            if (this.Move())
+            {// 移動先が確定した場合
+
+                // マップに敵を登録
+                MapData.instance.SetMapObject(status.point, MapData.MapObjType.enemy, param.id);
+
+                this.status.actType = ActType.TurnEnd;
+            }
+            else
+            {// 移動先に移動できない場合
+                this.status.actType = ActType.TurnEnd;
+            }
+        }
+    }
+
     /// <summary>
     /// 攻撃
     /// </summary>
@@ -96,6 +116,10 @@ public class EnemyBase : Actor
 
     // =--------- // =--------- 継承先で変更する ---------= // ---------= //
     protected virtual bool Move()
+    {
+        return false;
+    }
+    protected virtual bool Skip()
     {
         return false;
     }

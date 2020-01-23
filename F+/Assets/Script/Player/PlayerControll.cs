@@ -11,14 +11,10 @@ public class PlayerControll : Actor
 {
     // =--------- 変数宣言 ---------= //
 
-    // 移動キー押下フラグ
-    private bool IsMove = false;
-
-    private bool IsInit = false;
-
     // 初期化済みかどうか
     private static bool isInitialize = false;
 
+    // カメラ固定フラグ
     private bool isCameraSet = true;
     public bool IsCameraSet
     {
@@ -26,12 +22,12 @@ public class PlayerControll : Actor
         set { isCameraSet = value; }
     }
 
-    int cntDirect = 0;          // 方向を決めるためのカウンタ
-    int cntInput = 0;           // 押されたキー数
-    bool IsRotButton = false;   // 回転キーが押されているか
+    private bool IsRotButton = false;   // 回転キーが押されているか
+    private bool IsSkip = false;        // スキップボタンが押されているか
 
     int cntSteps = 0;   // 歩数カウンタ
 
+    // アイテムリスト
     Player_Items playerItems;
 
     // アニメータ
@@ -40,18 +36,6 @@ public class PlayerControll : Actor
     {
         get { return playerAnimator; }
     }
-
-
-
-    // 基本メニューUI
-    private UI_BasicMenu ui_BasicMenu;
-
-    public ActType GetAct
-    {
-        get { return status.actType; }
-        private set { status.actType = value; }
-    }
-
     // =--------- 定数定義 ---------= //
 
     // 初期Y座標
@@ -59,6 +43,9 @@ public class PlayerControll : Actor
 
     // 
     [SerializeField] const float CameraDist = 10.0f;
+
+    // 腹減り割合
+    [SerializeField] const float HungerBorder = 15.0f; 
 
     // =----------------------------= //
 
@@ -74,7 +61,6 @@ public class PlayerControll : Actor
 
         playerAnimator = this.GetComponent<Animator>();
         playerItems = this.GetComponent<Player_Items>();
-        ui_BasicMenu = FindObjectOfType<UI_BasicMenu>();
 
         status.point = new Point();
         status.direct = Direct.forward;
@@ -147,16 +133,6 @@ public class PlayerControll : Actor
         this.Controll();
 
         this.CalcCameraPos();
-
-        if(Input.GetKeyDown(KeyCode.N))
-        {
-            Debug.Log(KeyCode.None.ToString());
-        }
-    }
-
-    private void UpdatePosition()
-    {
-        
     }
 
     private void CalcCameraPos()
@@ -192,113 +168,143 @@ public class PlayerControll : Actor
     {
         {
             IsRotButton = false;    // 回転キーが押されているか
+            IsSkip = false;         // スキップボタンが押されているか
 
-            if (Input.GetKey(KeyCode.F))
+            if (PS4Input.GetButton(PS4ButtonCode.R1))
             {
                 // 回転フラグon
                 IsRotButton = true;
             }
 
-            if (Input.GetKey(KeyCode.RightArrow))
-            {// 右
-                if(Input.GetKey(KeyCode.UpArrow))
-                {
+            if (PS4Input.GetButton(PS4ButtonCode.Cross) && !this.IsHunger())
+            {
+                // 回転フラグon
+                IsSkip = true;
+            }
+
+            if (!IsRotButton)
+            {
+                if (PS4Input.GetCrossKey( PS4KeyCodeLR.CrossKey_R))
+                {// 右
+                    status.direct = Direct.right;
+                    this.DecideMove();
+                }
+                else if (PS4Input.GetCrossKey( PS4KeyCodeLR.CrossKey_L))
+                {// 左
+                    status.direct = Direct.left;
+                    this.DecideMove();
+                }
+                else if (PS4Input.GetCrossKey( PS4KeyCodeUD.CrossKey_U))
+                {// 奥
+                    status.direct = Direct.forward;
+                    this.DecideMove();
+                }
+                else if (PS4Input.GetCrossKey( PS4KeyCodeUD.CrossKey_D))
+                {// 手前
+                    status.direct = Direct.back;
+                    this.DecideMove();
+                }
+            }
+            else
+            {
+                if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_R) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_U))
+                {// 右上
                     status.direct = Direct.right_forward;
+                    this.DecideMove();
                 }
-                else if(Input.GetKey(KeyCode.DownArrow))
-                {
-                    status.direct = Direct.right_back;
-                }
-                else status.direct = Direct.right;
-                this.MoveReserve();
-            }
-            else if (Input.GetKey(KeyCode.LeftArrow))
-            {// 左
-                if (Input.GetKey(KeyCode.UpArrow))
-                {
+                else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_L) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_U))
+                {// 左上
                     status.direct = Direct.left_forward;
+                    this.DecideMove();
                 }
-                else if (Input.GetKey(KeyCode.DownArrow))
-                {
-                    status.direct = Direct.left_back;
-                }
-                else status.direct = Direct.left;
-                this.MoveReserve();
-            }
-            else if (Input.GetKey(KeyCode.UpArrow))
-            {// 奥
-                if (Input.GetKey(KeyCode.RightArrow))
-                {
-                    status.direct = Direct.right_forward;
-                }
-                else if (Input.GetKey(KeyCode.LeftArrow))
-                {
-                    status.direct = Direct.left_forward;
-                }
-                else status.direct = Direct.forward;
-                this.MoveReserve();
-            }
-            else if (Input.GetKey(KeyCode.DownArrow))
-            {// 手前
-                if (Input.GetKey(KeyCode.RightArrow))
-                {
+                else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_R) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_D))
+                {// 右下
                     status.direct = Direct.right_back;
+                    this.DecideMove();
                 }
-                else if (Input.GetKey(KeyCode.LeftArrow))
-                {
+                else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_L) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_D))
+                {// 手前
                     status.direct = Direct.left_back;
+                    this.DecideMove();
                 }
-                else status.direct = Direct.back;
-                this.MoveReserve();
             }
         }
     }
 
-    private void MoveReserve()
+    private void DecideMove()
     {
-        if (!IsRotButton)
+        if(IsSkip)
         {
-            {
-                // この時点で移動後座標を更新する
-                this.status.movedPoint = status.point;
-                switch (status.direct)
-                {
-                    case Direct.right:          this.status.movedPoint.x++; break;
-                    case Direct.left:           this.status.movedPoint.x--; break;
-                    case Direct.forward:        this.status.movedPoint.y++; break;
-                    case Direct.back:           this.status.movedPoint.y--; break;
-                    case Direct.right_back:     this.status.movedPoint.x++; this.status.movedPoint.y--; break;
-                    case Direct.left_back:      this.status.movedPoint.x--; this.status.movedPoint.y--; break;
-                    case Direct.right_forward:  this.status.movedPoint.x++; this.status.movedPoint.y++; break;
-                    case Direct.left_forward:   this.status.movedPoint.x--; this.status.movedPoint.y++; break;
-                }
-
-                // プレイヤーが移動した場合
-                SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.move);
-
-                // マップ上オブジェクトの消去
-                MapData.instance.ResetMapObject(status.point);    // 先に消去と登録をしなければならない
-
-                // マップ上オブジェクトの登録
-                MapData.instance.SetMapObject(this.status.movedPoint, MapData.MapObjType.player, param.id);
-
-                // 移動状態に遷移
-                status.actType = ActType.Move;
-
-                // 予約を一件実行
-                SequenceMGR.instance.ActProc();
-            }
+            SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.skip);
         }
         else
         {
-            this.ChangeRotate();
+            this.MoveReserve();
         }
+    }
+
+    public void MoveReserve()
+    {
+        // この時点で移動後座標を更新する
+        this.status.movedPoint = status.point;
+        switch (status.direct)
+        {
+            case Direct.right:          this.status.movedPoint.x++; break;
+            case Direct.left:           this.status.movedPoint.x--; break;
+            case Direct.forward:        this.status.movedPoint.y++; break;
+            case Direct.back:           this.status.movedPoint.y--; break;
+            case Direct.right_back:     this.status.movedPoint.x++; this.status.movedPoint.y--; break;
+            case Direct.left_back:      this.status.movedPoint.x--; this.status.movedPoint.y--; break;
+            case Direct.right_forward:  this.status.movedPoint.x++; this.status.movedPoint.y++; break;
+            case Direct.left_forward:   this.status.movedPoint.x--; this.status.movedPoint.y++; break;
+        }
+
+        // プレイヤーが移動した場合
+        SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.move);
+
+        // マップ上オブジェクトの消去
+        MapData.instance.ResetMapObject(status.point);    // 先に消去と登録をしなければならない
+
+        // マップ上オブジェクトの登録
+        MapData.instance.SetMapObject(this.status.movedPoint, MapData.MapObjType.player, param.id);
+
+        // 移動状態に遷移
+        status.actType = ActType.Move;
+
+        // 予約を一件実行
+        SequenceMGR.instance.ActProc();
+    }
+
+    public void SkipReserve()
+    {
+        // この時点で移動後座標を更新する
+        this.status.movedPoint = status.point;
+        switch (status.direct)
+        {
+            case Direct.right: this.status.movedPoint.x++; break;
+            case Direct.left: this.status.movedPoint.x--; break;
+            case Direct.forward: this.status.movedPoint.y++; break;
+            case Direct.back: this.status.movedPoint.y--; break;
+            case Direct.right_back: this.status.movedPoint.x++; this.status.movedPoint.y--; break;
+            case Direct.left_back: this.status.movedPoint.x--; this.status.movedPoint.y--; break;
+            case Direct.right_forward: this.status.movedPoint.x++; this.status.movedPoint.y++; break;
+            case Direct.left_forward: this.status.movedPoint.x--; this.status.movedPoint.y++; break;
+        }
+
+        // マップ上オブジェクトの消去
+        MapData.instance.ResetMapObject(status.point);    // 先に消去と登録をしなければならない
+
+        // マップ上オブジェクトの登録
+        MapData.instance.SetMapObject(this.status.movedPoint, MapData.MapObjType.player, param.id);
+
+        // 向きを変える
+        this.ChangeRotate();
     }
 
     private void Controll_Act()
     {
         {// 移動していない場合
-            if(Input.GetKeyDown(KeyCode.P))
+            if(PS4Input.GetButtonDown(PS4ButtonCode.Circle))
             {
                 // プレイヤーが行動した場合
                 SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.act);                
@@ -343,11 +349,6 @@ public class PlayerControll : Actor
             if (MapData.instance.GetMapChipType(this.status.movedPoint.x, this.status.movedPoint.y)
                  != MapData.MapChipType.wall)
             {
-                if (IsMove)
-                {
-                    playerAnimator.Play("Walking@loop");
-                }
-
                 status.point = this.status.movedPoint;
 
                 // MoveTime秒経つまで次の入力を受け付けないようにする
@@ -367,6 +368,83 @@ public class PlayerControll : Actor
             }
         }
         return true;
+    }
+
+    public bool Skip()
+    {
+        // ここでマップに登録してある敵を更新
+        SequenceMGR.instance.MapDataUpdate_Enemy();
+
+        // 進む先にオブジェクトがあれば進まない
+        MapData.MapObjType onObject = MapData.instance.GetMapObject(this.status.movedPoint).objType;
+        if (onObject != MapData.MapObjType.none &&
+            onObject != MapData.MapObjType.player)
+        {
+            // 移動失敗時処理
+            this.MoveFailure();
+            return false;
+        }
+
+        // 進んだ先が壁でなかった場合
+        if (MapData.instance.GetMapChipType(this.status.movedPoint.x, this.status.movedPoint.y)
+             != MapData.MapChipType.wall)
+        {
+            status.point = this.status.movedPoint;
+
+            // =--------- 移動後処理 ---------= //
+            // 足元のオブジェクトを起動
+            MapData.instance.ActiveMapChip(this.status.point, this);
+
+            // マップ情報上のアイテムを更新
+            ItemMGR.instance.UpdateMapObject();
+            MapData.ObjectOnTheMap mapObject = MapData.instance.GetMapObject(this.status.point);
+            if (mapObject.objType == MapData.MapObjType.item)
+            {// アイテムの上に乗った
+             // インベントリに収納
+                playerItems.AddItem(mapObject.id);
+
+                MapData.instance.ResetMapObject(this.status.point);
+
+                // 取得したアイテムをマップから消す
+                ItemMGR.instance.DestroyItem(this.status.point);
+            }
+
+            // マップ情報上のプレイヤーを更新
+            UI_MGR.instance.Ui_Map.UpdateMapPlayer();
+
+            // 歩数加算
+            ++cntSteps;
+
+            if (param.hunger <= 0)
+            {
+                // 満腹度矯正
+                param.hunger = 0;
+
+                // hpを1ずつ減らす
+                this.SubHP(1);
+
+                // hpが0以下なら死亡
+                if (this.CheckDestroy())
+                {
+                    Destroy(this.gameObject);
+                }
+            }
+            else
+            {
+                if ((cntSteps % 3) == 0)
+                {// 3歩ごとに満腹度を1下げる
+                    --param.hunger;
+                }
+            }
+
+            return true;
+        }
+        else
+        {
+            // 移動失敗時処理
+            this.MoveFailure();
+            return false;
+        }
     }
 
     /// <summary>
@@ -402,6 +480,15 @@ public class PlayerControll : Actor
                this.transform.rotation.x,
                rotY,
                this.transform.rotation.z));
+    }
+
+    public bool IsHunger()
+    {
+        if(HungerBorder < (((float)this.param.hunger / (float)this.param.maxHunger) * 100.0f))
+        {
+            return false;
+        }
+        return true;
     }
 
     struct SaveData
@@ -474,11 +561,6 @@ public class PlayerControll : Actor
         }
     }
 
-    public Point GetPoint()
-    {
-        return MapData.WorldToGrid(this.transform.position);
-    }
-
     /// <summary>
     /// 指定の時間が経ったら入力を受け付けられるようにする
     /// </summary>
@@ -487,12 +569,6 @@ public class PlayerControll : Actor
     {
         // MoveTime秒まつ
         yield return new WaitForSeconds(MoveTime);
-
-        if (!IsMove)
-        {
-            // 立ちモーション
-            playerAnimator.Play("Standing@loop");
-        } 
 
         // 足元のオブジェクトを起動
         MapData.instance.ActiveMapChip(this.status.point, this);

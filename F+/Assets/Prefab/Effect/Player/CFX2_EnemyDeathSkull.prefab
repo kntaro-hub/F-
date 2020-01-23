@@ -14104,7 +14104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25cbe0626ae3ca145b9fdc29ae1e6f91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EffectType: 7
+  effectType: 7
 --- !u!1 &100006
 GameObject:
   m_ObjectHideFlags: 0

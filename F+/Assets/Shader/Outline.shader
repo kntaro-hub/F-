@@ -1,5 +1,9 @@
 ﻿Shader "Custom/Outline"
 {
+	Properties
+	{
+		_MainTex("Albedo (RGB)", 2D) = "white" {}
+	}
 	SubShader
 	{
 		Tags { "RenderType" = "Opaque" }
@@ -81,7 +85,28 @@
 				fixed4 col = fixed4(nl, nl, nl, 1);
 				return col;
 			}
-			ENDCG
+			
+			ENDCG			
 		}
+		CGPROGRAM
+			#pragma surface surf Standard fullforwardshadows
+
+			sampler2D _MainTex;
+
+			struct Input
+			{
+				float2 uv_MainTex;
+			};
+
+			void surf(Input IN, inout SurfaceOutputStandard o)
+			{
+				float3 c = tex2D(_MainTex, IN.uv_MainTex).rgb;
+
+				o.Albedo = c.rgb;
+				o.Metallic = 0;
+				o.Smoothness = 0;
+				o.Alpha = 1.0;
+			}
+		ENDCG
 	}
 }

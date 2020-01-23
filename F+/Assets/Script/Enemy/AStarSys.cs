@@ -95,7 +95,7 @@ public class AStarSys : MonoBehaviour
     private void Start()
     {
         // ゴール
-        goalPoint = SequenceMGR.instance.Player.GetPoint();
+        goalPoint = SequenceMGR.instance.Player.status.point;
 
         // マネージャ作成
         nodeMGR = new NodeMGR(goalPoint.x, goalPoint.y);

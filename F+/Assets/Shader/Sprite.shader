@@ -49,15 +49,17 @@
 					//もとの色(SpriteRendererのColor)と設定した色(TintColor)を掛け合わせる
 					output.color = input.color * _Color;
 
+					output.color.a = input.color.r * 0.1;
+
 					return output;
 				}
 
 				float4 frag(VertexOutput output) : SV_Target 
 				{
-					float4 c = tex2D(_MainTex, output.uv) * output.color;
+					// 時間をもとにUVをずらす
+					float4 c = tex2D(_MainTex, output.uv + 0.1 * _Time) * output.color;
 					c.rgb *= c.a;
-					
-					c = 0.2;
+
 					return c;
 				}
 			ENDCG

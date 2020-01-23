@@ -119,49 +119,44 @@ public class UI_Inventory : UI_Base
         {// メニュー表示中のみ
             if (items.StockCount() > 0)
             {
-                if (Input.GetKeyDown(KeyCode.UpArrow))
+                if (PS4Input.GetCrossKeyU())
                 {// ↑キーでカーソルを上に
                     buttonNum--;
                     this.CheckFlow();
                     this.CursorSet(buttonNum);
                 }
-                else if (Input.GetKeyDown(KeyCode.DownArrow))
+                if (PS4Input.GetCrossKeyD())
                 {// ↓キーでカーソルを下に
                     buttonNum++;
                     this.CheckFlow();
                     this.CursorSet(buttonNum);
                 }
-                else if (Input.GetKeyDown(KeyCode.RightArrow))
+                else if (PS4Input.GetCrossKeyL())
                 {// ←キーでカーソルを左に
                     buttonNum -= (ShowItemNum / 2);
                     this.CheckFlow_Page();
                     this.CursorSet(buttonNum);
                 }
-                else if (Input.GetKeyDown(KeyCode.LeftArrow))
-                {// ↓キーでカーソルを下に
+                else if (PS4Input.GetCrossKeyR())
+                {// →キーでカーソルを右に
                     buttonNum += (ShowItemNum / 2);
                     this.CheckFlow_Page();
                     this.CursorSet(buttonNum);
                 }
 
-                if (Input.GetKeyDown(KeyCode.Return))
-                {// エンターキーで決定
+                if (PS4Input.GetButtonDown(PS4ButtonCode.Circle))
+                {// 〇ボタンで決定
                     this.SwitchCommand();
                 }
 
-                if(Input.GetKeyDown(KeyCode.I))
-                {
+                if (PS4Input.GetButtonDown(PS4ButtonCode.R1))
+                {// R1ボタンで次ページへ
                     this.NextPage();
                 }
-                if (Input.GetKeyDown(KeyCode.U))
-                {
+                if (PS4Input.GetButtonDown(PS4ButtonCode.L1))
+                {// L1ボタンで前ページへ
                     this.PrevPage();
                 }
-            }
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {// escキーでメニュー表示/非表示
-                UI_MGR.instance.ReturnUI();
             }
         }
     }
@@ -393,20 +388,11 @@ public class UI_Inventory : UI_Base
 
     public void ResetCursor()
     {
-        --buttonNum;
-        if(buttonNum < 0)
+        if (textList.Count > 0)
         {
-            if (crntPageNum > 0)
-            {
-                PrevPage();
-                buttonNum = ShowItemNum - 1;
-            }
-            else
-            {
-                buttonNum = 0;
-            }
+            buttonNum = 0;
+            this.CursorSet(buttonNum);
         }
-        this.CursorSet(buttonNum);
     }
 
     /// <summary>
@@ -440,14 +426,23 @@ public class UI_Inventory : UI_Base
 
     private void CheckFlow_Page()
     {
-            if (buttonNum < 0)
+        if (buttonNum < 0)
+        {
+            buttonNum += ShowItemNum;
+            this.PrevPage();
+        }
+        else if(crntPageNum != maxPageNum)
+        {
+            if (buttonNum > ShowItemNum - 1)
             {
-                buttonNum += ShowItemNum;
+                buttonNum -= ShowItemNum / 2;
+                this.NextPage();
             }
-            else if (buttonNum > ShowItemNum - 1)
-            {
-                buttonNum -= ShowItemNum;
-            }
+        }
+        else if(buttonNum > (textList.Count % ShowItemNum) - 1)
+        {
+            buttonNum = (textList.Count % ShowItemNum) - 1;
+        }
     }
 
     /// <summary>
@@ -493,7 +488,13 @@ public class UI_Inventory : UI_Base
                 textList[j].color = Color.white;
             }
 
-            buttonNum = 0;
+            if (crntPageNum == maxPageNum)
+            {
+                if (buttonNum > (textList.Count % ShowItemNum))
+                {
+                    buttonNum = (textList.Count % ShowItemNum) - 1;
+                }
+            }
             this.CursorSet(buttonNum);
 
             rightArrow.Light();
@@ -539,8 +540,6 @@ public class UI_Inventory : UI_Base
             {
                 textList[j].color = Color.white;
             }
-
-            buttonNum = 0;
             this.CursorSet(buttonNum);
 
             leftArrow.Light();

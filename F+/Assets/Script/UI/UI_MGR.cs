@@ -108,27 +108,25 @@ public class UI_MGR : MonoBehaviour
         {
             ui_Array[(int)uiList[0]].HideMenu();
             uiList.RemoveAt(0);
-        }
-
-        if (uiList.Count == 0)
-        {
-            SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
+            if (uiList.Count <= 0)
+            {
+                SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
+            }
         }
     }
 
     public void ReturnAllUI()
     {
-        while (true)
+        if (uiList.Count != 0)
         {
-            if (uiList.Count != 0)
+            while (true)
             {
                 ui_Array[(int)uiList[0]].HideMenu();
                 uiList.RemoveAt(0);
+                if(uiList.Count <= 0) break;
             }
-            else break;
+            SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
         }
-
-        SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
     }
 
     public void UpdatePosUI(UIType type, Vector2 pos)
@@ -153,11 +151,23 @@ public class UI_MGR : MonoBehaviour
         {
             SequenceMGR.instance.seqType = SequenceMGR.SeqType.moveImpossible;
             ui_Array[(int)uiList[0]].UpdateProc_UI();
+
+            if ((PS4Input.GetButtonDown(PS4ButtonCode.Triangle)))
+            {
+                this.ReturnAllUI();
+            }
+            if (PS4Input.GetButtonDown(PS4ButtonCode.Cross))
+            {// escキーでメニュー表示/非表示
+                this.ReturnUI();
+            }
         }
-        else if (Input.GetKeyDown(KeyCode.Escape))
-        {// escキーでメニュー表示/非表示
-            if (SequenceMGR.instance.seqType == SequenceMGR.SeqType.keyInput)
-                ShowUI(UIType.basicMenu);
+        else
+        {
+            if ((PS4Input.GetButtonDown(PS4ButtonCode.Triangle)))
+            {
+                if (SequenceMGR.instance.seqType == SequenceMGR.SeqType.keyInput)
+                    this.ShowUI( UIType.basicMenu);
+            }
         }
     }
 

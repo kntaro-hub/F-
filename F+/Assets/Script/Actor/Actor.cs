@@ -97,18 +97,11 @@ public class Actor : MonoBehaviour
         
     }
 
-    public static void ChangeSpeed()
+    public void UpdatePosition()
     {
-        if (Input.GetKey(KeyCode.D))
-        {
-            Time.timeScale = 10;
-        }
-        if (Input.GetKeyUp(KeyCode.D))
-        {
-            Time.timeScale = 1.0f;
-        }
+        this.transform.position = MapData.GridToWorld(this.status.point);
     }
-    
+
     public void Equip(int itemID, EquipType equipType)
     {
         switch(equipType)
@@ -176,7 +169,6 @@ public class Actor : MonoBehaviour
 
                 // オーバーしてしまった場合は矯正
                 if (this.param.hp > this.param.maxHp) this.param.hp = this.param.maxHp;
-
 
                 isUp = true;
                 continue;

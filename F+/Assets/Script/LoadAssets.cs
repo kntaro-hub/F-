@@ -30,9 +30,9 @@ public class LoadAssets : MonoBehaviour
 
     private EffectBase[] EffectPrefabs = new EffectBase[(int)EffectMGR.EffectType.max];
 
-    private Dictionary<string, EffectBase> EffectDictionary = new Dictionary<string, EffectBase>();
+    private Dictionary<string, GameObject> EffectDictionary = new Dictionary<string, GameObject>();
 
-    public EffectBase GetEffectDictionary(EffectMGR.EffectType type)
+    public GameObject GetEffectDictionary(EffectMGR.EffectType type)
     {
         return EffectDictionary[$"Effect_{type.ToString()}"];
     }
@@ -115,38 +115,20 @@ public class LoadAssets : MonoBehaviour
 
     public void LoadEffect()
     {
-        // ロード済みエフェクト数
-        int cntEffect = 0;
-
         AdDebug.Log("エフェクトのロード中");
-        for (int i = 0; i < (int)EffectMGR.EffectType.max; ++i)
-        {
-
-
-
-            //Assetのロード {((EffectMGR.EffectType)cntEffect).ToString()}
-            //Addressables.LoadAssetAsync<GameObject>($"Effect_{((EffectMGR.EffectType)i).ToString()}").Completed += op =>
-            //{
-            //    GameObject effect = op.Result;
-            //    EffectPrefabs[cntEffect] = op.Result.GetComponent<EffectBase>();
-
-            //    ++cntEffect;
-
-            //    if (cntEffect >= (int)EffectMGR.EffectType.max)
-            //    {
-                    
-            //    }
-            //};
-
-            AdDebug.Log("エフェクトのロード完了！");
-        }
+        // Assetのロード {((EffectMGR.EffectType)cntEffect).ToString()}
+        Addressables.LoadAssetsAsync<GameObject>("Effect", this.OnLoadEffect);
     }
 
-    void AddDic()
+    int cntEffect = 0;
+    private void OnLoadEffect(GameObject effect)
     {
-        foreach(var itr in EffectPrefabs)
+        EffectDictionary.Add($"Effect_{(effect.GetComponent<EffectBase>().EffectType).ToString()}", effect);
+        ++cntEffect;
+
+        if (cntEffect == (int)EffectMGR.EffectType.max)
         {
-            EffectDictionary.Add($"Effect_{itr.EffectType.ToString()}", itr);
+            AdDebug.Log("エフェクトのロード完了！");
         }
     }
 

@@ -89,7 +89,7 @@ public class UI_BasicMenu : UI_Base
         {
             // 透明に
             itr.color = Color.clear;
-            itr.rectTransform.localPosition = new Vector3(initializePositionX, initializePositionY - itr.rectTransform.sizeDelta.y * 0.7f * cnt);
+            itr.rectTransform.localPosition = new Vector3(initializePositionX, initializePositionY - itr.rectTransform.sizeDelta.y * 0.6f * cnt);
             itr.rectTransform.localScale = new Vector3(0.2f, 0.2f);
             ++cnt;
         }
@@ -111,27 +111,22 @@ public class UI_BasicMenu : UI_Base
     {
         if (isShow)
         {// メニュー表示中のみ
-            if (Input.GetKeyDown(KeyCode.UpArrow))
+            if (PS4Input.GetCrossKeyU())
             {// ↑キーでカーソルを上に
                 buttonNum--;
                 this.CheckFlow();
                 this.CursorSet(buttonNum);
             }
-            if (Input.GetKeyDown(KeyCode.DownArrow))
+            if (PS4Input.GetCrossKeyD())
             {// ↓キーでカーソルを下に
                 buttonNum++;
                 this.CheckFlow();
                 this.CursorSet(buttonNum);
             }
 
-            if (Input.GetKeyDown(KeyCode.Return))
-            {// エンターキーで決定
+            if (PS4Input.GetButtonDown(PS4ButtonCode.Circle) || PS4Input.GetButtonDown(PS4ButtonCode.Option))
+            {// 〇 or Optionボタンで決定
                 this.SwitchCommand();
-            }
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {// escキーでメニュー表示/非表示
-                UI_MGR.instance.ReturnUI();
             }
         }
     }

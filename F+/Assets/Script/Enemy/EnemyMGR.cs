@@ -224,6 +224,14 @@ public class EnemyMGR : MonoBehaviour
         }
     }
 
+    public void UpdatePosition()
+    {
+        foreach(var itr in enemyList)
+        {
+            itr.UpdatePosition();
+        }
+    }
+
     /// <summary>
     /// ユニークなIDを設定する
     /// </summary>
@@ -265,6 +273,22 @@ public class EnemyMGR : MonoBehaviour
             {
                 enemyList[i].DestroyObject(isXp);
                 enemyList.RemoveAt(i);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /// <summary>
+    /// 敵リストの中に攻撃予定の敵がいるかどうか
+    /// </summary>
+    /// <returns></returns>
+    public bool IsAttackMode()
+    {
+        foreach(var itr in enemyList)
+        {
+            if(itr.status.actType == Actor.ActType.Act)
+            {
                 return true;
             }
         }

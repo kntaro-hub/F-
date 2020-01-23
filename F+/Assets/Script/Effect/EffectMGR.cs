@@ -49,9 +49,6 @@ public class EffectMGR : MonoBehaviour
         max
     }
 
-    [SerializeField]
-    private GameObject[] EffectPrefabs = new GameObject[(int)EffectType.max];
-
     // Start is called before the first frame update
     void Start()
     {
@@ -64,57 +61,57 @@ public class EffectMGR : MonoBehaviour
         
     }
 
-    //public EffectBase CreateEffect(EffectType type, Point point)
-    //{
-    //    EffectBase effect = LoadAssets.instance.GetEffectDictionary(type);
-    //    if (effect != null)
-    //        return Instantiate(effect, MapData.GridToWorld(point), Quaternion.identity);
-    //    else return null;
-    //}
-
-    //public EffectBase CreateEffect(EffectType type, Vector3 position)
-    //{
-    //    EffectBase effect = LoadAssets.instance.GetEffectDictionary(type);
-    //    if (effect != null)
-    //        return Instantiate(effect, position, Quaternion.identity);
-    //    else return null;
-    //}
-
-    //public EffectBase CreateEffect(EffectType type, Point point, Quaternion rot)
-    //{
-    //    EffectBase effect = LoadAssets.instance.GetEffectDictionary(type);
-    //    if (effect != null)
-    //        return Instantiate(effect, MapData.GridToWorld(point), rot);
-    //    else return null;
-    //}
-
-    //public EffectBase CreateEffect(EffectType type, Vector3 position, Quaternion rot)
-    //{
-    //    EffectBase effect = LoadAssets.instance.GetEffectDictionary(type);
-    //    if (effect != null)
-    //        return Instantiate(effect, position, rot);
-    //    else return null;
-    //}
-
     public GameObject CreateEffect(EffectType type, Point point)
     {
-        return Instantiate(EffectPrefabs[(int)type], MapData.GridToWorld(point), Quaternion.identity);
+        GameObject effect = LoadAssets.instance.GetEffectDictionary(type);
+        if (effect != null)
+            return Instantiate(effect, MapData.GridToWorld(point), Quaternion.identity);
+        else return null;
     }
 
     public GameObject CreateEffect(EffectType type, Vector3 position)
     {
-        return Instantiate(EffectPrefabs[(int)type], position, Quaternion.identity);
+        GameObject effect = LoadAssets.instance.GetEffectDictionary(type);
+        if (effect != null)
+            return Instantiate(effect, position, Quaternion.identity);
+        else return null;
     }
 
     public GameObject CreateEffect(EffectType type, Point point, Quaternion rot)
     {
-        return Instantiate(EffectPrefabs[(int)type], MapData.GridToWorld(point), rot);
+        GameObject effect = LoadAssets.instance.GetEffectDictionary(type);
+        if (effect != null)
+            return Instantiate(effect, MapData.GridToWorld(point), rot);
+        else return null;
     }
 
     public GameObject CreateEffect(EffectType type, Vector3 position, Quaternion rot)
     {
-        return Instantiate(EffectPrefabs[(int)type], position, rot);
+        GameObject effect = LoadAssets.instance.GetEffectDictionary(type);
+        if (effect != null)
+            return Instantiate(effect, position, rot);
+        else return null;
     }
+
+    //public GameObject CreateEffect(EffectType type, Point point)
+    //{
+    //    return Instantiate(EffectPrefabs[(int)type], MapData.GridToWorld(point), Quaternion.identity);
+    //}
+
+    //public GameObject CreateEffect(EffectType type, Vector3 position)
+    //{
+    //    return Instantiate(EffectPrefabs[(int)type], position, Quaternion.identity);
+    //}
+
+    //public GameObject CreateEffect(EffectType type, Point point, Quaternion rot)
+    //{
+    //    return Instantiate(EffectPrefabs[(int)type], MapData.GridToWorld(point), rot);
+    //}
+
+    //public GameObject CreateEffect(EffectType type, Vector3 position, Quaternion rot)
+    //{
+    //    return Instantiate(EffectPrefabs[(int)type], position, rot);
+    //}
 
     #region singleton
 

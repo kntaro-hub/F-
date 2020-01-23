@@ -147,9 +147,6 @@ public class MagicBase : MonoBehaviour
 
                         StartCoroutine(this.ShotTimer(moveTime, mapObject.objType));
 
-                        // ウィンドウを閉じる
-                        UI_MGR.instance.ReturnAllUI();
-
                         SequenceMGR.instance.seqType = SequenceMGR.SeqType.moveImpossible;
                         break;
                     }

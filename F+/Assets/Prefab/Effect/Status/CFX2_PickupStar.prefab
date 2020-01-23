@@ -9832,7 +9832,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 1
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -9885,7 +9885,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeZ:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 1
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -19228,4 +19228,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25cbe0626ae3ca145b9fdc29ae1e6f91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EffectType: 3
+  effectType: 3

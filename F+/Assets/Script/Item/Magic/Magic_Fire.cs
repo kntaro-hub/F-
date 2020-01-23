@@ -32,7 +32,10 @@ public class Magic_Fire : MagicBase
 
     public override void MagicEffect_HitWall()
     {
+        // 何も起こらない
+        this.Destroy();
 
+        SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
     }
 
     

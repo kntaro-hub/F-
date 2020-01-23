@@ -91,27 +91,22 @@ public class UI_Goal : UI_Base
     {
         if (isShow)
         {// メニュー表示中のみ
-            if (Input.GetKeyDown(KeyCode.UpArrow))
+            if (PS4Input.GetCrossKeyU())
             {// ↑キーでカーソルを上に
                 buttonNum--;
                 this.CheckFlow();
                 this.CursorSet(buttonNum);
             }
-            if (Input.GetKeyDown(KeyCode.DownArrow))
+            if (PS4Input.GetCrossKeyD())
             {// ↓キーでカーソルを下に
                 buttonNum++;
                 this.CheckFlow();
                 this.CursorSet(buttonNum);
             }
 
-            if (Input.GetKeyDown(KeyCode.Return))
+            if (PS4Input.GetButtonDown(PS4ButtonCode.Circle))
             {// エンターキーで決定
                 this.SwitchCommand();
-            }
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {// escキーでメニュー表示/非表示
-                UI_MGR.instance.ReturnUI();
             }
         }
     }

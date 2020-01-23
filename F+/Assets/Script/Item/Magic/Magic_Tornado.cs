@@ -33,6 +33,7 @@ public class Magic_Tornado : MagicBase
     public override void MagicEffect_HitWall()
     {
         // 何も起こらない
+        StartCoroutine(DestroyTimer(WarpTime));
     }
 
     // =--------- コルーチン ---------= //

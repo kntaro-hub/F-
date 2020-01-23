@@ -44,6 +44,7 @@ public class SequenceMGR : MonoBehaviour
         enemyAct,       // 敵行動実行         // プレイヤーの行動場合、行動決めの後すぐに実行
         move,           // 移動               // プレイヤー移動の場合、敵行動決めの後すぐに実行
         trap,           // トラップ動作中      // プレイヤー行動直後に罠にかかっている場合すぐ実行
+        skip,           // プレイヤー高速移動中// 
         turnEnd,
         max
     }
@@ -52,6 +53,7 @@ public class SequenceMGR : MonoBehaviour
     {
         move = 0,   // 移動
         act,        // 行動
+        skip,       // 高速移動
         max
     }
 
@@ -136,24 +138,64 @@ public class SequenceMGR : MonoBehaviour
         isNextEnemy = true;
     }
 
-    private void PlayerActUpdate()
-    {
-
-    }
-
-    private void MoveActUpdate()
-    {
-
-    }
-
-    private void TrapActUpdate()
-    {
-
-    }
-
     private void NotActUpdate()
     {
+
+    }
+
+    private void TurnEndUpdate()
+    {
         this.ActProc();
+    }
+
+    private void SkipUpdate()
+    {
+        bool isDone = false;
+
+        player.SkipReserve();
+
+        RequestEnemy();
+
+        if (player.Skip())
+        {
+            this.SkipEnemy();
+        }
+        else // 壁などにぶつかった場合 
+        {
+            player.UpdatePosition();
+            EnemyMGR.instance.UpdatePosition();
+
+
+            this.ResetAct();
+
+            seqList.RemoveAt(0);
+            isDone = true;
+        }
+        RequestEnemy2();
+
+        // 敵の中にプレイヤーを攻撃する敵がいたら停止して攻撃開始
+        if(!isDone && EnemyMGR.instance.IsAttackMode())
+        {
+            player.UpdatePosition();
+            EnemyMGR.instance.UpdatePosition();
+
+            seqList.RemoveAt(0);
+            seqList.Add(ActSeqType.enemyAct);
+            isDone = true;
+        }
+
+        if(!isDone && player.IsHunger())
+        {
+            player.UpdatePosition();
+            EnemyMGR.instance.UpdatePosition();
+
+            this.ResetAct();
+
+            seqList.RemoveAt(0);
+            isDone = true;
+        }
+
+        UI_MGR.instance.Ui_Map.UpdateMapPlayer();
     }
 
     /// <summary>
@@ -179,6 +221,11 @@ public class SequenceMGR : MonoBehaviour
                 seqList.Add(ActSeqType.enemyAct);
                 seqList.Add(ActSeqType.turnEnd);
                 break;
+
+            case PlayerActType.skip:
+                seqList.Add(ActSeqType.skip);
+                seqList.Add(ActSeqType.turnEnd);
+                break;
         }
         isControll = false;
     }
@@ -201,19 +248,18 @@ public class SequenceMGR : MonoBehaviour
 
         // 
         UpdateModes[(int)ActSeqType.enemyAct]       = EnemyActUpdate;
-        UpdateModes[(int)ActSeqType.playerAct]      = PlayerActUpdate;
-        UpdateModes[(int)ActSeqType.move]           = MoveActUpdate;
-        UpdateModes[(int)ActSeqType.trap]           = TrapActUpdate;
-        UpdateModes[(int)ActSeqType.requestEnemy]   = PlayerActUpdate;
-        UpdateModes[(int)ActSeqType.requestEnemy2]  = PlayerActUpdate;
-        UpdateModes[(int)ActSeqType.turnEnd]        = NotActUpdate;
+        UpdateModes[(int)ActSeqType.playerAct]      = NotActUpdate;
+        UpdateModes[(int)ActSeqType.move]           = NotActUpdate;
+        UpdateModes[(int)ActSeqType.trap]           = NotActUpdate;
+        UpdateModes[(int)ActSeqType.requestEnemy]   = NotActUpdate;
+        UpdateModes[(int)ActSeqType.requestEnemy2]  = NotActUpdate;
+        UpdateModes[(int)ActSeqType.skip]           = SkipUpdate;
+        UpdateModes[(int)ActSeqType.turnEnd]        = TurnEndUpdate;
     }
 
     // Update is called once per frame
     void Update()
     {
-        Actor.ChangeSpeed();
-
         if (IsCheckTurnEnd)
         {// 全員がターンエンド状態か調べ続ける
             if(this.IsTurnEnd())
@@ -270,13 +316,13 @@ public class SequenceMGR : MonoBehaviour
                 case ActSeqType.requestEnemy:
                     // 敵に行動を判断させる
                     seqList.RemoveAt(0);
-                    this.RequestEnemyAI();
+                    this.RequestEnemy();
                     break;
 
                 case ActSeqType.requestEnemy2:
                     // 敵に行動を判断させる
                     seqList.RemoveAt(0);
-                    this.RequestEnemyAI2();
+                    this.RequestEnemy2();
                     break;
 
                 case ActSeqType.move:
@@ -307,6 +353,10 @@ public class SequenceMGR : MonoBehaviour
                 case ActSeqType.trap:
                     seqList.RemoveAt(0);
                     break;
+
+                case ActSeqType.skip:
+
+                    break;
             }
 
 
@@ -325,6 +375,14 @@ public class SequenceMGR : MonoBehaviour
         }
     }
 
+    private void SkipEnemy()
+    {
+        foreach (var itr in enemies)
+        {
+            itr.SkipProc();
+        }
+    }
+
     private List<EnemyBase> actEnemies = new List<EnemyBase>();
     private void ActEnemy()
     {
@@ -337,7 +395,7 @@ public class SequenceMGR : MonoBehaviour
         }
     }
 
-    private void RequestEnemyAI()
+    private void RequestEnemy()
     {
         foreach(var itr in enemies)
         {// それぞれの敵に行動を判断させる
@@ -346,7 +404,7 @@ public class SequenceMGR : MonoBehaviour
         this.ActProc();
     }
 
-    private void RequestEnemyAI2()
+    private void RequestEnemy2()
     {
         foreach (var itr in enemies)
         {// それぞれの敵に行動を判断させる

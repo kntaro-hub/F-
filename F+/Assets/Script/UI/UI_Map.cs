@@ -138,7 +138,7 @@ public class UI_Map : MonoBehaviour
     public void UpdateMapPlayer()
     {
         // マップ上プレイヤー更新
-        Point playerPoint = SequenceMGR.instance.Player.GetPoint();
+        Point playerPoint = SequenceMGR.instance.Player.status.point;
         mapPlayer.rectTransform.position = mapChips[playerPoint.y, playerPoint.x].transform.position;
         
         // プレイヤーの位置を塗りつぶす
