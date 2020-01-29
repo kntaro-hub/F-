@@ -10,7 +10,7 @@ public class Trap_Warp : TrapBase
     // Start is called before the first frame update
     void Start()
     {
-        trapType = TrapType.Warp;
+
     }
 
     // Update is called once per frame
@@ -79,7 +79,7 @@ public class Trap_Warp : TrapBase
                 break;
         }
 
-        UI_MGR.instance.Ui_Map.UpdateMapPlayer();
+        UI_MGR.instance.Ui_Map.UpdateMap();
 
         SequenceMGR.instance.ActProc();
     }

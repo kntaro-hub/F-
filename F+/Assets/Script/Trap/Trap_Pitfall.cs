@@ -9,7 +9,7 @@ public class Trap_Pitfall : TrapBase
     // Start is called before the first frame update
     void Start()
     {
-        trapType = TrapType.Pitfall;
+
     }
 
     // Update is called once per frame

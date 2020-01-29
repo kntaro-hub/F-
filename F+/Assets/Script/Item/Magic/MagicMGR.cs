@@ -101,7 +101,6 @@ public class MagicMGR : MonoBehaviour
                 var previous = FindObjectOfType(typeof(MagicMGR));
                 if (previous)
                 {
-                    Debug.LogWarning("Initialized twice. Don't use MagicMGR in the scene hierarchy.");
                     _instance = (MagicMGR)previous;
                 }
                 else

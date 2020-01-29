@@ -11,11 +11,11 @@ public class MapGenerator : MonoBehaviour
     /// <summary>
     /// 区画と部屋の余白サイズ
     /// </summary>
-    const int Outer_Mergin = 1;
+    const int Outer_Mergin = 3;
     /// <summary>
     /// 部屋配置の余白サイズ
     /// </summary>
-    const int Room_Mergin = 1;
+    const int Room_Mergin = 3;
     /// <summary>
     /// 最小の部屋サイズ
     /// </summary>
@@ -98,19 +98,29 @@ public class MapGenerator : MonoBehaviour
             {
                 for (int y = 0; y < itr.Room.Height; ++y)
                 {
-                    if (mapData.GetMapChipType(itr.Room.Left + x - 1, itr.Room.Top + y - 1) == MapData.MapChipType.none)
-                    {
+                    Point pointLU = new Point(itr.Room.Left + x - 1, itr.Room.Top + y - 1);
+                    Point pointRD = new Point(itr.Room.Left + x + 1, itr.Room.Top + y + 1);
 
+                    if (mapData.GetMapChipType(pointLU) == MapData.MapChipType.none)
+                    {
                         // いまは左と上がroomaround
 
-                        mapData.SetMapChipType(itr.Room.Left + x - 1, itr.Room.Top + y - 1, MapData.MapChipType.roomAround);
+                        // 部屋の入り口を登録
+                        mapData.SetMapChipType(pointLU, MapData.MapChipType.roomAround);
+
+                        
+                        mapData.SetMapChipType(MapData.GetPointFromUDRL_Chip(pointLU, MapData.MapChipType.room) + pointLU, MapData.MapChipType.aisleGate);
                     }
-                    if (mapData.GetMapChipType(itr.Room.Left + x + 1, itr.Room.Top + y + 1) == MapData.MapChipType.none)
+                    if (mapData.GetMapChipType(pointRD) == MapData.MapChipType.none)
                     {
 
                         // いまは左と上がroomaround
 
-                        mapData.SetMapChipType(itr.Room.Left + x + 1, itr.Room.Top + y + 1, MapData.MapChipType.roomAround);
+                        mapData.SetMapChipType(pointRD, MapData.MapChipType.roomAround);
+
+                        MapData.GetPointFromUDRL_Chip(pointRD, MapData.MapChipType.room);
+
+                        mapData.SetMapChipType(MapData.GetPointFromUDRL_Chip(pointRD, MapData.MapChipType.room) + pointRD, MapData.MapChipType.aisleGate);
                     }
                 }
             }
@@ -118,11 +128,11 @@ public class MapGenerator : MonoBehaviour
 
 
         // 11. 罠を配置
-        TrapMGR.instance.CreateTrap(TrapBase.TrapType.Warp);
-        TrapMGR.instance.CreateTrap(TrapBase.TrapType.Spike);
-        TrapMGR.instance.CreateTrap(TrapBase.TrapType.Hunger);
-        TrapMGR.instance.CreateTrap(TrapBase.TrapType.EnemySpawn);
-        TrapMGR.instance.CreateTrap(TrapBase.TrapType.Pitfall);
+        //TrapMGR.instance.CreateTrap(TrapMGR.TrapType.Warp);
+        //TrapMGR.instance.CreateTrap(TrapMGR.TrapType.Spike);
+        //TrapMGR.instance.CreateTrap(TrapMGR.TrapType.Hunger);
+        //TrapMGR.instance.CreateTrap(TrapMGR.TrapType.EnemySpawn);
+        //TrapMGR.instance.CreateTrap(TrapMGR.TrapType.Pitfall);
     }
 
     private void FillWall()
@@ -146,6 +156,8 @@ public class MapGenerator : MonoBehaviour
                 }
             }
         }
+
+        mapData.CreateStageAround();
     }
 
     public Point RandomPointInRoom()
@@ -169,7 +181,7 @@ public class MapGenerator : MonoBehaviour
 
         // プレイヤーのグリッド座標を更新
         SequenceMGR.instance.Player.status.point = point;
-        SequenceMGR.instance.Player.transform.position = MapData.GridToWorld(point);
+        SequenceMGR.instance.Player.transform.position = MapData.GridToWorld(point, -0.5f);
     }
     private void GoalSet()
     {
@@ -572,7 +584,6 @@ public class MapGenerator : MonoBehaviour
                 var previous = FindObjectOfType(typeof(MapGenerator));
                 if (previous)
                 {
-                    Debug.LogWarning("Initialized twice. Don't use MapGenerator in the scene hierarchy.");
                     _instance = (MapGenerator)previous;
                 }
                 else

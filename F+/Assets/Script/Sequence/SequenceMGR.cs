@@ -45,6 +45,7 @@ public class SequenceMGR : MonoBehaviour
         move,           // 移動               // プレイヤー移動の場合、敵行動決めの後すぐに実行
         trap,           // トラップ動作中      // プレイヤー行動直後に罠にかかっている場合すぐ実行
         skip,           // プレイヤー高速移動中// 
+        move_EnemyOnly, // 敵のみ移動
         turnEnd,
         max
     }
@@ -54,6 +55,7 @@ public class SequenceMGR : MonoBehaviour
         move = 0,   // 移動
         act,        // 行動
         skip,       // 高速移動
+        Item,     // アイテム使用時
         max
     }
 
@@ -72,7 +74,7 @@ public class SequenceMGR : MonoBehaviour
     // デリゲート型宣言
     delegate void UpdateMode();
 
-    //
+    // 
     private UpdateMode[] UpdateModes = new UpdateMode[(int)ActSeqType.max];
 
     // 入力可かどうか
@@ -145,6 +147,14 @@ public class SequenceMGR : MonoBehaviour
 
     private void TurnEndUpdate()
     {
+        // 2%で敵出現
+        if (Percent.Per(2))
+        {
+            if (EnemyMGR.instance.EnemyList.Count <= EnemyMGR.MaxEnemy)
+            {
+                EnemyMGR.instance.CreateEnemy_Random();
+            }
+        }
         this.ActProc();
     }
 
@@ -173,18 +183,17 @@ public class SequenceMGR : MonoBehaviour
         }
         RequestEnemy2();
 
-        // 敵の中にプレイヤーを攻撃する敵がいたら停止して攻撃開始
-        if(!isDone && EnemyMGR.instance.IsAttackMode())
-        {
-            player.UpdatePosition();
-            EnemyMGR.instance.UpdatePosition();
+        var mapChip = MapData.instance.GetMapChipType(player.status.point);
 
-            seqList.RemoveAt(0);
-            seqList.Add(ActSeqType.enemyAct);
-            isDone = true;
-        }
-
-        if(!isDone && player.IsHunger())
+        // スキップ中にプレイヤーの満腹度が規定値を下回った場合停止
+        // スキップ中に部屋周りのマスに差し掛かった場合停止
+        // スキップ中に部屋のつなぎ目に差し掛かった場合停止
+        // スキップ中にゴールに差し掛かった場合停止
+        if (!isDone && 
+            (player.IsHunger() ||
+            mapChip == MapData.MapChipType.roomAround ||
+            mapChip == MapData.MapChipType.aisleGate || 
+            mapChip == MapData.MapChipType.goal))
         {
             player.UpdatePosition();
             EnemyMGR.instance.UpdatePosition();
@@ -195,7 +204,29 @@ public class SequenceMGR : MonoBehaviour
             isDone = true;
         }
 
-        UI_MGR.instance.Ui_Map.UpdateMapPlayer();
+        // 敵の中にプレイヤーを攻撃する敵がいたら停止して攻撃開始
+        if (EnemyMGR.instance.IsAttackMode())
+        {
+            if (!isDone)
+            {
+                player.UpdatePosition();
+                EnemyMGR.instance.UpdatePosition();
+
+                seqList.RemoveAt(0);
+            }
+            seqList.Add(ActSeqType.enemyAct);
+        }
+
+        // 停止処理を通過したら2%で敵出現
+        if (Percent.Per(2))
+        {
+            if (EnemyMGR.instance.EnemyList.Count <= EnemyMGR.MaxEnemy)
+            {
+                EnemyMGR.instance.CreateEnemy_Random();
+            }
+        }
+
+        UI_MGR.instance.Ui_Map.UpdateMap();
     }
 
     /// <summary>
@@ -226,6 +257,14 @@ public class SequenceMGR : MonoBehaviour
                 seqList.Add(ActSeqType.skip);
                 seqList.Add(ActSeqType.turnEnd);
                 break;
+
+            case PlayerActType.Item:
+                seqList.Add(ActSeqType.requestEnemy);
+                seqList.Add(ActSeqType.move_EnemyOnly);
+                seqList.Add(ActSeqType.requestEnemy2);
+                seqList.Add(ActSeqType.enemyAct);
+                seqList.Add(ActSeqType.turnEnd);
+                break;
         }
         isControll = false;
     }
@@ -254,6 +293,7 @@ public class SequenceMGR : MonoBehaviour
         UpdateModes[(int)ActSeqType.requestEnemy]   = NotActUpdate;
         UpdateModes[(int)ActSeqType.requestEnemy2]  = NotActUpdate;
         UpdateModes[(int)ActSeqType.skip]           = SkipUpdate;
+        UpdateModes[(int)ActSeqType.move_EnemyOnly] = NotActUpdate;
         UpdateModes[(int)ActSeqType.turnEnd]        = TurnEndUpdate;
     }
 
@@ -269,7 +309,7 @@ public class SequenceMGR : MonoBehaviour
                 this.ResetAct();
 
                 // ランダムで敵出現
-                if (Percent.Per(3))
+                if (Percent.Per(2))
                 {
                     if (EnemyMGR.instance.EnemyList.Count <= EnemyMGR.MaxEnemy)
                     {
@@ -334,6 +374,11 @@ public class SequenceMGR : MonoBehaviour
                     }
                     break;
 
+                case ActSeqType.move_EnemyOnly:
+                    seqList.RemoveAt(0);
+                    this.MoveEnemy();
+                    break;
+
                 case ActSeqType.enemyAct:
                     
 
@@ -348,6 +393,7 @@ public class SequenceMGR : MonoBehaviour
                         player.AddHP(1, false);
                     }
                     IsCheckTurnEnd = true;
+                    UI_MGR.instance.Ui_Map.UpdateMap();
                     break;
 
                 case ActSeqType.trap:
@@ -515,7 +561,6 @@ public class SequenceMGR : MonoBehaviour
                 var previous = FindObjectOfType(typeof(SequenceMGR));
                 if (previous)
                 {
-                    Debug.LogWarning("Initialized twice. Don't use SequenceMGR in the scene hierarchy.");
                     _instance = (SequenceMGR)previous;
                 }
                 else

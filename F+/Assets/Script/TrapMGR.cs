@@ -5,6 +5,18 @@ using UnityEngine.AddressableAssets;
 
 public class TrapMGR : MonoBehaviour
 {
+    // =--------- 列挙体定義 ---------= //
+    public enum TrapType
+    {
+        Warp = 0,
+        Spike,
+        Hunger,
+        EnemySpawn,
+        Pitfall,
+        max
+    }
+
+    // 生成したトラップリスト
     private List<TrapBase> trapList = new List<TrapBase>();
 
     // Start is called before the first frame update
@@ -19,66 +31,25 @@ public class TrapMGR : MonoBehaviour
         
     }
 
-    public void CreateTrap(TrapBase.TrapType type)
+    public void CreateTrap(TrapType type)
     {
         Point point = MapGenerator.instance.RandomPointInRoom();
 
-        StartCoroutine(this.LoadTrap(type, point));
-    }
+        TrapBase trap = Instantiate(LoadAssets.instance.GetTrapPrefab(type), MapData.GridToWorld(point), Quaternion.identity, this.transform)
+            .GetComponent<TrapBase>();
 
-    private IEnumerator LoadTrap(TrapBase.TrapType type, Point point)
-    {
-        //Alchemist_ManというAddressのSpriteを非同期でロードの開始
-        var handle = Addressables.InstantiateAsync($"Trap_{type.ToString()}", MapData.GridToWorld(point), Quaternion.identity, MapData.instance.transform);
+        // ID設定
+        trap.SetID(this.SetUniqueID());
 
-        //ロードが完了するまで待機
-        yield return new WaitUntil(() => handle.IsDone);
+        // 座標設定
+        trap.point = point;
 
-        TrapBase trap = null;
-        // エラーがなければ
-        if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
-        {
-            Debug.Log(handle.Result.name);
-            {
-                // 生成したオブジェクトからトラップを取得
-                trap = handle.Result.GetComponent<TrapBase>();
-            };
+        // マップ情報に登録
+        MapData.instance.SetMapObject(point, MapData.MapObjType.trap, trap.GetID());
+        MapData.instance.SetMapChip(point, trap);
 
-            // ID設定
-            trap.SetID(this.SetUniqueID());
-
-            // リストに登録
-            this.AddTrapList(trap);
-
-            // 座標設定
-            trap.Point = point;
-
-            // マップ情報に登録
-            MapData.instance.SetMapObject(point, MapData.MapObjType.trap, trap.GetID());
-            MapData.instance.SetMapChip(point, trap);
-            
-        }
-        //エラー表示
-        else
-        {
-            Debug.LogError(handle.Status);
-        }
-    }
-
-    private void AddTrapList(TrapBase trap)
-    {
         // リストに登録
         trapList.Add(trap);
-    }
-
-    public void UpdateMapTrap()
-    {
-        // マップのオブジェクトを更新
-        foreach(var itr in trapList)
-        {
-            // ほかのオブジェクトに更新されたのを元に戻す
-            MapData.instance.SetMapObject(itr.Point, MapData.MapObjType.trap, itr.GetID());
-        }
     }
 
     /// <summary>

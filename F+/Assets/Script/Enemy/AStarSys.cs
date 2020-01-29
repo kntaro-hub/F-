@@ -19,6 +19,11 @@ public struct Point
         this.x = x;
         this.y = y;
     }
+    public void SetVal(Point point)
+    {// 値設定
+        this.x = point.x;
+        this.y = point.y;
+    }
 
     public Point Error()
     {// エラー値

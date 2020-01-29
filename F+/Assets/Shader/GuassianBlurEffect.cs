@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class GuassianBlurEffect : MonoBehaviour
 {
@@ -16,6 +17,47 @@ public class GuassianBlurEffect : MonoBehaviour
 
     [Range(1, 8)]
     public int downSample = 2;
+
+    public void FadeOutBlur()
+    {
+        DOTween.To(
+            () => iterations,
+            (x) => iterations = x,
+            4,
+            Fade.fadeTime);
+
+        DOTween.To(
+            () => blurSpread,
+            (x) => blurSpread = x,
+            3.0f,
+            Fade.fadeTime);
+
+        DOTween.To(
+            () => downSample,
+            (x) => downSample = x,
+            8,
+            Fade.fadeTime);
+    }
+    public void FadeInBlur()
+    {
+        DOTween.To(
+            () => iterations,
+            (x) => iterations = x,
+            0,
+            Fade.fadeTime);
+
+        DOTween.To(
+            () => blurSpread,
+            (x) => blurSpread = x,
+            0.0f,
+            Fade.fadeTime);
+
+        DOTween.To(
+            () => downSample,
+            (x) => downSample = x,
+            1,
+            Fade.fadeTime);
+    }
 
     // シェーダ
     public Shader curShader;

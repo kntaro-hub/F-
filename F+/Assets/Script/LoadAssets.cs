@@ -7,60 +7,54 @@ public class LoadAssets : MonoBehaviour
 {
     private enum AssetsType
     {
-        //trap = 0,
-        //enemy,
-        effect = 0,
+        trap = 0,
+        enemy,
+        effect,
         max
     }
 
     private bool[] Progress = new bool[(int)AssetsType.max];
 
-    //private GameObject[] TrapPrefabs = new GameObject[(int)TrapBase.TrapType.max - 1];
-    //private GameObject[] EnemyPrefabs = new GameObject[(int)EnemyMGR.EnemyType.max - 1];
+    private GameObject[] TrapPrefabs = new GameObject[(int)TrapMGR.TrapType.max];
+    private GameObject[] EnemyPrefabs = new GameObject[(int)EnemyMGR.EnemyType.max];
+    private GameObject[] EffectPrefabs = new GameObject[(int)EffectMGR.EffectType.max];
 
-    //public GameObject GetEnemyPrefab(EnemyMGR.EnemyType type)
-    //{
-    //    return EnemyPrefabs[(int)type];
-    //}
-
-    //public GameObject GetTrapPrefab(TrapBase.TrapType type)
-    //{
-    //    return TrapPrefabs[(int)type];
-    //}
-
-    private EffectBase[] EffectPrefabs = new EffectBase[(int)EffectMGR.EffectType.max];
-
-    private Dictionary<string, GameObject> EffectDictionary = new Dictionary<string, GameObject>();
-
-    public GameObject GetEffectDictionary(EffectMGR.EffectType type)
+    public GameObject GetEnemyPrefab(EnemyMGR.EnemyType type)
     {
-        return EffectDictionary[$"Effect_{type.ToString()}"];
+        return EnemyPrefabs[(int)type];
+    }
+
+    public GameObject GetTrapPrefab(TrapMGR.TrapType type)
+    {
+        return TrapPrefabs[(int)type];
+    }
+
+    public GameObject GetEffectPrefab(EffectMGR.EffectType type)
+    {
+        return EffectPrefabs[(int)type];
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        for (int i = 0; i < (int)EffectMGR.EffectType.max; ++i)
-        {
-            
-        }
+        // AddressableAssetSystemによるアセットのロード
+        this.AssetLoad();
+    }
 
-        LoadEffect();
+    private void AssetLoad()
+    {
+        StartCoroutine(this.LoadEffectAsync()); // エフェクトの読み込み
+        StartCoroutine(this.LoadEnemyAsync());  // 敵の読み込み
+        StartCoroutine(this.LoadTrapAsync());   // 罠の読み込み
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(this.IsDone())
+        if (this.IsDone())
         {
             // すべてロードしたらゲーム開始
-            
         }
-
-        //if(Input.GetKeyDown(KeyCode.Y))
-        //{
-        //    this.AddDic();
-        //}
     }
 
     private bool IsDone()
@@ -75,61 +69,91 @@ public class LoadAssets : MonoBehaviour
         return true;
     }
 
-    //public void LoadTrap()
-    //{
-    //    // ロード済みトラップ数
-    //    int cntTrap = 0;
-
-    //    AdDebug.Log("トラップのロード中");
-    //    for (int i = 0; i < (int)TrapBase.TrapType.max - 1; ++i)
-    //    {
-    //        //Assetのロード
-    //        Addressables.LoadAssetAsync<GameObject>($"Trap_{((TrapBase.TrapType)cntTrap).ToString()}").Completed += op =>
-    //        {
-    //            TrapPrefabs[cntTrap] = op.Result;
-    //            ++cntTrap;
-    //        };
-    //    }
-
-    //    AdDebug.Log("トラップのロード完了！");
-    //}
-
-    //public void LoadEnemy()
-    //{
-    //    // ロード済みトラップ数
-    //    int cntEnemy = 0;
-
-    //    AdDebug.Log("敵のロード中");
-    //    for (int i = 0; i < (int)EnemyMGR.EnemyType.max - 1; ++i)
-    //    {
-    //        //Assetのロード
-    //        Addressables.LoadAssetAsync<GameObject>($"Enemy_{((EnemyMGR.EnemyType)cntEnemy).ToString()}").Completed += op =>
-    //        {
-    //            EnemyPrefabs[cntEnemy] = op.Result;
-    //            ++cntEnemy;
-    //        };
-    //    }
-
-    //    AdDebug.Log("敵のロード完了！");
-    //}
-
-    public void LoadEffect()
+    private IEnumerator LoadEffectAsync()
     {
-        AdDebug.Log("エフェクトのロード中");
-        // Assetのロード {((EffectMGR.EffectType)cntEffect).ToString()}
-        Addressables.LoadAssetsAsync<GameObject>("Effect", this.OnLoadEffect);
+        AdDebug.Log("エフェクトのロード中...");
+        var op = Addressables.LoadAssetsAsync<GameObject>("Effect", null);
+
+        yield return op;
+
+        List<GameObject> effectList = new List<GameObject>(op.Result);
+
+        foreach(var itr in effectList)
+        {
+            EffectPrefabs[(int)itr.GetComponent<EffectBase>().EffectType] = itr;
+        }
+
+        int cnt = 0;
+        foreach (var itr in EffectPrefabs)
+        {
+            if (itr == null)
+            {
+                AdDebug.Log($"エフェクトロードエラー！ : {(EffectMGR.EffectType)cnt}が正しくロードされませんでした。");
+            }
+            ++cnt;
+        }
+
+        AdDebug.Log("エフェクトのロード完了！");
+
+        Progress[(int)AssetsType.effect] = true;
     }
 
-    int cntEffect = 0;
-    private void OnLoadEffect(GameObject effect)
+    private IEnumerator LoadTrapAsync()
     {
-        EffectDictionary.Add($"Effect_{(effect.GetComponent<EffectBase>().EffectType).ToString()}", effect);
-        ++cntEffect;
+        AdDebug.Log("トラップのロード中...");
+        var op = Addressables.LoadAssetsAsync<GameObject>("Trap", null);
 
-        if (cntEffect == (int)EffectMGR.EffectType.max)
+        yield return op;
+
+        List<GameObject> trapList = new List<GameObject>(op.Result);
+
+        foreach (var itr in trapList)
         {
-            AdDebug.Log("エフェクトのロード完了！");
+            TrapPrefabs[(int)itr.GetComponent<TrapBase>().trapType] = itr;
         }
+
+        int cnt = 0;
+        foreach (var itr in TrapPrefabs)
+        {
+            if (itr == null)
+            {
+                AdDebug.Log($"トラップロードエラー！ : {(TrapMGR.TrapType)cnt}が正しくロードされませんでした。");
+            }
+            ++cnt;
+        }
+
+        AdDebug.Log("トラップのロード完了！");
+
+        Progress[(int)AssetsType.trap] = true;
+    }
+
+    private IEnumerator LoadEnemyAsync()
+    {
+        AdDebug.Log("敵のロード中...");
+        var op = Addressables.LoadAssetsAsync<GameObject>("Enemy", null);
+
+        yield return op;
+
+        List<GameObject> enemyList = new List<GameObject>(op.Result);
+
+        foreach (var itr in enemyList)
+        {
+            EnemyPrefabs[(int)itr.GetComponent<EnemyBase>().enemyType] = itr;
+        }
+
+        int cnt = 0;
+        foreach (var itr in EnemyPrefabs)
+        {
+            if (itr == null)
+            {
+                AdDebug.Log($"敵ロードエラー！ : {(EnemyMGR.EnemyType)cnt}が正しくロードされませんでした。");
+            }
+            ++cnt;
+        }
+
+        AdDebug.Log("敵のロード完了！");
+
+        Progress[(int)AssetsType.enemy] = true;
     }
 
     #region singleton

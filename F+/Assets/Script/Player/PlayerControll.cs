@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using System.IO;
+using UnityEngine.UI;
 
 /// <summary>
 /// プレイヤーキャラクターの操作を管理
@@ -22,10 +23,11 @@ public class PlayerControll : Actor
         set { isCameraSet = value; }
     }
 
-    private bool IsRotButton = false;   // 回転キーが押されているか
-    private bool IsSkip = false;        // スキップボタンが押されているか
-
+    private bool isSkip = false;        // スキップボタンが押されているか
     int cntSteps = 0;   // 歩数カウンタ
+
+    // メインカメラ
+    private Camera mainCamera;
 
     // アイテムリスト
     Player_Items playerItems;
@@ -39,25 +41,45 @@ public class PlayerControll : Actor
     // =--------- 定数定義 ---------= //
 
     // 初期Y座標
-    [SerializeField] const float InitPosY = -0.5f;
-
-    // 
-    [SerializeField] const float CameraDist = 10.0f;
+    [SerializeField] private float InitPosY = -0.5f;
 
     // 腹減り割合
-    [SerializeField] const float HungerBorder = 15.0f; 
+    [SerializeField] private float HungerBorder = 15.0f;
+
+    // 腹減り歩数
+    [SerializeField] private int StemNum_SubHunger = 10;
+
+    // 表情変更用
+    [SerializeField] private UI_PlayerImage UIPlayerFace;
+
+    // UIのプレイヤー体力ゲージ
+    [SerializeField] private Slider HpGauge;
 
     // =----------------------------= //
+
+    /// <summary>
+    /// 操作タイプ
+    /// </summary>
+    private enum ControllMode
+    {
+        normal = 0,    // 通常移動
+        diagonally,      // 斜め移動 
+        rot,                // 回転
+        max
+    }
+    // 操作タイプ変数
+    private ControllMode controllMode = ControllMode.normal;
+
+    // 操作タイプのデリゲート型宣言
+    delegate void ControllUpdate();
+
+    // 操作タイプ数分生成
+    private ControllUpdate[] controllUpdate = new ControllUpdate[(int)ControllMode.max];
 
     // Start is called before the first frame update
     void Start()
     {
-        MapData.instance.SetInitY(InitPosY);
-        this.transform.position = MapData.GridToWorld(status.point);
-        this.transform.position = new Vector3(
-            this.transform.position.x,
-            InitPosY,
-            this.transform.position.z);
+        this.transform.position = MapData.GridToWorld(status.point, InitPosY);
 
         playerAnimator = this.GetComponent<Animator>();
         playerItems = this.GetComponent<Player_Items>();
@@ -69,19 +91,21 @@ public class PlayerControll : Actor
         this.param.Name = "ユニティちゃん";
 
         this.Init();
+
+        mainCamera = Camera.main;
     }
 
     public void Init()
     {
         if (!isInitialize)
         {// 1階層からの場合初期化をかける
-            this.param.atk           = 8;    // ちから
-            this.param.maxAtk        = 8;    // ちから最大値
-            this.param.level         = 1;    // レベル
-            this.param.basicAtk      = DataBase.instance.GetLevelTableEntity(param.level - 1).Atk;    // レベルアップで増える攻撃力
-            this.param.hp            = 15;   // 体力
-            this.param.maxHp         = 15;   // 体力最大値
-            this.param.hunger        = 100;  // 満腹度
+            this.param.atk          = 8;    // ちから
+            this.param.maxAtk    = 8;    // ちから最大値
+            this.param.level        = 1;    // レベル
+            this.param.basicAtk  = DataBase.instance.GetLevelTableEntity(param.level - 1).Atk;    // レベルアップで増える攻撃力
+            this.param.hp          = 15;   // 体力
+            this.param.maxHp    = 15;   // 体力最大値
+            this.param.hunger    = 100;  // 満腹度
             this.param.maxHunger     = 100;  // 満腹度最大値
             this.param.exp           = 0;    // 今まで取得した経験値
             this.param.id            = 0;    // キャラクターID
@@ -96,24 +120,59 @@ public class PlayerControll : Actor
         {// 2階層以上の場合は前階層のデータを読み込む
             this.LoadStatus();
         }
+
+        // 操作タイプごとの関数ポインタを設定
+        controllUpdate[(int)ControllMode.normal]        = this.ControllMode_Normal;
+        controllUpdate[(int)ControllMode.diagonally]    = this.Controll_Diagonally;
+        controllUpdate[(int)ControllMode.rot]               = this.Controll_Rot;
     }
 
-    public override void Damage(int damage)
+public override void Damage(int damage)
     {
         int calcDamage = this.CalcDamage(damage);
 
         MessageWindow.instance.AddMessage($"{this.Param.Name}は{calcDamage}のダメージをうけた！", Color.red);
 
-        // ダメージアニメーション
-        playerAnimator.Play("Damaged", 0, 0.0f);
+        // プレイヤー画像をダメージ表情に変更
+        UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.damage, true);
 
         // ダメージエフェクト
         EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Hit_White, this.transform.position);
 
         if (this.SubHP(calcDamage))
         {
-            this.DestroyObject();
+            StartCoroutine(this.DeadAnimation());
         }
+        else
+        {
+            // ダメージアニメーション
+            playerAnimator.Play("Damaged");
+        }
+    }
+
+    private IEnumerator DeadAnimation()
+    {
+        // 死亡時アニメーション
+        playerAnimator.Play("GoDown");
+
+        // 時間をゆっくりに
+        Time.timeScale = 0.2f;
+
+        // プレイヤーにカメラを近づける
+        mainCamera.transform.DOMove(
+            mainCamera.transform.position - ((mainCamera.transform.position - this.transform.position) * 0.5f),
+            0.4f);
+
+        // カメラ更新停止
+        this.isCameraSet = false;
+
+        // プレイヤーは操作不能に
+        SequenceMGR.instance.seqType = SequenceMGR.SeqType.moveImpossible;
+
+        yield return new WaitForSeconds(0.4f);
+
+        // 時間を元に戻す
+        Time.timeScale = 1.0f;
     }
 
     public override void DestroyObject()
@@ -133,17 +192,21 @@ public class PlayerControll : Actor
         this.Controll();
 
         this.CalcCameraPos();
+
+
+        // 体力ゲージ更新
+        this.HpGauge.value = ((float)this.param.hp / param.maxHp);
     }
 
     private void CalcCameraPos()
     {
         if (isCameraSet)
         {
-            Camera.main.transform.position = new Vector3(
+            mainCamera.transform.position = new Vector3(
                 this.transform.position.x,
                 this.transform.position.y + 7.0f,
                 this.transform.position.z - 4.0f);
-            Camera.main.transform.LookAt(this.transform.position);
+            mainCamera.transform.LookAt(this.transform.position);
         }
     }
 
@@ -166,98 +229,140 @@ public class PlayerControll : Actor
 
     private void Controll_Move()
     {
-        {
-            IsRotButton = false;    // 回転キーが押されているか
-            IsSkip = false;         // スキップボタンが押されているか
+        controllMode = ControllMode.normal;
+       isSkip = false;         // スキップボタンが押されているか
+     
+       if (PS4Input.GetButton(PS4ButtonCode.R1))
+       {
+           // 斜め移動on
+           controllMode = ControllMode.diagonally;
+       }
+     
+       if(PS4Input.GetButton(PS4ButtonCode.Square))
+       {
+           // 回転モードon
+           controllMode = ControllMode.rot;
+       }
+     
+       if (PS4Input.GetButton(PS4ButtonCode.Cross) && !this.IsHunger())
+       {
+           // スキップフラグon
+           isSkip = true;
+       }
 
-            if (PS4Input.GetButton(PS4ButtonCode.R1))
-            {
-                // 回転フラグon
-                IsRotButton = true;
-            }
+       // 操作モードごとの更新
+        controllUpdate[(int)controllMode]();
+    }
 
-            if (PS4Input.GetButton(PS4ButtonCode.Cross) && !this.IsHunger())
-            {
-                // 回転フラグon
-                IsSkip = true;
-            }
+    #region 操作タイプごとの更新処理
 
-            if (!IsRotButton)
-            {
-                if (PS4Input.GetCrossKey( PS4KeyCodeLR.CrossKey_R))
-                {// 右
-                    status.direct = Direct.right;
-                    this.DecideMove();
-                }
-                else if (PS4Input.GetCrossKey( PS4KeyCodeLR.CrossKey_L))
-                {// 左
-                    status.direct = Direct.left;
-                    this.DecideMove();
-                }
-                else if (PS4Input.GetCrossKey( PS4KeyCodeUD.CrossKey_U))
-                {// 奥
-                    status.direct = Direct.forward;
-                    this.DecideMove();
-                }
-                else if (PS4Input.GetCrossKey( PS4KeyCodeUD.CrossKey_D))
-                {// 手前
-                    status.direct = Direct.back;
-                    this.DecideMove();
-                }
-            }
-            else
-            {
-                if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_R) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_U))
-                {// 右上
-                    status.direct = Direct.right_forward;
-                    this.DecideMove();
-                }
-                else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_L) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_U))
-                {// 左上
-                    status.direct = Direct.left_forward;
-                    this.DecideMove();
-                }
-                else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_R) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_D))
-                {// 右下
-                    status.direct = Direct.right_back;
-                    this.DecideMove();
-                }
-                else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_L) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_D))
-                {// 手前
-                    status.direct = Direct.left_back;
-                    this.DecideMove();
-                }
-            }
+    private void ControllMode_Normal()
+    {
+        if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_R, isSkip))
+        {// 右
+            status.direct = Direct.right;
+            this.DecideMove();
+        }
+        else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_L, isSkip))
+        {// 左
+            status.direct = Direct.left;
+            this.DecideMove();
+        }
+        else if (PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_U, isSkip))
+        {// 奥
+            status.direct = Direct.forward;
+            this.DecideMove();
+        }
+        else if (PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_D, isSkip))
+        {// 手前
+            status.direct = Direct.back;
+            this.DecideMove();
         }
     }
 
+    private void Controll_Diagonally()
+    {
+        if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_R, isSkip) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_U, isSkip))
+        {// 右上
+            status.direct = Direct.right_forward;
+            this.DecideMove();
+        }
+        else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_L, isSkip) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_U, isSkip))
+        {// 左上
+            status.direct = Direct.left_forward;
+            this.DecideMove();
+        }
+        else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_R, isSkip) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_D, isSkip))
+        {// 右下
+            status.direct = Direct.right_back;
+            this.DecideMove();
+        }
+        else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_L, isSkip) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_D, isSkip))
+        {// 手前
+            status.direct = Direct.left_back;
+            this.DecideMove();
+        }
+    }
+
+    private void Controll_Rot()
+    {
+        if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_R) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_U))
+        {// 右上
+            status.direct = Direct.right_forward;
+            this.ChangeRotate();
+        }
+        else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_L) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_U))
+        {// 左上
+            status.direct = Direct.left_forward;
+            this.ChangeRotate();
+        }
+        else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_R) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_D))
+        {// 右下
+            status.direct = Direct.right_back;
+            this.ChangeRotate();
+        }
+        else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_L) && PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_D))
+        {// 手前
+            status.direct = Direct.left_back;
+            this.ChangeRotate();
+        }
+        else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_R))
+        {// 右
+            status.direct = Direct.right;
+            this.ChangeRotate();
+        }
+        else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_L))
+        {// 左
+            status.direct = Direct.left;
+            this.ChangeRotate();
+        }
+        else if (PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_U))
+        {// 奥
+            status.direct = Direct.forward;
+            this.ChangeRotate();
+        }
+        else if (PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_D))
+        {// 手前
+            status.direct = Direct.back;
+            this.ChangeRotate();
+        }
+    }
+
+    #endregion
+
     private void DecideMove()
     {
-        if(IsSkip)
-        {
-            SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.skip);
-        }
-        else
-        {
-            this.MoveReserve();
-        }
+        if(isSkip) SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.skip);
+        else        this.MoveReserve();
     }
 
     public void MoveReserve()
     {
         // この時点で移動後座標を更新する
         this.status.movedPoint = status.point;
-        switch (status.direct)
-        {
-            case Direct.right:          this.status.movedPoint.x++; break;
-            case Direct.left:           this.status.movedPoint.x--; break;
-            case Direct.forward:        this.status.movedPoint.y++; break;
-            case Direct.back:           this.status.movedPoint.y--; break;
-            case Direct.right_back:     this.status.movedPoint.x++; this.status.movedPoint.y--; break;
-            case Direct.left_back:      this.status.movedPoint.x--; this.status.movedPoint.y--; break;
-            case Direct.right_forward:  this.status.movedPoint.x++; this.status.movedPoint.y++; break;
-            case Direct.left_forward:   this.status.movedPoint.x--; this.status.movedPoint.y++; break;
-        }
+
+        // 向きに合わせて移動後座標を取得
+        this.status.movedPoint += MapData.DirectPoints[(int)this.status.direct];
 
         // プレイヤーが移動した場合
         SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.move);
@@ -279,17 +384,9 @@ public class PlayerControll : Actor
     {
         // この時点で移動後座標を更新する
         this.status.movedPoint = status.point;
-        switch (status.direct)
-        {
-            case Direct.right: this.status.movedPoint.x++; break;
-            case Direct.left: this.status.movedPoint.x--; break;
-            case Direct.forward: this.status.movedPoint.y++; break;
-            case Direct.back: this.status.movedPoint.y--; break;
-            case Direct.right_back: this.status.movedPoint.x++; this.status.movedPoint.y--; break;
-            case Direct.left_back: this.status.movedPoint.x--; this.status.movedPoint.y--; break;
-            case Direct.right_forward: this.status.movedPoint.x++; this.status.movedPoint.y++; break;
-            case Direct.left_forward: this.status.movedPoint.x--; this.status.movedPoint.y++; break;
-        }
+
+        // 向きに合わせて移動後座標を取得
+        this.status.movedPoint += MapData.DirectPoints[(int)this.status.direct];
 
         // マップ上オブジェクトの消去
         MapData.instance.ResetMapObject(status.point);    // 先に消去と登録をしなければならない
@@ -299,6 +396,11 @@ public class PlayerControll : Actor
 
         // 向きを変える
         this.ChangeRotate();
+    }
+
+    public override void UpdatePosition()
+    {
+        this.transform.position = MapData.GridToWorld(this.status.point, InitPosY);
     }
 
     private void Controll_Act()
@@ -317,8 +419,9 @@ public class PlayerControll : Actor
 
     public void Attack()
     {
-        this.transform.DOPunchPosition(MapData.GridToWorld(this.GetDirect()), MoveTime);
+        playerAnimator.Play("Attack");
         status.actType = ActType.Act;
+        this.transform.DOPunchPosition(MapData.GridToWorld(MapData.DirectPoints[(int)status.direct]) * 0.4f, MoveTime* 2.0f);
         StartCoroutine(ActProcTimer());
     }
 
@@ -355,7 +458,10 @@ public class PlayerControll : Actor
                 StartCoroutine(MoveTimer());
 
                 // MoveTime秒かけて目的地へ
-                this.transform.DOMove(MapData.GridToWorld(this.status.movedPoint), MoveTime).SetEase(Ease.Linear);
+                this.transform.DOMove(MapData.GridToWorld(this.status.movedPoint, InitPosY), MoveTime).SetEase(Ease.Linear);
+
+                // 歩行状態へ
+                playerAnimator.Play("Running@loop");
                 return true;
             }
             else
@@ -410,7 +516,7 @@ public class PlayerControll : Actor
             }
 
             // マップ情報上のプレイヤーを更新
-            UI_MGR.instance.Ui_Map.UpdateMapPlayer();
+            UI_MGR.instance.Ui_Map.UpdateMap();
 
             // 歩数加算
             ++cntSteps;
@@ -457,29 +563,6 @@ public class PlayerControll : Actor
         // マップを移動前の状態に戻す
         MapData.instance.SetMapObject(status.point, MapData.MapObjType.player, param.id);
         MapData.instance.ResetMapObject(this.status.movedPoint);
-    }
-
-    private void ChangeRotate()
-    {
-        float rotY = this.transform.rotation.y;
-
-        switch (status.direct)
-        {
-            case Direct.right:          rotY = 90.0f; break;
-            case Direct.left:           rotY = 270.0f; break;
-            case Direct.forward:        rotY = 0.0f; break;
-            case Direct.back:           rotY = 180.0f; break;
-            case Direct.right_forward:  rotY = 45.0f; break;
-            case Direct.left_forward:   rotY = 315.0f; break;
-            case Direct.right_back:     rotY = 135.0f; break;
-            case Direct.left_back:      rotY = 225.0f; break;
-            default: break;
-        }
-
-        this.transform.rotation = (Quaternion.Euler(
-               this.transform.rotation.x,
-               rotY,
-               this.transform.rotation.z));
     }
 
     public bool IsHunger()
@@ -588,7 +671,7 @@ public class PlayerControll : Actor
         }
 
         // マップ情報上のプレイヤーを更新
-        UI_MGR.instance.Ui_Map.UpdateMapPlayer();
+        UI_MGR.instance.Ui_Map.UpdateMap();
 
         // 歩数加算
         ++cntSteps;
@@ -609,18 +692,26 @@ public class PlayerControll : Actor
         }
         else
         {
-            if ((cntSteps % 3) == 0)
-            {// 3歩ごとに満腹度を1下げる
+            if ((cntSteps % StemNum_SubHunger) == 0)
+            {// StemNum_SubHunger歩ごとに満腹度を1下げる
                 --param.hunger;
             }
         }
 
         // ターンエンド 
         status.actType = ActType.TurnEnd;
-
+        
         SequenceMGR.instance.ActProc();
 
         AdDebug.Log(MapData.instance.GetMapChipType(this.status.point).ToString());
+
+        yield return new WaitForSeconds(0.05f);
+
+        // 移動し終わった時点で歩行キー入力がない場合は歩行アニメーションをやめる
+        if (!PS4Input.GetAxisX_Any() && !PS4Input.GetAxisY_Any())
+        {
+            playerAnimator.Play("Standing@loop");
+        }
     }
 
     // MoveTime後に敵のターン
@@ -659,6 +750,17 @@ public class PlayerControll : Actor
         StartCoroutine(SequenceMGR.instance.ActProcTimer(MoveTime));
 
         status.actType = ActType.TurnEnd;
+
+        yield return new WaitForSeconds(0.05f);
+
+        // 待機アニメーションへ
+        playerAnimator.Play("Standing@loop");
+
+        // 攻撃アニメーションで座標がずれてしまうので矯正
+        this.transform.position = MapData.GridToWorld(this.status.point, -0.5f);
+
+        // 角度も矯正
+        this.ChangeRotate();
     }
 
     #region ダメージ計算

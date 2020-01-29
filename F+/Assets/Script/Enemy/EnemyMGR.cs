@@ -165,7 +165,7 @@ public class EnemyMGR : MonoBehaviour
         }
 
         //Alchemist_ManというAddressのSpriteを非同期でロードの開始
-        var handle = Addressables.InstantiateAsync($"Enemy_{type.ToString()}", MapData.GridToWorld(point), Quaternion.identity, MapData.instance.transform);
+        var handle = Addressables.InstantiateAsync($"Enemy_{type.ToString()}", MapData.GridToWorld(point, -0.5f), Quaternion.identity, MapData.instance.transform);
 
         //ロードが完了するまで待機
         yield return new WaitUntil(() => handle.IsDone);
@@ -273,6 +273,7 @@ public class EnemyMGR : MonoBehaviour
             {
                 enemyList[i].DestroyObject(isXp);
                 enemyList.RemoveAt(i);
+                UI_MGR.instance.Ui_Map.UpdateMap();
                 return true;
             }
         }

@@ -247,18 +247,7 @@ public class UI_ItemMenu : UI_Base
     {// 選択しているアイテムを前方に投げる
         Point playerPoint = SequenceMGR.instance.Player.status.point;
         Point point = new Point();
-        switch (SequenceMGR.instance.Player.status.direct)
-        {
-            case Actor.Direct.right:        point.x =  1; break;
-            case Actor.Direct.left:         point.x = -1; break;
-            case Actor.Direct.forward:      point.y =  1; break;
-            case Actor.Direct.back:         point.y = -1; break;
-
-            case Actor.Direct.right_forward: point.x =  1; point.y =  1; break;
-            case Actor.Direct.left_forward:  point.x = -1; point.y =  1; break;
-            case Actor.Direct.right_back:    point.x =  1; point.y = -1; break;
-            case Actor.Direct.left_back:     point.x = -1; point.y = -1; break;                 
-        }
+        point  = MapData.DirectPoints[(int)SequenceMGR.instance.Player.status.direct];
 
         while(true)
         {

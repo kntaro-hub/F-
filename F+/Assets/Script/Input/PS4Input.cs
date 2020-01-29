@@ -106,6 +106,22 @@ public class PS4Input : MonoBehaviour
         return Input.GetButtonUp($"{code.ToString()}");
     }
 
+    public static bool GetCrossKey(PS4KeyCodeLR code, bool isKeyDown)
+    {
+        if (!isKeyDown) return Input.GetAxis($"CrossKey_LR") == (int)code;
+        else if (code == PS4KeyCodeLR.CrossKey_L) return isInputCrossKey[(int)KeyDirect.L];
+        else if (code == PS4KeyCodeLR.CrossKey_R) return isInputCrossKey[(int)KeyDirect.R];
+        else return false;
+    }
+
+    public static bool GetCrossKey(PS4KeyCodeUD code, bool isKeyDown)
+    {
+        if (!isKeyDown) return Input.GetAxis($"CrossKey_UD") == (int)code;
+        else if (code == PS4KeyCodeUD.CrossKey_U) return isInputCrossKey[(int)KeyDirect.U];
+        else if (code == PS4KeyCodeUD.CrossKey_D) return isInputCrossKey[(int)KeyDirect.D];
+        else return false;
+    }
+
     public static bool GetCrossKey(PS4KeyCodeLR code)
     {
         return Input.GetAxis($"CrossKey_LR") == (int)code;

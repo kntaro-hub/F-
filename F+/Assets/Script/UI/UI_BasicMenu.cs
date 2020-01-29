@@ -15,7 +15,6 @@ public class UI_BasicMenu : UI_Base
     {
         item,           // 道具     1
         map,            // マップ   2
-        inspect,        // 調べる   3
         interruption,   // 中断     4
         close,          // 閉じる   5
         max             // 最大値
@@ -29,9 +28,6 @@ public class UI_BasicMenu : UI_Base
     private Image           cursorPrefab;   // カーソルプレハブ
 
     // =--------- パラメータ ---------= //
-
-    [SerializeField]
-    private float offsetText = 0.5f;            // テキスト同士のY座標間隔
     [SerializeField]
     private float initializePositionX = 0.0f;   // テキスト基準座標X
     [SerializeField]
@@ -68,7 +64,6 @@ public class UI_BasicMenu : UI_Base
         cursor = Instantiate(cursorPrefab, this.transform);
         TextMeshProUGUI item = Instantiate(textPrefab, this.transform); item.text = "道具";
         TextMeshProUGUI map = Instantiate(textPrefab, this.transform); map.text = "マップ";
-        TextMeshProUGUI inspect = Instantiate(textPrefab, this.transform); inspect.text = "調べる";
         TextMeshProUGUI interruption = Instantiate(textPrefab, this.transform); interruption.text = "中断";
         TextMeshProUGUI close = Instantiate(textPrefab, this.transform); close.text = "閉じる";
 
@@ -76,7 +71,6 @@ public class UI_BasicMenu : UI_Base
 
         textList.Add(item);
         textList.Add(map);
-        textList.Add(inspect);
         textList.Add(interruption);
         textList.Add(close);
 
@@ -89,7 +83,7 @@ public class UI_BasicMenu : UI_Base
         {
             // 透明に
             itr.color = Color.clear;
-            itr.rectTransform.localPosition = new Vector3(initializePositionX, initializePositionY - itr.rectTransform.sizeDelta.y * 0.6f * cnt);
+            itr.rectTransform.localPosition = new Vector3(initializePositionX, initializePositionY - itr.rectTransform.sizeDelta.y * 0.5f * cnt);
             itr.rectTransform.localScale = new Vector3(0.2f, 0.2f);
             ++cnt;
         }
@@ -160,12 +154,6 @@ public class UI_BasicMenu : UI_Base
     /// </summary>
     public override void HideMenu()
     {
-        //foreach (var itr in textList)
-        //{
-        //    itr.color = Color.clear;
-        //}
-        //cursor.color = Color.clear;
-        //panel.color = Color.clear;
         isShow = false;
 
         this.transform.DOMoveX(0.0f - panel.rectTransform.sizeDelta.x * 0.5f, UI_MGR.ShowMenuTime);
@@ -249,7 +237,6 @@ public class UI_BasicMenu : UI_Base
         {
             case (int)TextType.item: this.Com_Item(); break;
             case (int)TextType.map: this.Com_Map(); break;
-            case (int)TextType.inspect: this.Com_Inspect(); break;
             case (int)TextType.interruption: this.Com_Interruption(); break;
             case (int)TextType.close: this.Com_Close(); break;
         }

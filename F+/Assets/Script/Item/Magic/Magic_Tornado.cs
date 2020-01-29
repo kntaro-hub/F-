@@ -27,13 +27,15 @@ public class Magic_Tornado : MagicBase
 
         StartCoroutine(WarpTimer(enemy));
 
-        StartCoroutine(DestroyTimer(WarpTime));
+        SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
     }
 
     public override void MagicEffect_HitWall()
     {
         // 何も起こらない
-        StartCoroutine(DestroyTimer(WarpTime));
+        this.Destroy();
+
+        SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
     }
 
     // =--------- コルーチン ---------= //
@@ -41,7 +43,7 @@ public class Magic_Tornado : MagicBase
     {
         // =--------- 飛び上がる直前 ---------= //
 
-        // 乗ったキャラクターが飛び上がる
+        // キャラクターが飛び上がる
         actor.transform.DOLocalMoveY(10.0f, WarpTime * 0.5f);
 
         // キャラクターの位置のマップ情報をリセット
@@ -60,10 +62,11 @@ public class Magic_Tornado : MagicBase
         // 元の位置に降りる
         actor.transform.DOLocalMoveY(0.0f, WarpTime * 0.5f);
 
-        // プレイヤーの座標をワープ後の座標に変更
-        // 先にマップ上プレイヤーの座標をワープ後の座標に変更
+        // 座標をワープ後の座標に変更
+        // 先にマップ上座標をワープ後の座標に変更
         Point warpedPoint = MapGenerator.instance.RandomPointInRoom();
         actor.status.point = warpedPoint;
+        actor.status.movedPoint = warpedPoint;
         Vector3 warpedPos = MapData.GridToWorld(warpedPoint);
         actor.transform.position = new Vector3(warpedPos.x, actor.transform.position.y, warpedPos.z);
 
@@ -76,5 +79,10 @@ public class Magic_Tornado : MagicBase
 
         // ワープ後座標にキャラクターを登録
         MapData.instance.SetMapObject(actor.status.point, MapData.MapObjType.enemy, actor.Param.id);
+
+        // マップを更新
+        UI_MGR.instance.Ui_Map.UpdateMap();
+
+        this.Destroy();
     }
 }

@@ -7,16 +7,7 @@ using UnityEngine;
 /// </summary>
 public class TrapBase : MapChipBase
 {
-    public enum TrapType
-    {
-        Warp = 0,
-        Spike,
-        Hunger,
-        EnemySpawn,
-        Pitfall,
-        max
-    }
-    protected TrapType trapType;
+    public TrapMGR.TrapType trapType;
 
     protected bool isActived = false;
 

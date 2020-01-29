@@ -6,7 +6,7 @@ public class Actor : MonoBehaviour
 {
     public enum Direct
     {
-        right = 1,
+        right = 0,
         left,
         forward,
         back,
@@ -97,9 +97,32 @@ public class Actor : MonoBehaviour
         
     }
 
-    public void UpdatePosition()
+    public virtual void UpdatePosition()
     {
         this.transform.position = MapData.GridToWorld(this.status.point);
+    }
+
+    protected void ChangeRotate()
+    {
+        float rotY = this.transform.rotation.y;
+
+        switch (status.direct)
+        {
+            case Direct.right: rotY = 90.0f; break;
+            case Direct.left: rotY = 270.0f; break;
+            case Direct.forward: rotY = 0.0f; break;
+            case Direct.back: rotY = 180.0f; break;
+            case Direct.right_forward: rotY = 45.0f; break;
+            case Direct.left_forward: rotY = 315.0f; break;
+            case Direct.right_back: rotY = 135.0f; break;
+            case Direct.left_back: rotY = 225.0f; break;
+            default: break;
+        }
+
+        this.transform.rotation = (Quaternion.Euler(
+               this.transform.rotation.x,
+               rotY,
+               this.transform.rotation.z));
     }
 
     public void Equip(int itemID, EquipType equipType)
@@ -147,6 +170,9 @@ public class Actor : MonoBehaviour
     /// </summary>
     public void AddXp(int addXp)
     {
+        // 最大レベルなら上がらない
+        if(this.param.level >= 37) { return; }
+
         // 経験値加算
         this.param.exp += addXp;
 
@@ -176,6 +202,7 @@ public class Actor : MonoBehaviour
 
             if (isUp)
             {
+                EffectMGR.instance.CreateEffect(EffectMGR.EffectType.LevelUp, this.status.point);
                 MessageWindow.instance.AddMessage($"レベル{this.param.level}に上がった！", Color.white);
             }
             break;
@@ -184,6 +211,9 @@ public class Actor : MonoBehaviour
 
     public void AddLevel(int addLevel)
     {
+        // 最大レベルなら上がらない
+        if (this.param.level >= 37) { return; }
+
         this.param.level += addLevel;
 
         this.param.exp = DataBase.instance.GetLevelTableEntity(this.param.level).Xp;

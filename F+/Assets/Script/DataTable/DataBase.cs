@@ -97,7 +97,6 @@ public class DataBase : MonoBehaviour
                 var previous = FindObjectOfType(typeof(DataBase));
                 if (previous)
                 {
-                    Debug.LogWarning("Initialized twice. Don't use DataBase in the scene hierarchy.");
                     _instance = (DataBase)previous;
                 }
                 else

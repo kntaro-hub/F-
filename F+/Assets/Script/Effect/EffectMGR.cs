@@ -63,7 +63,7 @@ public class EffectMGR : MonoBehaviour
 
     public GameObject CreateEffect(EffectType type, Point point)
     {
-        GameObject effect = LoadAssets.instance.GetEffectDictionary(type);
+        GameObject effect = LoadAssets.instance.GetEffectPrefab(type);
         if (effect != null)
             return Instantiate(effect, MapData.GridToWorld(point), Quaternion.identity);
         else return null;
@@ -71,7 +71,7 @@ public class EffectMGR : MonoBehaviour
 
     public GameObject CreateEffect(EffectType type, Vector3 position)
     {
-        GameObject effect = LoadAssets.instance.GetEffectDictionary(type);
+        GameObject effect = LoadAssets.instance.GetEffectPrefab(type);
         if (effect != null)
             return Instantiate(effect, position, Quaternion.identity);
         else return null;
@@ -79,7 +79,7 @@ public class EffectMGR : MonoBehaviour
 
     public GameObject CreateEffect(EffectType type, Point point, Quaternion rot)
     {
-        GameObject effect = LoadAssets.instance.GetEffectDictionary(type);
+        GameObject effect = LoadAssets.instance.GetEffectPrefab(type);
         if (effect != null)
             return Instantiate(effect, MapData.GridToWorld(point), rot);
         else return null;
@@ -87,7 +87,7 @@ public class EffectMGR : MonoBehaviour
 
     public GameObject CreateEffect(EffectType type, Vector3 position, Quaternion rot)
     {
-        GameObject effect = LoadAssets.instance.GetEffectDictionary(type);
+        GameObject effect = LoadAssets.instance.GetEffectPrefab(type);
         if (effect != null)
             return Instantiate(effect, position, rot);
         else return null;

@@ -19,6 +19,9 @@ public class EnemyBase : Actor
 
     protected Point directPoint;
 
+    // 敵のアニメーター
+    protected Animator enemyAnimator;
+
     // =--------- // =--------- unity execution ---------= // ---------= //
 
     // Start is called before the first frame update
@@ -29,6 +32,13 @@ public class EnemyBase : Actor
 
     public void Init()
     {
+
+        // アニメーター取得
+        enemyAnimator = this.GetComponent<Animator>();
+
+        this.enemyAnimator.Play("IdleBattle");
+
+        // キャラクタータイプ設定
         this.status.characterType = CharaType.enemy;
 
         // 敵情報取得
@@ -62,13 +72,17 @@ public class EnemyBase : Actor
         {
             if (this.Move())
             {// 移動先が確定した場合
-                this.transform.DOMove(MapData.GridToWorld(this.status.point), Actor.MoveTime).SetEase(Ease.Linear);
+                this.transform.LookAt(MapData.GridToWorld(this.status.point), Vector3.up);
+
+                this.transform.DOMove(MapData.GridToWorld(this.status.point, -0.5f), Actor.MoveTime).SetEase(Ease.Linear);
 
                 // マップに敵を登録
                 MapData.instance.SetMapObject(status.point, MapData.MapObjType.enemy, param.id);
 
                 // タイマー起動（指定秒数経過するとターンエンド状態になる）
                 StartCoroutine(Timer(MoveTime));
+
+                this.enemyAnimator.Play("WalkFWD");
             }
             else
             {// 移動先に移動できない場合
@@ -84,6 +98,8 @@ public class EnemyBase : Actor
         {
             if (this.Move())
             {// 移動先が確定した場合
+
+                this.transform.LookAt(MapData.GridToWorld(this.status.point), Vector3.up);
 
                 // マップに敵を登録
                 MapData.instance.SetMapObject(status.point, MapData.MapObjType.enemy, param.id);
@@ -104,6 +120,8 @@ public class EnemyBase : Actor
     {
         if (status.actType == ActType.Act)
         {
+            this.transform.LookAt(SequenceMGR.instance.Player.transform.position, Vector3.up);
+            this.enemyAnimator.Play("Attack01");
             return this.Act();
         }
         else return 0.0f;
@@ -152,6 +170,8 @@ public class EnemyBase : Actor
 
         MessageWindow.instance.AddMessage($"{this.Param.Name}に{calcDamage}のダメージ！", Color.white);
 
+        this.enemyAnimator.Play("GetHit");
+
         if (this.SubHP(calcDamage))
         {
             MessageWindow.instance.AddMessage($"{this.param.Name}をたおした！", Color.white);
@@ -183,7 +203,7 @@ public class EnemyBase : Actor
         }
 
         // マップ上の自分を消す
-        UI_MGR.instance.Ui_Map.RemoveMapEnemy(this.status.point);
+        UI_MGR.instance.Ui_Map.RemoveMapEnemy();
 
         // オブジェクト削除
         Destroy(this.gameObject);

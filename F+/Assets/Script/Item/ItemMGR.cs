@@ -60,6 +60,8 @@ public class ItemMGR : MonoBehaviour
 
         MapData.instance.SetMapObject(point, MapData.MapObjType.item, itemID);
 
+        UI_MGR.instance.Ui_Map.CreateMapItem(item.Point);
+
         items.Add(item);
         return item;
     }
@@ -74,7 +76,6 @@ public class ItemMGR : MonoBehaviour
 
     public void DestroyItem(Point point)
     {
-        UI_MGR.instance.Ui_Map.RemoveMapItem(point);
         for (int i = items.Count - 1; i >= 0; i--)
         {// 逆順ループ
             if (point == items[i].Point)
@@ -85,6 +86,7 @@ public class ItemMGR : MonoBehaviour
                 return;
             }
         }
+        UI_MGR.instance.Ui_Map.RemoveMapItem();
     }
 
 
@@ -165,7 +167,6 @@ public class ItemMGR : MonoBehaviour
                 var previous = FindObjectOfType(typeof(ItemMGR));
                 if (previous)
                 {
-                    Debug.LogWarning("Initialized twice. Don't use ItemMGR in the scene hierarchy.");
                     _instance = (ItemMGR)previous;
                 }
                 else

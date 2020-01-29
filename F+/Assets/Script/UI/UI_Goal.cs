@@ -172,7 +172,12 @@ public class UI_Goal : UI_Base
     /// </summary>
     private void Com_Next()
     {// 次のステージへ
-        FloorMGR.instance.NextFloor();
+
+        // フェードアウト
+        Fade.instance.FadeOut();
+
+        // プレイヤーは操作不能に
+        SequenceMGR.instance.seqType = SequenceMGR.SeqType.moveImpossible;
     }
     /// <summary>
     /// [キャンセル]コマンド

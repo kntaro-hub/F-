@@ -7,7 +7,7 @@ public class Trap_EnemySpawn : TrapBase
     // Start is called before the first frame update
     void Start()
     {
-        trapType = TrapType.EnemySpawn;
+
     }
 
     // Update is called once per frame
@@ -23,10 +23,14 @@ public class Trap_EnemySpawn : TrapBase
     {
         MessageWindow.instance.AddMessage($"{actor.Param.Name}は呼び寄せの罠にかかった！", Color.white);
 
-        // いま居る階層に出現する敵の中から最大4体生成
-        for(int i = 0; i < Random.Range(2,4); ++i)
+        // 罠のまわりから最大4体分の座標を被りなしで取得
+        List<Point> pointList = RandomPointList(Random.Range(2, 4), point);
+
+        // いま居る階層に出現する敵の中から生成
+        foreach(var itr in pointList)
         {
-            EnemyMGR.instance.CreateEnemy_Random(MapData.GetRandomPointFromAround(point));
+            // 敵生成
+            EnemyMGR.instance.CreateEnemy_Random(itr);
         }
 
         GameObject effect = EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Trap_EnemySpawn_Hit, point);
@@ -35,6 +39,36 @@ public class Trap_EnemySpawn : TrapBase
 
         // 時間間隔
         StartCoroutine(Timer());
+    }
+
+    /// <summary>
+    /// 被りなしで範囲内をnum個取得
+    /// </summary>
+    public List<Point> RandomPointList(int num, Point center)
+    {
+        List<Point> randomList = new List<Point>();
+
+        for (int i = 0; i < num; ++i)
+        {
+            while (true)
+            {
+                Point randomPoint = MapData.GetRandomPointFromAround(center);
+
+                // リストの中に被りがあるか走査
+                foreach (var itr in randomList)
+                {
+                    if (itr == randomPoint)
+                    {
+                        // 再抽選
+                        continue;
+                    }
+                }
+                // 被りがなければ格納する
+                randomList.Add(randomPoint);
+                break;
+            }
+        }
+        return randomList;
     }
 
     private IEnumerator Timer()

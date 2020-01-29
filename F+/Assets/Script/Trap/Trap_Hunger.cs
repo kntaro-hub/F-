@@ -10,7 +10,7 @@ public class Trap_Hunger : TrapBase
     // Start is called before the first frame update
     void Start()
     {
-        trapType = TrapType.Hunger;
+
     }
 
     // Update is called once per frame

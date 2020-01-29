@@ -13,6 +13,7 @@ public class MapData : MonoBehaviour
         room,       // 部屋
         roomAround, // 部屋の周り
         goal,       // 階段
+        aisleGate,  // 部屋のつなぎ目
         max
     }
 
@@ -23,7 +24,6 @@ public class MapData : MonoBehaviour
         player,
         enemy,
         item,
-        goal,
         trap,
         max
     }
@@ -37,6 +37,12 @@ public class MapData : MonoBehaviour
     // =--------- 定数定義 ---------= //
     public const float GridSize = 1.0f; // グリッドサイズ
     public const int None_Id = 9999;
+
+    public static readonly Point[] DirectPoints =
+                            new Point[(int)(Actor.Direct.max + 1)] {
+                           new Point(-1, -1) , new Point(0, -1), new Point(1, -1),
+                           new Point(-1, 0) , new Point(0, 0), new Point(1, 0),
+                           new Point(-1, 1) , new Point(0, 1), new Point(1, 1)};
 
     // =--------- 変数宣言 ---------= //
     // グリッド座標→ワールド座標変換時のズレ
@@ -62,7 +68,9 @@ public class MapData : MonoBehaviour
 
     // =--------- プレハブ ---------= //
     // 壁
-    [SerializeField] private MapChip_Wall[] wallPrefab = new MapChip_Wall[6];
+    [SerializeField] private MapChip_Wall[] floorPrefab = new MapChip_Wall[5];
+    [SerializeField] private MapChip_Wall[] wallPrefab = new MapChip_Wall[3];
+    [SerializeField] private MapObject[] mapDecorations = new MapObject[6];
     [SerializeField] private MapChip_Goal goalPrefab;
 
     // 敵（本来は敵テーブルから）
@@ -70,6 +78,17 @@ public class MapData : MonoBehaviour
 
     private void Awake()
     {
+        // 方向の情報をセット
+        DirectPoints[(int)Actor.Direct.right] = new Point(1, 0);
+        DirectPoints[(int)Actor.Direct.left] = new Point(-1, 0);
+        DirectPoints[(int)Actor.Direct.forward] = new Point(0, 1);
+        DirectPoints[(int)Actor.Direct.back] = new Point(0, -1);
+        DirectPoints[(int)Actor.Direct.right_forward] = new Point(1, 1);
+        DirectPoints[(int)Actor.Direct.left_forward] = new Point(-1, 1);
+        DirectPoints[(int)Actor.Direct.right_back] = new Point(1, -1);
+        DirectPoints[(int)Actor.Direct.left_back] = new Point(-1, -1);
+        DirectPoints[(int)Actor.Direct.max] = new Point(0, 0);
+
         this.Create(50  , 50);
         
         for(int i = 0; i < width; ++i)
@@ -129,6 +148,10 @@ public class MapData : MonoBehaviour
     public void SetMapChipType(int x, int y, MapChipType type)
     {
         mapValue[x , y].mapChipType = type;
+    }
+    public void SetMapChipType(Point point, MapChipType type)
+    {
+        mapValue[point.x, point.y].mapChipType = type;
     }
     public void SetRoomNum(int x, int y, int v)
     {
@@ -261,6 +284,19 @@ public class MapData : MonoBehaviour
         if (MapData.instance.GetMapObject(Center + ret).objType == objType) return ret;
         return new Point();
     }
+    public static Point GetPointFromUDRL_Chip(Point Center, MapChipType chipType)
+    {
+        Point ret;
+        ret = new Point(1, 0);
+        if (MapData.instance.GetMapChipType(Center + ret) == chipType) return ret;
+        ret = new Point(-1, 0);
+        if (MapData.instance.GetMapChipType(Center + ret) == chipType) return ret;
+        ret = new Point(0, 1);
+        if (MapData.instance.GetMapChipType(Center + ret) == chipType) return ret;
+        ret = new Point(0, -1);
+        if (MapData.instance.GetMapChipType(Center + ret) == chipType) return ret;
+        return new Point();
+    }
 
     public static Point GetRandomPointFromAround(Point Center)
     {
@@ -314,19 +350,51 @@ public class MapData : MonoBehaviour
 
     public void CreateWall(int x, int y)
     {
-        mapValue[x, y].mapChip = Instantiate(wallPrefab[0], GridToWorld(new Point(x, y)), Quaternion.identity);
+
+        mapValue[x, y].mapChip = Instantiate(wallPrefab[Random.Range(0, 3)], GridToWorld(new Point(x, y)), Quaternion.identity);
         mapValue[x, y].mapChip.transform.parent = this.transform;
         mapObjects.Add(mapValue[x, y].mapChip);
         
+        if(Percent.Per(10))
+        {
+            MapObject deco = Instantiate(
+                mapDecorations[Random.Range(0, 6)], 
+                new Vector3(mapValue[x, y].mapChip.transform.position.x, 
+                            mapValue[x, y].mapChip.transform.position.y + (GridSize * 0.5f), 
+                            mapValue[x, y].mapChip.transform.position.z), 
+                Quaternion.Euler(0.0f,Random.Range(0.0f,360.0f),0.0f), 
+                mapValue[x, y].mapChip.transform);
+
+            float scale = Random.Range(1.0f, 5.0f);
+            deco.transform.localScale = new Vector3(scale, scale, scale);
+        }
+    }
+
+    public void CreateStageAround()
+    {
+        const int aroundSize = 20;
+        for(int i = 0; i  < width + aroundSize; ++i)
+        {
+            for (int j = 0; j < height + aroundSize; ++j)
+            {
+                if(i < (aroundSize / 2) || j < (aroundSize / 2))
+                {
+                    Instantiate(wallPrefab[Random.Range(0, 3)], GridToWorld(new Point(i - (aroundSize / 2), j - (aroundSize / 2))), Quaternion.identity);
+                }
+                else if (i >= width + (aroundSize / 2) || j >= height + (aroundSize / 2))
+                {
+                    Instantiate(wallPrefab[Random.Range(0, 3)], GridToWorld(new Point(i - (aroundSize / 2), j - (aroundSize / 2))), Quaternion.identity);
+                }
+            }
+        }
     }
 
     public void CreateFloor(int x, int y)
     {
-        Vector3 position = GridToWorld(new Point(x, y)) - new Vector3(0.0f, GridSize, 0.0f);
+        Vector3 position = GridToWorld(new Point(x, y), -GridSize);
 
-        MapChip_Wall floor = Instantiate(wallPrefab[Random.Range(0, 5)], position, Quaternion.identity);
+        MapChip_Wall floor = Instantiate(floorPrefab[Random.Range(0, 5)], position, Quaternion.identity);
 
-        floor.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
         floor.transform.parent = this.transform;
     }
 
@@ -340,11 +408,6 @@ public class MapData : MonoBehaviour
         mapValue[x, y].mapChip = Instantiate(goalPrefab);
         mapValue[x, y].mapChip.transform.position = GridToWorld(new Point(x, y));
         UI_MGR.instance.Ui_Map.CreateMapGoal(new Point(x, y));
-    }
-
-    public void SetInitY(float posY)
-    {
-        initPosY = posY;
     }
 
     public Division.Div_Room GetRoom(Point point)
@@ -372,6 +435,15 @@ public class MapData : MonoBehaviour
 
         return world;
     }
+    public static Vector3 GridToWorld(Point grid, float posY)
+    {
+        Vector3 world = new Vector3(
+            (float)(grid.x * GridSize),
+            posY,
+            (float)(grid.y * GridSize));
+
+        return world;
+    }
 
     public static Point WorldToGrid(Vector3 world)
     {
@@ -395,7 +467,6 @@ public class MapData : MonoBehaviour
                 var previous = FindObjectOfType(typeof(MapData));
                 if (previous)
                 {
-                    Debug.LogWarning("Initialized twice. Don't use MapData in the scene hierarchy.");
                     _instance = (MapData)previous;
                 }
                 else

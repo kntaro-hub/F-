@@ -102,7 +102,7 @@ MonoBehaviour:
     m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   - m_GUID: cec7c25565f4b3a409fe466ead7a96b0
-    m_Address: Effect_Heal
+    m_Address: Effect_LevelUp
     m_ReadOnly: 0
     m_SerializedLabels:
     - Effect
@@ -123,7 +123,7 @@ MonoBehaviour:
     m_mainAssetType: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   - m_GUID: d1d96dc3db3ec3342b37cc6c0e9e0560
-    m_Address: Effect_LevelUp
+    m_Address: Effect_Heal
     m_ReadOnly: 0
     m_SerializedLabels:
     - Effect

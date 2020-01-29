@@ -93,18 +93,7 @@ public class MagicBase : MonoBehaviour
                 // 魔法の位置をプレイヤーに合わせる
                 this.transform.position = MapData.GridToWorld(playerPoint);
 
-                switch (SequenceMGR.instance.Player.status.direct)
-                {
-                    case Actor.Direct.right: movedPoint.x = 1; break;
-                    case Actor.Direct.left: movedPoint.x = -1; break;
-                    case Actor.Direct.forward: movedPoint.y = 1; break;
-                    case Actor.Direct.back: movedPoint.y = -1; break;
-
-                    case Actor.Direct.right_forward: movedPoint.x = 1; movedPoint.y = 1; break;
-                    case Actor.Direct.left_forward: movedPoint.x = -1; movedPoint.y = 1; break;
-                    case Actor.Direct.right_back: movedPoint.x = 1; movedPoint.y = -1; break;
-                    case Actor.Direct.left_back: movedPoint.x = -1; movedPoint.y = -1; break;
-                }
+                movedPoint = MapData.DirectPoints[(int)SequenceMGR.instance.Player.status.direct];
 
                 while (true)
                 {

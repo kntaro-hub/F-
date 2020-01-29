@@ -9,13 +9,7 @@ using UnityEngine;
 public class MapChipBase : MonoBehaviour
 {
     // マップ上座標
-    protected Point point;
-
-    public Point Point
-    {
-        get { return point; }
-        set { point = value; }
-    }
+    public Point point;
 
     // マップチップID
     protected int ID;

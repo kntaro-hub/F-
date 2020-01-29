@@ -184,7 +184,6 @@ public class UI_MGR : MonoBehaviour
                 var previous = FindObjectOfType(typeof(UI_MGR));
                 if (previous)
                 {
-                    Debug.LogWarning("Initialized twice. Don't use UI_MGR in the scene hierarchy.");
                     _instance = (UI_MGR)previous;
                 }
                 else

@@ -2481,7 +2481,7 @@ ModelImporter:
       name: GoDown
       takeName: Take 001
       internalID: 0
-      firstFrame: 280
+      firstFrame: 291
       lastFrame: 360
       wrapMode: 0
       orientationOffsetY: 0

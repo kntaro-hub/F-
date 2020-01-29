@@ -11,7 +11,7 @@ public class Trap_Spike : TrapBase
     // Start is called before the first frame update
     void Start()
     {
-        trapType = TrapType.Spike;
+
     }
 
     // Update is called once per frame
