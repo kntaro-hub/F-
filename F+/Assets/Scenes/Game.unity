@@ -209,6 +209,9 @@ MonoBehaviour:
   ExpressionImages:
   - {fileID: 21300000, guid: bb565bd15ea380149b292b19b85fe6f5, type: 3}
   - {fileID: 21300000, guid: c1c95cfab8bf90c42899f4891d95812f, type: 3}
+  - {fileID: 21300000, guid: fc8521a8e8b54504b8f4fe7991193d55, type: 3}
+  - {fileID: 21300000, guid: 88b36d77a34a5204d91cf56a4745495a, type: 3}
+  - {fileID: 21300000, guid: 7f78b4448b0cdcf4a83694363340c11c, type: 3}
   - {fileID: 21300000, guid: bf60383ed17e33147b8633673c90d4b6, type: 3}
 --- !u!1 &11260114
 GameObject:

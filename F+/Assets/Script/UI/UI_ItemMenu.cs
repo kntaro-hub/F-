@@ -343,6 +343,9 @@ public class UI_ItemMenu : UI_Base
                 UI_MGR.instance.ReturnAllUI();
 
                 SequenceMGR.instance.seqType = SequenceMGR.SeqType.moveImpossible;
+
+                SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.Item);
+                StartCoroutine(this.NextActTimer());
                 break;
             }
         }
@@ -408,6 +411,20 @@ public class UI_ItemMenu : UI_Base
             case ItemType.Magic:        this.UseMagic((MagicType)DataBase.instance.GetItemTableEntity(selectedItemID).ExType); break;
             case ItemType.Book:         this.UseBook((BookType)DataBase.instance.GetItemTableEntity(selectedItemID).ExType); break;
         }
+
+        SequenceMGR.instance.CallAct( SequenceMGR.PlayerActType.Item);
+        StartCoroutine(this.NextActTimer());
+    }
+
+    private IEnumerator NextActTimer()
+    {
+        yield return new WaitForSeconds(0.3f);
+
+        SequenceMGR.instance.ActProc();
+
+        yield return new WaitForSeconds(0.3f);
+
+        SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
     }
 
     /// <summary>

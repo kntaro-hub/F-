@@ -62,10 +62,10 @@ public class UI_BasicMenu : UI_Base
     public void CreateUI()
     {
         cursor = Instantiate(cursorPrefab, this.transform);
-        TextMeshProUGUI item = Instantiate(textPrefab, this.transform); item.text = "道具";
+        TextMeshProUGUI item = Instantiate(textPrefab, this.transform); item.text = "どうぐ";
         TextMeshProUGUI map = Instantiate(textPrefab, this.transform); map.text = "マップ";
-        TextMeshProUGUI interruption = Instantiate(textPrefab, this.transform); interruption.text = "中断";
-        TextMeshProUGUI close = Instantiate(textPrefab, this.transform); close.text = "閉じる";
+        TextMeshProUGUI interruption = Instantiate(textPrefab, this.transform); interruption.text = "やめる";
+        TextMeshProUGUI close = Instantiate(textPrefab, this.transform); close.text = "とじる";
 
         ui_Map = FindObjectOfType<UI_Map>();
 

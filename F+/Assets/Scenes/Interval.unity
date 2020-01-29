@@ -696,7 +696,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -12.2, y: -4.05}
+  m_AnchoredPosition: {x: -196.7, y: -4.05}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &699388886
@@ -1127,7 +1127,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 625.3, y: -431.4}
+  m_AnchoredPosition: {x: 716.8, y: -431.4}
   m_SizeDelta: {x: 844.3, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1219864122
@@ -1162,7 +1162,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Press      Button
+  m_text: "\u3092 \u304A\u3057\u3066\u306D"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 531fb8fdff8ca254abbbb9fcec73aea6, type: 2}
   m_sharedMaterial: {fileID: -2108574210810633588, guid: 531fb8fdff8ca254abbbb9fcec73aea6,
@@ -1232,9 +1232,9 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 1219864123}
-    characterCount: 17
+    characterCount: 6
     spriteCount: 0
-    spaceCount: 6
+    spaceCount: 1
     wordCount: 2
     linkCount: 0
     lineCount: 1
@@ -1513,7 +1513,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 667.04}
+  m_AnchoredPosition: {x: 0, y: 500.75}
   m_SizeDelta: {x: 1400, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2002697707
@@ -1534,7 +1534,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u9B54    \u6CD5    \u306E    \u68EE"
+  m_text: "\u307E \u307B \u3046 \u306E \u68EE"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 531fb8fdff8ca254abbbb9fcec73aea6, type: 2}
   m_sharedMaterial: {fileID: -2108574210810633588, guid: 531fb8fdff8ca254abbbb9fcec73aea6,
@@ -1604,10 +1604,10 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 2002697707}
-    characterCount: 16
+    characterCount: 9
     spriteCount: 0
-    spaceCount: 12
-    wordCount: 4
+    spaceCount: 4
+    wordCount: 5
     linkCount: 0
     lineCount: 1
     pageCount: 1

@@ -9,10 +9,14 @@ public class UI_PlayerImage : MonoBehaviour
     public enum Face
     {
         normal = 0,
-        laugh,
+        laugh1,
+        laugh2,
+        low,
+        down,
         damage,
         max
     }
+    private Face crntFace = Face.normal;
 
     [SerializeField, Tooltip("表情画像")]
     private Sprite[] ExpressionImages = new Sprite[(int)Face.max];
@@ -48,6 +52,11 @@ public class UI_PlayerImage : MonoBehaviour
         if(!isKeep)
         {
             StartCoroutine(this.ReturnExpression());
+            
+        }
+        else
+        {
+            crntFace = face;
         }
     }
     public void ChangeExpression(Face face, bool isShake)
@@ -70,6 +79,6 @@ public class UI_PlayerImage : MonoBehaviour
     {
         yield return new WaitForSeconds(0.6f);
 
-        this.expression.sprite = this.ExpressionImages[(int)Face.normal];
+        this.expression.sprite = this.ExpressionImages[(int)crntFace];
     }
 }

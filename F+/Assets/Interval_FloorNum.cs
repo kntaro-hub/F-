@@ -41,7 +41,7 @@ public class Interval_FloorNum : MonoBehaviour
     public void ShowFloorNum()
     {
         this.floorNumText.DOColor(Color.white, fadeTime);
-        this.floorNumText.text = $"第   { FloorMGR.instance.FloorNum }   階";
+        this.floorNumText.text = $"だい   { FloorMGR.instance.FloorNum }   かい";
         StartCoroutine(this.FadeTimer());
     }
 

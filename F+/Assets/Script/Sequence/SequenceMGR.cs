@@ -308,6 +308,8 @@ public class SequenceMGR : MonoBehaviour
                 // 1ターン経過したとみなして、行動可能状態に戻す（全員をwait状態にする）
                 this.ResetAct();
 
+                IsCheckTurnEnd = false;
+
                 // ランダムで敵出現
                 if (Percent.Per(2))
                 {
@@ -376,7 +378,9 @@ public class SequenceMGR : MonoBehaviour
 
                 case ActSeqType.move_EnemyOnly:
                     seqList.RemoveAt(0);
+                    seqType = SeqType.moveImpossible;
                     this.MoveEnemy();
+                    this.ActProc();
                     break;
 
                 case ActSeqType.enemyAct:
@@ -415,6 +419,7 @@ public class SequenceMGR : MonoBehaviour
 
     private void MoveEnemy()
     {
+        player.MapDataUpdate();
         foreach(var itr in enemies)
         {
             itr.MoveProc();

@@ -28,6 +28,8 @@ public class Trap_Hunger : TrapBase
 
         actor.SubHunger(SubHungerValue);
 
+        SequenceMGR.instance.Player.ChangeExpression();
+
         StartCoroutine(this.SubHungerTimer());
 
         EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Hit_White, point);

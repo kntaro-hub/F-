@@ -93,6 +93,8 @@ public class PlayerControll : Actor
         this.Init();
 
         mainCamera = Camera.main;
+
+        this.ChangeExpression();
     }
 
     public void Init()
@@ -528,7 +530,6 @@ public override void Damage(int damage)
 
                 // hpを1ずつ減らす
                 this.SubHP(1);
-
                 // hpが0以下なら死亡
                 if (this.CheckDestroy())
                 {
@@ -537,9 +538,22 @@ public override void Damage(int damage)
             }
             else
             {
-                if ((cntSteps % 3) == 0)
+                if ((cntSteps % StemNum_SubHunger) == 0)
                 {// 3歩ごとに満腹度を1下げる
+                    int lastHunger = param.hunger;
+
                     --param.hunger;
+
+                    if(param.hunger  <= 15)
+                    {
+                        if(lastHunger > 15)
+                        {
+                            MessageWindow.instance.AddMessage("おなかがへってきた…");
+                        }
+                    }
+                    
+
+                    this.ChangeExpression();
                 }
             }
 
@@ -572,6 +586,16 @@ public override void Damage(int damage)
             return false;
         }
         return true;
+    }
+
+    private float Per_Hunger()
+    {
+        return (((float)this.param.hunger / (float)this.param.maxHunger) * 100.0f);
+    }
+
+    public void MapDataUpdate()
+    {
+        MapData.instance.SetMapObject(this.status.point, MapData.MapObjType.player, param.id);
     }
 
     struct SaveData
@@ -628,22 +652,6 @@ public override void Damage(int damage)
         #endregion
     }
 
-    private Point GetDirect()
-    {
-        switch(status.direct)
-        {
-            case Direct.right:          return new Point( 1,  0);
-            case Direct.left:           return new Point(-1,  0);
-            case Direct.forward:        return new Point( 0,  1);
-            case Direct.back:           return new Point( 0, -1);
-            case Direct.right_forward:  return new Point( 1,  1);
-            case Direct.left_forward:   return new Point(-1,  1);
-            case Direct.right_back:     return new Point( 1, -1);
-            case Direct.left_back:      return new Point(-1, -1);
-            default: return new Point(0, 0);
-        }
-    }
-
     /// <summary>
     /// 指定の時間が経ったら入力を受け付けられるようにする
     /// </summary>
@@ -694,7 +702,19 @@ public override void Damage(int damage)
         {
             if ((cntSteps % StemNum_SubHunger) == 0)
             {// StemNum_SubHunger歩ごとに満腹度を1下げる
+                int lastHunger = param.hunger;
+
                 --param.hunger;
+
+                if (param.hunger <= 15)
+                {
+                    if (lastHunger > 15)
+                    {
+                        MessageWindow.instance.AddMessage("おなかがへってきた…");
+                    }
+                }
+
+                this.ChangeExpression();
             }
         }
 
@@ -724,7 +744,7 @@ public override void Damage(int damage)
         SequenceMGR.instance.MapDataUpdate_Enemy();
 
         // 攻撃
-        MapData.ObjectOnTheMap mapObj = MapData.instance.GetMapObject(status.point + this.GetDirect());
+        MapData.ObjectOnTheMap mapObj = MapData.instance.GetMapObject(status.point + MapData.DirectPoints[(int)this.status.direct]);
         if (mapObj.objType == MapData.MapObjType.enemy)
         {// 攻撃した先が敵
             if (Percent.Per(90))
@@ -761,6 +781,36 @@ public override void Damage(int damage)
 
         // 角度も矯正
         this.ChangeRotate();
+    }
+
+    public void ChangeExpression()
+    {
+        float per = this.Per_Hunger();
+
+        if(per <= 100.0f)
+        {
+            UIPlayerFace.ChangeExpression( UI_PlayerImage.Face.laugh1, false, true);
+            if(per <= 80.0f)
+            {
+                UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.laugh2, false, true);
+                if (per <= 60.0f)
+                {
+                    UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.normal, false, true);
+                    if (per <= 40.0f)
+                    {
+                        UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.low, false, true);
+                        if (per <= 20.0f)
+                        {
+                            UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.down, false, true);
+                            if (per <= 0.0f)
+                            {
+                                UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.damage, false, true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     #region ダメージ計算
