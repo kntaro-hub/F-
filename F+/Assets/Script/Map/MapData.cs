@@ -357,16 +357,34 @@ public class MapData : MonoBehaviour
         
         if(Percent.Per(10))
         {
-            MapObject deco = Instantiate(
-                mapDecorations[Random.Range(0, 6)], 
-                new Vector3(mapValue[x, y].mapChip.transform.position.x, 
-                            mapValue[x, y].mapChip.transform.position.y + (GridSize * 0.5f), 
-                            mapValue[x, y].mapChip.transform.position.z), 
-                Quaternion.Euler(0.0f,Random.Range(0.0f,360.0f),0.0f), 
-                mapValue[x, y].mapChip.transform);
+            int decoNum = Random.Range(0, 7);
+            MapObject deco;
+            if (decoNum < 6)
+            {
+                deco = Instantiate(
+                    mapDecorations[decoNum],
+                    new Vector3(mapValue[x, y].mapChip.transform.position.x,
+                                mapValue[x, y].mapChip.transform.position.y + (GridSize * 0.5f),
+                                mapValue[x, y].mapChip.transform.position.z),
+                    Quaternion.Euler(0.0f, Random.Range(0.0f, 360.0f), 0.0f),
+                    mapValue[x, y].mapChip.transform);
 
-            float scale = Random.Range(1.0f, 5.0f);
-            deco.transform.localScale = new Vector3(scale, scale, scale);
+                float scale = Random.Range(1.0f, 5.0f);
+                deco.transform.localScale = new Vector3(scale, scale, scale);
+            }
+            else
+            {
+                deco = Instantiate(
+                    mapDecorations[decoNum],
+                    new Vector3(mapValue[x, y].mapChip.transform.position.x,
+                                mapValue[x, y].mapChip.transform.position.y + (GridSize * 0.75f),
+                                mapValue[x, y].mapChip.transform.position.z),
+                    Quaternion.identity,
+                    MapData.instance.transform);
+
+                float scale = 0.5f;
+                deco.transform.localScale = new Vector3(scale, scale, scale);
+            }
         }
     }
 

@@ -33,7 +33,9 @@ public class Interval_FloorNum : MonoBehaviour
                 PS4Input.GetButtonDown(PS4ButtonCode.TouchPad))
             {
                 isMoved = false;
-                fade.FadeOut($"Game");
+                
+                if(fade != null)
+                    fade.FadeOut_Reset($"Game");
             }
         }
     }
@@ -41,23 +43,27 @@ public class Interval_FloorNum : MonoBehaviour
     public void ShowFloorNum()
     {
         this.floorNumText.DOColor(Color.white, fadeTime);
-        this.floorNumText.text = $"だい   { FloorMGR.instance.FloorNum }   かい";
+        this.floorNumText.text = $"だい { FloorMGR.instance.FloorNum } かい";
         StartCoroutine(this.FadeTimer());
     }
 
     private IEnumerator FadeTimer()
     {
-        yield return new WaitForSeconds(fadeTime * 0.3f);
-
-        // ガイドテキストをフェード開始
-        foreach (var itr in guideText)
+        if (guideText[0] != null)
         {
-            itr.FadeStart();
+            yield return new WaitForSeconds(fadeTime * 0.3f);
+
+            // ガイドテキストをフェード開始
+            foreach (var itr in guideText)
+            {
+                itr.FadeStart();
+            }
+
+            yield return new WaitForSeconds(fadeTime * 0.7f);
+
+            // ボタン入力受付開始
+            isMoved = true;
         }
-
-        yield return new WaitForSeconds(fadeTime * 0.7f);
-
-        // ボタン入力受付開始
-        isMoved = true;
+        yield break;
     }
 }

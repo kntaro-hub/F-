@@ -9,6 +9,11 @@ public class Fade : MonoBehaviour
     public static float fadeTime = 1.0f;
     private Image fadeImage = null;
     GuassianBlurEffect guass = null;
+    private bool isTranslucent = false;
+    public bool IsTranslucent
+    {
+        get { return isTranslucent; }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -24,8 +29,24 @@ public class Fade : MonoBehaviour
     {
         if(Input.GetKeyDown( KeyCode.H))
         {
-            this.FadeOut("Interval");
+            this.FadeOut_Reset("Interval");
         }
+    }
+
+    public void Translucent()
+    {
+        fadeImage.color = Color.clear;
+        fadeImage.DOColor(new Color(0.0f, 0.0f, 0.0f, 0.5f), fadeTime);
+        guass.FadeInBlur();
+
+        StartCoroutine(this.TranslucentTimer());
+    }
+
+    private IEnumerator TranslucentTimer()
+    {
+        yield return new WaitForSeconds(fadeTime);
+
+        isTranslucent = true;
     }
 
     public void FadeIn()
@@ -35,7 +56,7 @@ public class Fade : MonoBehaviour
         guass.FadeInBlur();
     }
 
-    public void FadeOut(string sceneName)
+    public void FadeOut_Reset(string sceneName)
     {// 暗くなるほう
         fadeImage.color = Color.clear;
         fadeImage.DOColor(Color.black, fadeTime);
@@ -43,9 +64,23 @@ public class Fade : MonoBehaviour
         StartCoroutine(FadeInCoroutine(sceneName));
     }
 
-    public void FadeOut()
+    public void FadeOut_Reset()
     {// 暗くなるほう
         fadeImage.color = Color.clear;
+        fadeImage.DOColor(Color.black, fadeTime);
+        guass.FadeOutBlur();
+        StartCoroutine(FadeInCoroutine());
+    }
+
+    public void FadeOut(string sceneName)
+    {// 暗くなるほう
+        fadeImage.DOColor(Color.black, fadeTime);
+        guass.FadeOutBlur();
+        StartCoroutine(FadeInCoroutine(sceneName));
+    }
+
+    public void FadeOut()
+    {// 暗くなるほう
         fadeImage.DOColor(Color.black, fadeTime);
         guass.FadeOutBlur();
         StartCoroutine(FadeInCoroutine());

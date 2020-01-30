@@ -175,6 +175,9 @@ public override void Damage(int damage)
 
         // 時間を元に戻す
         Time.timeScale = 1.0f;
+
+        // 半透明フェード
+        Fade.instance.Translucent();
     }
 
     public override void DestroyObject()

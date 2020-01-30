@@ -122,25 +122,25 @@ public class UI_Inventory : UI_Base
                 if (PS4Input.GetCrossKeyU())
                 {// ↑キーでカーソルを上に
                     buttonNum--;
-                    this.CheckFlow();
+                    this.CheckFlow_U();
                     this.CursorSet(buttonNum);
                 }
                 if (PS4Input.GetCrossKeyD())
                 {// ↓キーでカーソルを下に
                     buttonNum++;
-                    this.CheckFlow();
+                    this.CheckFlow_D();
                     this.CursorSet(buttonNum);
                 }
                 else if (PS4Input.GetCrossKeyL())
                 {// ←キーでカーソルを左に
                     buttonNum -= (ShowItemNum / 2);
-                    this.CheckFlow_Page();
+                    this.CheckFlow_L();
                     this.CursorSet(buttonNum);
                 }
                 else if (PS4Input.GetCrossKeyR())
                 {// →キーでカーソルを右に
                     buttonNum += (ShowItemNum / 2);
-                    this.CheckFlow_Page();
+                    this.CheckFlow_R();
                     this.CursorSet(buttonNum);
                 }
 
@@ -398,17 +398,17 @@ public class UI_Inventory : UI_Base
     /// <summary>
     /// オーバーフローorアンダーフロー対策
     /// </summary>
-    private void CheckFlow()
+    private void CheckFlow_U()
     {
         if(maxPageNum == crntPageNum)
         {
             if (buttonNum < 0)
             {
                 buttonNum = ((textList.Count) % ShowItemNum) - 1;
-            }
-            else if (buttonNum > (textList.Count % ShowItemNum) - 1)
-            {
-                buttonNum = 0;
+                if(buttonNum == -1)
+                {// アイテムがShowItemNumの倍数だった場合
+                    buttonNum = ShowItemNum - 1;
+                }
             }
         }
         else
@@ -417,31 +417,145 @@ public class UI_Inventory : UI_Base
             {
                 buttonNum = ShowItemNum - 1;
             }
-            else if (buttonNum > (ShowItemNum - 1))
+        }
+    }
+
+    /// <summary>
+    /// オーバーフローorアンダーフロー対策
+    /// </summary>
+    private void CheckFlow_D()
+    {
+        if (maxPageNum == crntPageNum)
+        { 
+            if (-1 != ((textList.Count) % ShowItemNum) - 1)
+            {
+                if (buttonNum > ((textList.Count) % ShowItemNum) - 1)
+                {
+                    buttonNum = 0;
+                }
+            }
+            else
+            {
+                if (buttonNum > ShowItemNum - 1)
+                {
+                    buttonNum = 0;
+                }
+            }
+        }
+        else
+        {
+            if (buttonNum > ShowItemNum - 1)
             {
                 buttonNum = 0;
             }
         }
     }
 
-    private void CheckFlow_Page()
-    {
-        if (buttonNum < 0)
-        {
-            buttonNum += ShowItemNum;
-            this.PrevPage();
-        }
-        else if(crntPageNum != maxPageNum)
-        {
-            if (buttonNum > ShowItemNum - 1)
-            {
-                buttonNum -= ShowItemNum / 2;
-                this.NextPage();
+    private void CheckFlow_L()
+    {        
+        if(crntPageNum == maxPageNum)
+        {// 現ページが最大ページなら
+
+            if (maxPageNum > 0)
+            {// 最大ページが1以上あれば
+
+                if (buttonNum < 0)
+                {// 選択番号が範囲外になった場合
+
+                    // 前ページの右側にカーソルを移動
+                    buttonNum += ShowItemNum;
+
+                    // 前ページに移動
+                    this.PrevPage();
+                }
+            }
+            else
+            {// 最大ページが0ページだった場合
+                if (buttonNum < 0)
+                {// 選択番号が範囲外になった場合
+
+                    // カーソル位置は変わらない
+                    buttonNum += ShowItemNum / 2;
+                }
             }
         }
-        else if(buttonNum > (textList.Count % ShowItemNum) - 1)
-        {
-            buttonNum = (textList.Count % ShowItemNum) - 1;
+        else
+        {// 現ページが最大ページでない場合
+
+            if(crntPageNum > 0)
+            {// 1ページでもすすんでいたら
+
+                if(buttonNum < 0)
+                {// 選択番号が範囲外になった場合
+
+                    // 前ページの右側にカーソルを移動
+                    buttonNum += ShowItemNum;
+
+                    // 前ページに移動
+                    this.PrevPage();
+                }
+            }
+            else
+            {// 現ページが0ページ目だった場合
+
+                if (buttonNum < 0)
+                {// 選択番号が範囲外になった場合
+
+                    // カーソル位置は変わらない
+                    buttonNum += ShowItemNum / 2;
+                }
+            }
+        }
+    }
+
+    private void CheckFlow_R()
+    {
+        if (crntPageNum == maxPageNum)
+        {// 現ページが最大ページなら
+
+            if (-1 != (textList.Count % ShowItemNum) - 1)
+            {
+                if (buttonNum > (textList.Count % ShowItemNum) - 1)
+                {// 最大アイテム数を超えた場合
+
+                    // 最大アイテム数を選択番号にする
+                    buttonNum = ((textList.Count) % ShowItemNum) - 1;
+                }
+            }
+            else
+            {
+                if (buttonNum > ShowItemNum - 1)
+                {// 最大アイテム数を超えた場合
+
+                    // 最大アイテム数を選択番号にする
+                    buttonNum = ShowItemNum - 1;
+                }
+            }
+        }
+        else
+        {// 現ページが最大ページでない場合
+
+            if(buttonNum >= ShowItemNum)
+            {// 1ページ表示限界を超えた場合
+
+                // 次のページの左側にカーソルを移動
+                buttonNum -= ShowItemNum;
+
+                this.NextPage();
+                if (crntPageNum == maxPageNum)
+                {// ページ変更後が最大ページだった場合
+
+                    if (-1 != (textList.Count % ShowItemNum) - 1)
+                    {
+                        // アイテム最大数を超えていたら
+                        if (buttonNum > (textList.Count % ShowItemNum) - 1)
+                        {
+                            // 矯正
+                            buttonNum = (textList.Count % ShowItemNum) - 1;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -482,23 +596,25 @@ public class UI_Inventory : UI_Base
                 textList[i].color = Color.clear;
             }
 
-            int d = (crntPageNum * ShowItemNum + (textList.Count % ShowItemNum));
+            int d = 0;
+            if ((textList.Count % ShowItemNum) != 0)
+            {
+                d = (crntPageNum * ShowItemNum + (textList.Count % ShowItemNum));
+            }
+            else
+            {
+                d = (crntPageNum * ShowItemNum + ShowItemNum);
+            }
+            
             for (int j = crntPageNum * ShowItemNum; j < d; ++j)
             {
                 textList[j].color = Color.white;
             }
 
-            if (crntPageNum == maxPageNum)
-            {
-                if (buttonNum > (textList.Count % ShowItemNum))
-                {
-                    buttonNum = (textList.Count % ShowItemNum) - 1;
-                }
-            }
-            this.CursorSet(buttonNum);
-
             rightArrow.Light();
             pageNumText.text = $"{crntPageNum + 1} / {maxPageNum + 1}";
+
+            this.UpdateMaxPage();
 
             // ページ数が変わったかを返す
             return true;
@@ -520,12 +636,6 @@ public class UI_Inventory : UI_Base
             crntPageNum = 0;
         }
 
-        // 最大アイテム数を基に最大ページ数矯正
-        if ((textList.Count / ShowItemNum) < crntPageNum)
-        {
-            crntPageNum = (textList.Count / ShowItemNum);
-        }
-
         // ページ数が変わっていたら
         if (lastPageNum != crntPageNum)
         {
@@ -540,27 +650,16 @@ public class UI_Inventory : UI_Base
             {
                 textList[j].color = Color.white;
             }
-            this.CursorSet(buttonNum);
 
             leftArrow.Light();
             pageNumText.text = $"{crntPageNum + 1} / {maxPageNum + 1}";
+
+            this.UpdateMaxPage();
 
             // ページが変わったかを返す
             return true;
         }
 
         return false;
-    }
-
-    private void CheckFlow_ButtonNum()
-    {
-        this.UpdateMaxPage();
-        if (crntPageNum == maxPageNum)
-        {
-            if(buttonNum > (textList.Count % ShowItemNum))
-            {
-                buttonNum = (textList.Count % ShowItemNum) + 1;
-            }
-        }
     }
 }

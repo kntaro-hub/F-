@@ -115,9 +115,9 @@ public class UI_ItemMenu : UI_Base
         cursor.color = Color.clear;
 
         // テキスト設定
-        TextMeshProUGUI use = Instantiate(textPrefab, this.transform); use.text = "使う";
-        TextMeshProUGUI info = Instantiate(textPrefab, this.transform); info.text = "投げる";
-        TextMeshProUGUI put = Instantiate(textPrefab, this.transform); put.text = "置く";
+        TextMeshProUGUI use = Instantiate(textPrefab, this.transform); use.text = "つかう";
+        TextMeshProUGUI info = Instantiate(textPrefab, this.transform); info.text = "なげる";
+        TextMeshProUGUI put = Instantiate(textPrefab, this.transform); put.text = "おく";
 
         // テキストをすべて透明に
         use.color = info.color = put.color = Color.clear;
@@ -298,7 +298,7 @@ public class UI_ItemMenu : UI_Base
                 }
 
                 // メッセージ表示
-                MessageWindow.instance.AddMessage($"{DataBase.instance.GetItemTableEntity(selectedItemID).Name}を投げた！", Color.white);
+                MessageWindow.instance.AddMessage($"{DataBase.instance.GetItemTableEntity(selectedItemID).Name}をなげた！", Color.white);
 
                 // 投げる用オブジェクト
                 ThrowObject throwItem = Instantiate(throwObjPrefab, MapData.GridToWorld(playerPoint), Quaternion.identity);
@@ -454,7 +454,7 @@ public class UI_ItemMenu : UI_Base
         {// 武器を装備
 
             // 装備メッセージ
-            MessageWindow.instance.AddMessage(DataBase.instance.GetItemTableEntity(selectedItemID).Name + "を装備した。", Color.white);
+            MessageWindow.instance.AddMessage(DataBase.instance.GetItemTableEntity(selectedItemID).Name + "をそうびした。", Color.white);
 
             // インベントリの選択武器に装備アイコン(E)をつける
             UI_MGR.instance.Ui_Inventory.SetEquipIcon(inventoryID, type);
@@ -466,7 +466,7 @@ public class UI_ItemMenu : UI_Base
         {// 武器を外す
 
             // 装備解除メッセージ
-            MessageWindow.instance.AddMessage(DataBase.instance.GetItemTableEntity(selectedItemID).Name + "を外した。", Color.white);
+            MessageWindow.instance.AddMessage(DataBase.instance.GetItemTableEntity(selectedItemID).Name + "をはずした。", Color.white);
 
             // インベントリの武器装備アイコンを消す
             UI_MGR.instance.Ui_Inventory.RemoveEquipIcon(type);

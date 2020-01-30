@@ -28,6 +28,6 @@ public class MoveImage : MonoBehaviour
 
     public void MoveStart()
     {
-        this.image.rectTransform.DOMove(MovedPoint, MoveTime);
+        image.rectTransform.DOMove(MovedPoint, MoveTime);
     }
 }
