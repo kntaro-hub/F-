@@ -210,7 +210,10 @@ public class MapData : MonoBehaviour
     {
         if (mapValue[point.x, point.y].mapChip != null)
         {
-            mapValue[point.x, point.y].mapChip.ActiveMapChip(actor);
+            if (!mapValue[point.x, point.y].mapChip.gameObject.activeSelf)
+                mapValue[point.x, point.y].mapChip.gameObject.SetActive(true);
+
+           mapValue[point.x, point.y].mapChip.ActiveMapChip(actor);
         }
     }
 
@@ -351,40 +354,42 @@ public class MapData : MonoBehaviour
     public void CreateWall(int x, int y)
     {
 
-        mapValue[x, y].mapChip = Instantiate(wallPrefab[Random.Range(0, 3)], GridToWorld(new Point(x, y)), Quaternion.identity);
+        mapValue[x, y].mapChip = Instantiate(wallPrefab[Random.Range(0, wallPrefab.Length)], GridToWorld(new Point(x, y)), Quaternion.identity);
         mapValue[x, y].mapChip.transform.parent = this.transform;
         mapObjects.Add(mapValue[x, y].mapChip);
         
         if(Percent.Per(10))
         {
-            int decoNum = Random.Range(0, 7);
+            int decoNum = Random.Range(0, mapDecorations.Length);
             MapObject deco;
-            if (decoNum < 6)
+            //if (decoNum < mapDecorations.Length)
             {
-                deco = Instantiate(
-                    mapDecorations[decoNum],
-                    new Vector3(mapValue[x, y].mapChip.transform.position.x,
+                deco = Instantiate(mapDecorations[decoNum]);
+
+                deco.transform.position = new Vector3(mapValue[x, y].mapChip.transform.position.x,
                                 mapValue[x, y].mapChip.transform.position.y + (GridSize * 0.5f),
-                                mapValue[x, y].mapChip.transform.position.z),
-                    Quaternion.Euler(0.0f, Random.Range(0.0f, 360.0f), 0.0f),
-                    mapValue[x, y].mapChip.transform);
+                                mapValue[x, y].mapChip.transform.position.z);
 
-                float scale = Random.Range(1.0f, 5.0f);
+                deco.transform.parent = this.transform;
+
+                deco.transform.rotation = Quaternion.Euler(deco.transform.rotation.x, Random.Range(0.0f, 360.0f), deco.transform.rotation.z);
+
+                float scale = Random.Range(1.0f, 4.0f);
                 deco.transform.localScale = new Vector3(scale, scale, scale);
             }
-            else
-            {
-                deco = Instantiate(
-                    mapDecorations[decoNum],
-                    new Vector3(mapValue[x, y].mapChip.transform.position.x,
-                                mapValue[x, y].mapChip.transform.position.y + (GridSize * 0.75f),
-                                mapValue[x, y].mapChip.transform.position.z),
-                    Quaternion.identity,
-                    MapData.instance.transform);
+            //else
+            //{
+            //    deco = Instantiate(
+            //        mapDecorations[decoNum],
+            //        new Vector3(mapValue[x, y].mapChip.transform.position.x,
+            //                    mapValue[x, y].mapChip.transform.position.y + (GridSize * 0.75f),
+            //                    mapValue[x, y].mapChip.transform.position.z),
+            //        Quaternion.identity,
+            //        this.transform);
 
-                float scale = 0.5f;
-                deco.transform.localScale = new Vector3(scale, scale, scale);
-            }
+            //    float scale = 0.5f;
+            //    deco.transform.localScale = new Vector3(scale, scale, scale);
+            //}
         }
     }
 
@@ -397,11 +402,11 @@ public class MapData : MonoBehaviour
             {
                 if(i < (aroundSize / 2) || j < (aroundSize / 2))
                 {
-                    Instantiate(wallPrefab[Random.Range(0, 3)], GridToWorld(new Point(i - (aroundSize / 2), j - (aroundSize / 2))), Quaternion.identity);
+                    Instantiate(wallPrefab[Random.Range(0, 3)], GridToWorld(new Point(i - (aroundSize / 2), j - (aroundSize / 2))), Quaternion.identity, this.transform);
                 }
                 else if (i >= width + (aroundSize / 2) || j >= height + (aroundSize / 2))
                 {
-                    Instantiate(wallPrefab[Random.Range(0, 3)], GridToWorld(new Point(i - (aroundSize / 2), j - (aroundSize / 2))), Quaternion.identity);
+                    Instantiate(wallPrefab[Random.Range(0, 3)], GridToWorld(new Point(i - (aroundSize / 2), j - (aroundSize / 2))), Quaternion.identity, this.transform);
                 }
             }
         }
@@ -411,9 +416,7 @@ public class MapData : MonoBehaviour
     {
         Vector3 position = GridToWorld(new Point(x, y), -GridSize);
 
-        MapChip_Wall floor = Instantiate(floorPrefab[Random.Range(0, 5)], position, Quaternion.identity);
-
-        floor.transform.parent = this.transform;
+        MapChip_Wall floor = Instantiate(floorPrefab[Random.Range(0, 5)], position, Quaternion.identity, this.transform);
     }
 
     /// <summary>
@@ -423,7 +426,7 @@ public class MapData : MonoBehaviour
     /// <param name="y"></param>
     public void CreateGoal(int x, int y)
     {
-        mapValue[x, y].mapChip = Instantiate(goalPrefab);
+        mapValue[x, y].mapChip = Instantiate(goalPrefab, this.transform);
         mapValue[x, y].mapChip.transform.position = GridToWorld(new Point(x, y));
         UI_MGR.instance.Ui_Map.CreateMapGoal(new Point(x, y));
     }

@@ -24,7 +24,7 @@ public class UI_ItemInfo : MonoBehaviour
 
         text.rectTransform.sizeDelta = new Vector2(panel.rectTransform.sizeDelta.x - 10.0f, panel.rectTransform.sizeDelta.y + 4.0f);
 
-        text.rectTransform.position = panel.rectTransform.position;
+        text.rectTransform.position = panel.rectTransform.position + new Vector3(0.0f, -10.0f,0.0f);
     }
 
     // Update is called once per frame

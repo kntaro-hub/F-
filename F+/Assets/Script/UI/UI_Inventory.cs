@@ -43,6 +43,7 @@ public class UI_Inventory : UI_Base
     // =--------- 変数宣言 ---------= //
 
     private int buttonNum = 0;        // 選択しているボタン番号
+    private int lastButtonNum = 0;   // 直前に選択していたボタン番号
     private Image panel = null;     // パネル
     private Image cursor = null;     // 選択カーソル
     private Image[] equipIcon = new Image[(int)EquipType.max]; // 装備中アイコン
@@ -115,6 +116,8 @@ public class UI_Inventory : UI_Base
 
     public override void UpdateProc_UI()
     {
+        lastButtonNum = buttonNum;
+
         if (isShow)
         {// メニュー表示中のみ
             if (items.StockCount() > 0)
@@ -147,15 +150,22 @@ public class UI_Inventory : UI_Base
                 if (PS4Input.GetButtonDown(PS4ButtonCode.Circle))
                 {// 〇ボタンで決定
                     this.SwitchCommand();
+
+                    // 決定音再生
+                    SoundMGR.PlaySe("Decision");
                 }
 
                 if (PS4Input.GetButtonDown(PS4ButtonCode.R1))
                 {// R1ボタンで次ページへ
                     this.NextPage();
+                    this.CheckFlow_R();
+                    this.CursorSet(buttonNum);
                 }
                 if (PS4Input.GetButtonDown(PS4ButtonCode.L1))
                 {// L1ボタンで前ページへ
                     this.PrevPage();
+                    this.CheckFlow_L();
+                    this.CursorSet(buttonNum);
                 }
             }
         }
@@ -418,6 +428,11 @@ public class UI_Inventory : UI_Base
                 buttonNum = ShowItemNum - 1;
             }
         }
+
+        if(lastButtonNum != buttonNum)
+        {
+            SoundMGR.PlaySe("Choice", 0.2f);
+        }
     }
 
     /// <summary>
@@ -448,6 +463,11 @@ public class UI_Inventory : UI_Base
             {
                 buttonNum = 0;
             }
+        }
+
+        if (lastButtonNum != buttonNum)
+        {
+            SoundMGR.PlaySe("Choice", 0.2f);
         }
     }
 
@@ -506,6 +526,10 @@ public class UI_Inventory : UI_Base
                 }
             }
         }
+        if (lastButtonNum != buttonNum)
+        {
+            SoundMGR.PlaySe("Choice", 0.2f);
+        }
     }
 
     private void CheckFlow_R()
@@ -556,6 +580,10 @@ public class UI_Inventory : UI_Base
                     }
                 }
             }
+        }
+        if (lastButtonNum != buttonNum)
+        {
+            SoundMGR.PlaySe("Choice", 0.2f);
         }
     }
 

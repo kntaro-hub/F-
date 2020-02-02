@@ -77,14 +77,6 @@ public class UI_Goal : UI_Base
     // Update is called once per frame
     void Update()
     {
-        // 座標矯正
-        int cnt = 0;
-        foreach (var itr in textList)
-        {
-            itr.rectTransform.localPosition = new Vector3(initializePositionX, 
-                initializePositionY - itr.rectTransform.sizeDelta.y * cnt + offsetText * cnt);
-            ++cnt;
-        }
     }
 
     public override void UpdateProc_UI()
@@ -96,18 +88,30 @@ public class UI_Goal : UI_Base
                 buttonNum--;
                 this.CheckFlow();
                 this.CursorSet(buttonNum);
+                SoundMGR.PlaySe("Choice", 0.2f);
             }
             if (PS4Input.GetCrossKeyD())
             {// ↓キーでカーソルを下に
                 buttonNum++;
                 this.CheckFlow();
                 this.CursorSet(buttonNum);
+                SoundMGR.PlaySe("Choice", 0.2f);
             }
 
             if (PS4Input.GetButtonDown(PS4ButtonCode.Circle))
             {// エンターキーで決定
                 this.SwitchCommand();
+
+                // 決定音再生
+                SoundMGR.PlaySe("Decision");
             }
+        }
+        int cnt = 0;
+        foreach (var itr in textList)
+        {
+            itr.rectTransform.localPosition = new Vector3(initializePositionX,
+                initializePositionY - itr.rectTransform.sizeDelta.y * cnt);
+            ++cnt;
         }
     }
 
@@ -122,8 +126,7 @@ public class UI_Goal : UI_Base
             // 透明に
             itr.color = Color.clear;
             itr.rectTransform.localPosition = new Vector3(initializePositionX,
-                initializePositionY - itr.rectTransform.sizeDelta.y * cnt + offsetText);
-            itr.rectTransform.localScale = new Vector3(1.0f, 0.3f);
+                initializePositionY - itr.rectTransform.sizeDelta.y * cnt);
             ++cnt;
         }
         // カーソルも透明に
@@ -197,7 +200,7 @@ public class UI_Goal : UI_Base
     {
         cursor.rectTransform.localPosition =
             new Vector3(
-                textList[i].rectTransform.localPosition.x - textList[i].rectTransform.sizeDelta.x * 0.55f,
+                textList[i].rectTransform.localPosition.x - textList[i].rectTransform.sizeDelta.x * 0.5f - 20.0f,
                 textList[i].rectTransform.localPosition.y);
     }
 

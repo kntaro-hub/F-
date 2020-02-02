@@ -6,8 +6,15 @@ Shader "Custom/UnlitShadow"
 		_MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
 	}
 	
-	SubShader {
-		Tags {"Queue"="Geometry" }
+	SubShader 
+	{
+		Stencil 
+		{
+			Ref 0  // リファレンス値
+			Comp Equal // ピクセルのリファレンス値がバッファの値と等しい場合のみレンダリングします。
+		}
+
+		Tags { "RenderType" = "Opaque" "Queue" = "Geometry+1"}
 		LOD 100
 		
 		Pass {

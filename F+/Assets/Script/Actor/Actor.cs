@@ -139,6 +139,9 @@ public class Actor : MonoBehaviour
                 EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Player_EquipShield, this.status.point);
                 break;
         }
+
+        // 装備音
+        SoundMGR.PlaySe("Equip");
     }
 
     public void RemoveEquip(EquipType equipType)
@@ -204,6 +207,9 @@ public class Actor : MonoBehaviour
             {
                 EffectMGR.instance.CreateEffect(EffectMGR.EffectType.LevelUp, this.status.point);
                 MessageWindow.instance.AddMessage($"レベル{this.param.level}に上がった！", Color.white);
+
+                // レベルアップ音
+                SoundMGR.PlaySe("LevelUp");
             }
             break;
         }
@@ -251,8 +257,13 @@ public class Actor : MonoBehaviour
         this.param.hp += addHP;
         if (this.param.hp > this.param.maxHp) this.param.hp = this.param.maxHp;
 
-        if(isEffect)
+        if (isEffect)
+        {
             EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Heal, this.status.point);
+
+            // 回復音
+            SoundMGR.PlaySe("Heal", 0.4f);
+        }
     }
     public bool SubHP(int subHP)
     {
@@ -280,6 +291,9 @@ public class Actor : MonoBehaviour
         if (this.param.hunger > this.param.maxHunger) this.param.hunger = this.param.maxHunger;
 
         EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Hunger_Recovery, this.status.point);
+
+        // 満腹度回復音
+        SoundMGR.PlaySe("Hunger_Recovery");
     }
     public bool SubHunger(int subHunger)
     {

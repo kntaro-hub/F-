@@ -8,7 +8,8 @@ public class Fade : MonoBehaviour
 {
     public static float fadeTime = 1.0f;
     private Image fadeImage = null;
-    GuassianBlurEffect guass = null;
+    private GuassianBlurEffect guass = null;
+    private FadeTrans fadeTrans = null;
     private bool isTranslucent = false;
     public bool IsTranslucent
     {
@@ -20,7 +21,9 @@ public class Fade : MonoBehaviour
     {
         fadeImage = this.GetComponent<Image>();
         guass = Camera.main.transform.GetComponent<GuassianBlurEffect>();
-            
+
+        fadeTrans = FindObjectOfType<FadeTrans>();
+
         this.FadeIn();
     }
 
@@ -35,10 +38,10 @@ public class Fade : MonoBehaviour
 
     public void Translucent()
     {
-        fadeImage.color = Color.clear;
-        fadeImage.DOColor(new Color(0.0f, 0.0f, 0.0f, 0.5f), fadeTime);
-        guass.FadeInBlur();
+        if (fadeTrans != null)
+            fadeTrans.Fade(fadeTime);
 
+        guass.FadeInBlur();
         StartCoroutine(this.TranslucentTimer());
     }
 
@@ -86,9 +89,18 @@ public class Fade : MonoBehaviour
         StartCoroutine(FadeInCoroutine());
     }
 
+    public void GameEnd()
+    {
+        fadeImage.DOColor(Color.black, fadeTime);
+        guass.FadeOutBlur();
+        StartCoroutine(GameEndCoroutine());
+    }
+
     private IEnumerator FadeInCoroutine(string sceneName)
     {
         yield return new WaitForSeconds(fadeTime);
+
+        SoundMGR.StopBgm();
 
         SceneManager.LoadScene(sceneName);
     }
@@ -98,6 +110,16 @@ public class Fade : MonoBehaviour
         yield return new WaitForSeconds(fadeTime);
 
         FloorMGR.instance.NextFloor();
+    }
+    private IEnumerator GameEndCoroutine()
+    {
+        yield return new WaitForSeconds(fadeTime);
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#elif UNITY_STANDALONE
+      UnityEngine.Application.Quit();
+#endif
     }
 
     #region singleton

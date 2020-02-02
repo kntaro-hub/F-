@@ -39,13 +39,21 @@ public class LoadAssets : MonoBehaviour
     {
         // AddressableAssetSystemによるアセットのロード
         this.AssetLoad();
+
+        DontDestroyOnLoad(this.gameObject);
     }
 
+    private bool isDone = false;
     private void AssetLoad()
     {
-        StartCoroutine(this.LoadEffectAsync()); // エフェクトの読み込み
-        StartCoroutine(this.LoadEnemyAsync());  // 敵の読み込み
-        StartCoroutine(this.LoadTrapAsync());   // 罠の読み込み
+        if (!isDone)
+        {
+            StartCoroutine(this.LoadEffectAsync()); // エフェクトの読み込み
+            StartCoroutine(this.LoadEnemyAsync());  // 敵の読み込み
+            StartCoroutine(this.LoadTrapAsync());   // 罠の読み込み
+            this.LoadSound();
+            this.isDone = true;
+        }
     }
 
     // Update is called once per frame
@@ -154,6 +162,32 @@ public class LoadAssets : MonoBehaviour
         AdDebug.Log("敵のロード完了！");
 
         Progress[(int)AssetsType.enemy] = true;
+    }
+
+    private void LoadSound()
+    {
+        SoundMGR.LoadBgm("TitleBGM", "TitleBGM");
+        SoundMGR.LoadBgm("GameBGM", "GameBGM");
+        SoundMGR.LoadSe("Attack", "Attack");
+        SoundMGR.LoadSe("BookRead", "BookRead");
+        SoundMGR.LoadSe("Choice", "Choice");
+        SoundMGR.LoadSe("CollectItem", "CollectItem");
+        SoundMGR.LoadSe("Decision", "Decision");
+        SoundMGR.LoadSe("Equip", "Equip");
+        SoundMGR.LoadSe("Explosion", "Explosion");
+        SoundMGR.LoadSe("Footsteps", "Footsteps");
+        SoundMGR.LoadSe("Heal", "Heal");
+        SoundMGR.LoadSe("Hunger_Recovery", "Hunger_Recovery");
+        SoundMGR.LoadSe("LevelUp", "LevelUp");
+        SoundMGR.LoadSe("Pitfall", "Pitfall");
+        SoundMGR.LoadSe("Start", "Start");
+        SoundMGR.LoadSe("Throw", "Throw");
+        SoundMGR.LoadSe("Tornado", "Tornado");
+        SoundMGR.LoadSe("Trap_Hunger", "Trap_Hunger");
+        SoundMGR.LoadSe("Trap_Warp", "Trap_Warp");
+        SoundMGR.LoadSe("Miss", "Miss");
+        SoundMGR.LoadSe("EnemyDead", "EnemyDead");
+        SoundMGR.LoadSe("UI_Return", "UI_Return");
     }
 
     #region singleton

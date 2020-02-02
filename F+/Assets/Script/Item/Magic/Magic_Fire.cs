@@ -22,6 +22,8 @@ public class Magic_Fire : MagicBase
         // 敵にダメージを与える
         EnemyBase enemy = SequenceMGR.instance.SearchEnemyFromID(hitObjID);
 
+        SoundMGR.PlaySe("Explosion", 0.5f);
+
         enemy.Damage(item.Atk, true);
 
         StartCoroutine(DestroyTimer(0.1f));

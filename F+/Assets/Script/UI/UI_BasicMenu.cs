@@ -110,17 +110,22 @@ public class UI_BasicMenu : UI_Base
                 buttonNum--;
                 this.CheckFlow();
                 this.CursorSet(buttonNum);
+                SoundMGR.PlaySe("Choice", 0.2f);
             }
             if (PS4Input.GetCrossKeyD())
             {// ↓キーでカーソルを下に
                 buttonNum++;
                 this.CheckFlow();
                 this.CursorSet(buttonNum);
+                SoundMGR.PlaySe("Choice", 0.2f);
             }
 
             if (PS4Input.GetButtonDown(PS4ButtonCode.Circle) || PS4Input.GetButtonDown(PS4ButtonCode.Option))
             {// 〇 or Optionボタンで決定
                 this.SwitchCommand();
+
+                // 決定音再生
+                SoundMGR.PlaySe("Decision");
             }
         }
     }
@@ -147,6 +152,9 @@ public class UI_BasicMenu : UI_Base
         this.CursorSet(buttonNum);
 
         UI_MGR.instance.Ui_Infomation.ShowMenu();
+
+        // 表示音再生
+        SoundMGR.PlaySe("Choice", 0.2f);
     }
 
     /// <summary>

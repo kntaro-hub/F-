@@ -33,9 +33,12 @@ public class Interval_FloorNum : MonoBehaviour
                 PS4Input.GetButtonDown(PS4ButtonCode.TouchPad))
             {
                 isMoved = false;
-                
-                if(fade != null)
+
+                if (fade != null)
+                {
+                    SoundMGR.PlaySe("Start");
                     fade.FadeOut_Reset($"Game");
+                }
             }
         }
     }

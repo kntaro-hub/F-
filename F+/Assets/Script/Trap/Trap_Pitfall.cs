@@ -25,13 +25,15 @@ public class Trap_Pitfall : TrapBase
     {
         actor.transform.DOMoveY(-10.0f, 0.8f).SetEase(Ease.InOutBack);
 
+        // 落とし穴音
+        SoundMGR.PlaySe("Pitfall");
+
         SequenceMGR.instance.Player.IsCameraSet = false;
 
         // 時間間隔
         StartCoroutine(Timer());
 
         EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Trap_Pitfall, point).transform.rotation = Quaternion.Euler(-90.0f, 0.0f, 0.0f);
-        
     }
 
     private IEnumerator Timer()

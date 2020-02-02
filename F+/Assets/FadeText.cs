@@ -30,6 +30,18 @@ public class FadeText : MonoBehaviour
         this.FadeIn();
     }
 
+    public void FadeEnd()
+    {
+        // フェード終了
+        StopCoroutine(this.FadeInCoroutine());
+        StopCoroutine(this.FadeOutCoroutine());
+
+        // 透明にフェード
+        text.DOColor(new Color(text.color.r, text.color.g, text.color.b, 0.0f), 0.5f);
+
+        text.gameObject.SetActive(false);
+    }
+
     // Update is called once per frame
     void Update()
     {

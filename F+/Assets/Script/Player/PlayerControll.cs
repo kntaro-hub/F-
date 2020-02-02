@@ -117,6 +117,9 @@ public class PlayerControll : Actor
             UI_MGR.instance.Ui_Inventory.EquipInventoryID[0] = Actor.Parameter.notEquipValue;
             UI_MGR.instance.Ui_Inventory.EquipInventoryID[1] = Actor.Parameter.notEquipValue;
             isInitialize = true;
+
+            // 最初の一回だけBGMをかける
+            SoundMGR.PlayBgm("GameBGM", 0.3f);
         }
         else
         {// 2階層以上の場合は前階層のデータを読み込む
@@ -129,7 +132,7 @@ public class PlayerControll : Actor
         controllUpdate[(int)ControllMode.rot]               = this.Controll_Rot;
     }
 
-public override void Damage(int damage)
+    public override void Damage(int damage)
     {
         int calcDamage = this.CalcDamage(damage);
 
@@ -140,6 +143,8 @@ public override void Damage(int damage)
 
         // ダメージエフェクト
         EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Hit_White, this.transform.position);
+
+        SoundMGR.PlaySe("Attack", 0.4f);
 
         if (this.SubHP(calcDamage))
         {
@@ -518,6 +523,8 @@ public override void Damage(int damage)
 
                 // 取得したアイテムをマップから消す
                 ItemMGR.instance.DestroyItem(this.status.point);
+
+                SoundMGR.PlaySe("CollectItem", 0.5f);
             }
 
             // マップ情報上のプレイヤーを更新
@@ -679,6 +686,9 @@ public override void Damage(int damage)
 
             // 取得したアイテムをマップから消す
             ItemMGR.instance.DestroyItem(this.status.point);
+
+            // アイテム取得音
+            SoundMGR.PlaySe("CollectItem", 0.5f);
         }
 
         // マップ情報上のプレイヤーを更新
@@ -686,6 +696,9 @@ public override void Damage(int damage)
 
         // 歩数加算
         ++cntSteps;
+
+        // 歩行音
+        SoundMGR.PlaySe("Footsteps", 0.5f ,0);
 
         if (param.hunger <= 0)
         {
@@ -761,10 +774,16 @@ public override void Damage(int damage)
                 enemy.Damage(damage, true);
 
                 EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Player_Attack_Hit, enemy.status.point);
+
+                // 攻撃音
+                SoundMGR.PlaySe("Attack", 0.5f);
             }
             else
             {
                 MessageWindow.instance.AddMessage("攻撃は外れてしまった。", Color.red);
+
+                // ミス音
+                SoundMGR.PlaySe("Miss");
             }
         }
         // MoveTime秒まつ
@@ -780,7 +799,7 @@ public override void Damage(int damage)
         playerAnimator.Play("Standing@loop");
 
         // 攻撃アニメーションで座標がずれてしまうので矯正
-        this.transform.position = MapData.GridToWorld(this.status.point, -0.5f);
+        this.transform.position = MapData.GridToWorld(this.status.point, InitPosY);
 
         // 角度も矯正
         this.ChangeRotate();

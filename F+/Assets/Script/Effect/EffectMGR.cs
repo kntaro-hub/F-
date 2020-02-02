@@ -65,7 +65,7 @@ public class EffectMGR : MonoBehaviour
     {
         GameObject effect = LoadAssets.instance.GetEffectPrefab(type);
         if (effect != null)
-            return Instantiate(effect, MapData.GridToWorld(point), Quaternion.identity);
+            return Instantiate(effect, MapData.GridToWorld(point), Quaternion.identity, this.transform);
         else return null;
     }
 
@@ -73,7 +73,7 @@ public class EffectMGR : MonoBehaviour
     {
         GameObject effect = LoadAssets.instance.GetEffectPrefab(type);
         if (effect != null)
-            return Instantiate(effect, position, Quaternion.identity);
+            return Instantiate(effect, position, Quaternion.identity, this.transform);
         else return null;
     }
 
@@ -81,7 +81,7 @@ public class EffectMGR : MonoBehaviour
     {
         GameObject effect = LoadAssets.instance.GetEffectPrefab(type);
         if (effect != null)
-            return Instantiate(effect, MapData.GridToWorld(point), rot);
+            return Instantiate(effect, MapData.GridToWorld(point), rot, this.transform);
         else return null;
     }
 
@@ -89,7 +89,7 @@ public class EffectMGR : MonoBehaviour
     {
         GameObject effect = LoadAssets.instance.GetEffectPrefab(type);
         if (effect != null)
-            return Instantiate(effect, position, rot);
+            return Instantiate(effect, position, rot, this.transform);
         else return null;
     }
 

@@ -26,6 +26,9 @@ public class Trap_Spike : TrapBase
     public override void ActiveTrap(Actor actor)
     {
         MessageWindow.instance.AddMessage($"{actor.Param.Name}はトゲの罠にかかった！", Color.white);
+
+        // 罠起動音
+        SoundMGR.PlaySe("Attack", 0.5f);
         
         actor.Damage(spikeDamage);
 

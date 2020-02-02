@@ -85,17 +85,24 @@ public class UI_ItemMenu : UI_Base
                 buttonNum--;
                 this.CheckFlow();
                 this.CursorSet(buttonNum);
+
+                SoundMGR.PlaySe("Choice", 0.2f);
             }
             if (PS4Input.GetCrossKeyD())
             {// ↓キーでカーソルを下に
                 buttonNum++;
                 this.CheckFlow();
                 this.CursorSet(buttonNum);
+
+                SoundMGR.PlaySe("Choice", 0.2f);
             }
 
             if (PS4Input.GetButtonDown(PS4ButtonCode.Circle))
             {// エンターキーで決定
                 this.SwitchCommand();
+
+                // 決定音再生
+                SoundMGR.PlaySe("Decision");
             }
 
             
@@ -306,6 +313,9 @@ public class UI_ItemMenu : UI_Base
                 float throwTime = ThrowSpeed * (int)Mathf.Max(Mathf.Abs((float)(playerPoint.x - (playerPoint.x + point.x))), Mathf.Abs((float)(playerPoint.y - (playerPoint.y + point.y))));
 
                 throwItem.Move(hitedPoint, throwTime);
+
+                // 投げる音
+                SoundMGR.PlaySe("Throw");
 
                 MapData.ObjectOnTheMap mapObject = MapData.instance.GetMapObject(hitedPoint);
                 if (mapObject.objType == MapData.MapObjType.enemy)

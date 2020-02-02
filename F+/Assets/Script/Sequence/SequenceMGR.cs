@@ -175,6 +175,8 @@ public class SequenceMGR : MonoBehaviour
             player.UpdatePosition();
             EnemyMGR.instance.UpdatePosition();
 
+            // 歩行音
+            SoundMGR.PlaySe("Footsteps", 0.5f, 0);
 
             this.ResetAct();
 

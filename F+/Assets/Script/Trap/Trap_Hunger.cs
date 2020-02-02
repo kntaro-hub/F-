@@ -26,6 +26,9 @@ public class Trap_Hunger : TrapBase
     {
         MessageWindow.instance.AddMessage($"{actor.Param.Name}はハラヘリの罠にかかった！", Color.white);
 
+        // 罠起動音
+        SoundMGR.PlaySe("Attack", 0.5f);
+
         actor.SubHunger(SubHungerValue);
 
         SequenceMGR.instance.Player.ChangeExpression();

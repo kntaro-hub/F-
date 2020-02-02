@@ -120,11 +120,15 @@ public class EnemyBase : Actor
     {
         if (status.actType == ActType.Act)
         {
-            this.transform.LookAt(SequenceMGR.instance.Player.transform.position, Vector3.up);
-            this.enemyAnimator.Play("Attack01");
-            return this.Act();
+            if (SequenceMGR.instance.Player.Param.hp != 0)
+            {
+                this.transform.LookAt(SequenceMGR.instance.Player.transform.position, Vector3.up);
+                this.enemyAnimator.Play("Attack01");
+                return this.Act();
+            }
         }
-        else return 0.0f;
+
+        return 0.0f;
     }
 
     public void MapDataUpdate()
@@ -204,6 +208,9 @@ public class EnemyBase : Actor
 
         // マップ上の自分を消す
         UI_MGR.instance.Ui_Map.RemoveMapEnemy();
+
+        // 死亡時音
+        SoundMGR.PlaySe("EnemyDead");
 
         // オブジェクト削除
         Destroy(this.gameObject);

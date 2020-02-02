@@ -784,6 +784,11 @@ PrefabInstance:
       propertyPath: m_sharedMaterial
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 125386282798171882, guid: 5a7ccba35ddf7a244b45d1aecb444b66,
+        type: 3}
+      propertyPath: m_padding
+      value: 3.221
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5a7ccba35ddf7a244b45d1aecb444b66, type: 3}
 --- !u!1001 &580255312778656439
@@ -1147,6 +1152,11 @@ PrefabInstance:
       propertyPath: m_sharedMaterial
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 2920417045553611143, guid: 416ea93cffc962146971cae50a3bc3c3,
+        type: 3}
+      propertyPath: m_padding
+      value: 3.221
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 416ea93cffc962146971cae50a3bc3c3, type: 3}
 --- !u!1001 &4593253298666566711
@@ -1284,6 +1294,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_sharedMaterial
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4958782391861059901, guid: f7d56230a020b4b43a885adba005449f,
+        type: 3}
+      propertyPath: m_padding
+      value: 3.221
       objectReference: {fileID: 0}
     - target: {fileID: 4958782392699312128, guid: f7d56230a020b4b43a885adba005449f,
         type: 3}

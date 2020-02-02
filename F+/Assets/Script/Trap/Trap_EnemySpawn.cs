@@ -23,6 +23,9 @@ public class Trap_EnemySpawn : TrapBase
     {
         MessageWindow.instance.AddMessage($"{actor.Param.Name}は呼び寄せの罠にかかった！", Color.white);
 
+        // トラップ音再生
+        SoundMGR.PlaySe("Explosion", 0.6f);
+
         // 罠のまわりから最大4体分の座標を被りなしで取得
         List<Point> pointList = RandomPointList(Random.Range(2, 4), point);
 

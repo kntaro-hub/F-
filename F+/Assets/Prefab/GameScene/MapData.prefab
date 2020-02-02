@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1190635563780858160
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1190635563780858166}
+  - component: {fileID: 1190635563780858167}
+  m_Layer: 0
+  m_Name: MapData
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1190635563780858166
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190635563780858160}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1190635563780858167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190635563780858160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e89e2f5e133a32d419d5550605b4eeb3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floorPrefab:
+  - {fileID: 145359693940807355, guid: a5ffca50b1c392742bab3d0aa95e445d, type: 3}
+  - {fileID: 6074632165314318689, guid: 21ba36daf3bf4c842962fff32103f388, type: 3}
+  - {fileID: 8826489904622070274, guid: c84c6334e10112d41b7cd44b4d9c5c5a, type: 3}
+  - {fileID: 3647772783231315523, guid: 0b1dbfa8207cdfe49803fef2732b79e7, type: 3}
+  - {fileID: 1844006815330338578, guid: 55f40381abc1b014c9ff731fd222ac22, type: 3}
+  wallPrefab:
+  - {fileID: 3647772783231315523, guid: 0b1dbfa8207cdfe49803fef2732b79e7, type: 3}
+  - {fileID: 4614479513388330455, guid: b3a2c5b40edb4384680b8d6ebe7d1fe9, type: 3}
+  - {fileID: 8826489904622070274, guid: c84c6334e10112d41b7cd44b4d9c5c5a, type: 3}
+  mapDecorations:
+  - {fileID: -8463930994768835078, guid: 6b308a2cf4784674b84bff2819583aad, type: 3}
+  - {fileID: -5936896625646365169, guid: 527ddb38aa3c583479ae8906bc115e9e, type: 3}
+  - {fileID: 2363526647401124569, guid: bb1a6ef5a890dd8489e9d9bed4c86c0a, type: 3}
+  - {fileID: 5233541217741892766, guid: bcd5ab9be4816d4418a27554cbca6474, type: 3}
+  - {fileID: -4723399236741215070, guid: 82aff9a2be76668498b842e0d6abe371, type: 3}
+  - {fileID: 8787074026657664943, guid: 07af7219957029f44be2b1df06ec65fe, type: 3}
+  - {fileID: -6973660777166980098, guid: 1ca104c13ea503f41b88ee680789e560, type: 3}
+  - {fileID: 7372438212904786264, guid: f953dc0159dd64b48b04137c6f84cbd4, type: 3}
+  - {fileID: -3927575879943910078, guid: 806fe93b2782cff4f8fd6323647cc53d, type: 3}
+  - {fileID: -5291889571291755529, guid: b41baf7c5f836834ba262b24c80873b3, type: 3}
+  - {fileID: -4141618554664969822, guid: ccb88bdf5f07ccf479a69f2a3a40efbb, type: 3}
+  goalPrefab: {fileID: 449088642526868727, guid: 5eb4923c3265efa469d74f3b2a49996c,
+    type: 3}
+  enemyPrefab: {fileID: 2840031995818672948, guid: 7e7234cd05995bb41bd1d379bcaf9417,
+    type: 3}

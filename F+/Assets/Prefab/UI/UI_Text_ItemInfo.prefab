@@ -66,15 +66,15 @@ MonoBehaviour:
   m_text: sample
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 531fb8fdff8ca254abbbb9fcec73aea6, type: 2}
-  m_sharedMaterial: {fileID: 21384489288669088, guid: b927bfcf7a8c71d469c6f29fd47f0d36,
+  m_sharedMaterial: {fileID: -2108574210810633588, guid: 531fb8fdff8ca254abbbb9fcec73aea6,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -92,8 +92,8 @@ MonoBehaviour:
   m_outlineColor:
     serializedVersion: 2
     rgba: 4278190080
-  m_fontSize: 60
-  m_fontSizeBase: 60
+  m_fontSize: 74.47
+  m_fontSizeBase: 74.47
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_subTextObjects:
   - {fileID: 0}
   - {fileID: 0}

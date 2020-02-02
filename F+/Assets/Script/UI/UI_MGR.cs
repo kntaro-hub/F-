@@ -113,7 +113,8 @@ public class UI_MGR : MonoBehaviour
                 SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
             }
         }
-    }
+        SoundMGR.PlaySe("UI_Return", 0.2f);
+    }   
 
     public void ReturnAllUI()
     {
@@ -127,6 +128,7 @@ public class UI_MGR : MonoBehaviour
             }
             SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
         }
+        SoundMGR.PlaySe("UI_Return", 0.2f);
     }
 
     public void UpdatePosUI(UIType type, Vector2 pos)

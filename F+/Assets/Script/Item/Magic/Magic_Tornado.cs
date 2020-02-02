@@ -25,6 +25,8 @@ public class Magic_Tornado : MagicBase
         // 敵にダメージを与える
         EnemyBase enemy = SequenceMGR.instance.SearchEnemyFromID(hitObjID);
 
+        SoundMGR.PlaySe("Tornado", 0.7f);
+
         StartCoroutine(WarpTimer(enemy));
 
         SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;

@@ -6,6 +6,9 @@ using DG.Tweening;
 
 public class PageArrow : MonoBehaviour
 {
+    [SerializeField]
+    private bool isFlip = false;
+
     // 画像
     Image image = null;
 
@@ -35,6 +38,12 @@ public class PageArrow : MonoBehaviour
     public void Light()
     {
         image.color = Color.yellow;
+
+        if(isFlip)
+            image.transform.DOPunchScale(new Vector3(-0.4f, 0.4f), 0.07f);
+        else
+            image.transform.DOPunchScale(new Vector3(0.4f, 0.4f), 0.07f);
+
         StartCoroutine(this.LightTimer());
     }
 

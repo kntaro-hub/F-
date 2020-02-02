@@ -14,7 +14,7 @@ public class TrapBase : MapChipBase
     // Start is called before the first frame update
     void Start()
     {
-        
+       // this.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -45,8 +45,6 @@ public class TrapBase : MapChipBase
         SequenceMGR.instance.AddSeq(SequenceMGR.ActSeqType.trap);
 
         this.ActiveTrap(actor);
-
-
     }
 
     /// <summary>

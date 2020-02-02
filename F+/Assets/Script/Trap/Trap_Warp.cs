@@ -35,6 +35,9 @@ public class Trap_Warp : TrapBase
         // 乗ったキャラクターが飛び上がる
         actor.transform.DOLocalMoveY(10.0f, WarpTime * 0.5f);
 
+        // 罠起動音
+        SoundMGR.PlaySe("Trap_Warp");
+
         // キャラクターの位置のマップ情報をリセット
         MapData.instance.ResetMapObject(actor.status.movedPoint);
 

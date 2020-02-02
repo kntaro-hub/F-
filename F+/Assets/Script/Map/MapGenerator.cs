@@ -127,12 +127,12 @@ public class MapGenerator : MonoBehaviour
         }
 
 
-        // 11. 罠を配置
-        //TrapMGR.instance.CreateTrap(TrapMGR.TrapType.Warp);
-        //TrapMGR.instance.CreateTrap(TrapMGR.TrapType.Spike);
-        //TrapMGR.instance.CreateTrap(TrapMGR.TrapType.Hunger);
-        //TrapMGR.instance.CreateTrap(TrapMGR.TrapType.EnemySpawn);
-        //TrapMGR.instance.CreateTrap(TrapMGR.TrapType.Pitfall);
+        //// 11 トラップを確立で設置
+        //for(int i = 0; i < 5; ++i)
+        //{
+        //    if(Percent.Per(5))
+        //        TrapMGR.instance.CreateTrap((TrapMGR.TrapType)i);
+        //}
     }
 
     private void FillWall()
