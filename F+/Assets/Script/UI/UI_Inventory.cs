@@ -7,6 +7,7 @@ public enum EquipType
 {
     weapon = 0,
     shield,
+    arrow,
     max
 }
 
@@ -92,8 +93,10 @@ public class UI_Inventory : UI_Base
 
         equipIcon[(int)EquipType.weapon] = Instantiate(equipIconPrefab, this.transform);
         equipIcon[(int)EquipType.shield] = Instantiate(equipIconPrefab, this.transform);
+        equipIcon[(int)EquipType.arrow] = Instantiate(equipIconPrefab, this.transform);
         equipIcon[(int)EquipType.weapon].color = Color.clear;
         equipIcon[(int)EquipType.shield].color = Color.clear;
+        equipIcon[(int)EquipType.arrow].color = Color.clear;
 
         // 初期化
         this.Init();
@@ -190,6 +193,17 @@ public class UI_Inventory : UI_Base
     {
         Destroy(textList[inventoryID]);
         textList.RemoveAt(inventoryID);
+        for (int i = 0; i < (int)EquipType.max; ++i)
+        {
+            if (equipInventoryID[i] != Actor.Parameter.notEquipValue)
+            {
+                --equipInventoryID[i];
+                if (equipInventoryID[i] < 0)
+                {
+                    equipInventoryID[i] = 0;
+                }
+            }
+        }
         this.ResetCursor();
     }
 
@@ -233,6 +247,7 @@ public class UI_Inventory : UI_Base
             equipInventoryID[(int)type] = InventoryID;
         }
     }
+
     public void RemoveEquipIcon(EquipType type)
     {
         equipIcon[(int)type].color = Color.clear;
@@ -245,13 +260,11 @@ public class UI_Inventory : UI_Base
     }
     public int GetEquipInventoryID(ItemType type)
     {
-        if(type == ItemType.Weapon)
+        switch(type)
         {
-            return equipInventoryID[(int)EquipType.weapon];
-        }
-        else if (type == ItemType.Shield)
-        {
-            return equipInventoryID[(int)EquipType.shield];
+            case ItemType.Weapon: return equipInventoryID[(int)EquipType.weapon];
+            case ItemType.Shield: return equipInventoryID[(int)EquipType.shield];
+            case ItemType.Arrow: return equipInventoryID[(int)EquipType.arrow];
         }
         return 0;
         
@@ -311,9 +324,8 @@ public class UI_Inventory : UI_Base
         panel.color = new Color(0.0f, 0.0f, 0.0f, 0.3f);
         isShow = true;
 
-        UI_MGR.instance.Ui_Inventory.SetEquipIcon(equipInventoryID[(int)EquipType.weapon], EquipType.weapon);
-        UI_MGR.instance.Ui_Inventory.SetEquipIcon(equipInventoryID[(int)EquipType.shield], EquipType.shield);
-
+        // 装備アイコン更新
+        this.UpdateEquipIcon();
 
         // 矢印
         if (textList.Count > ShowItemNum)
@@ -325,6 +337,32 @@ public class UI_Inventory : UI_Base
         // ページ数表示
         pageNumText.color = Color.white;
         pageNumText.text = $"{crntPageNum + 1} / {maxPageNum + 1}";
+    }
+
+    /// <summary>
+    /// 装備アイコン更新
+    /// </summary>
+    private void UpdateEquipIcon()
+    {
+        for (int i = 0; i < (int)EquipType.max; ++i)
+        {
+            {
+                if (equipInventoryID[i] < textList.Count)
+                {
+                    if (equipInventoryID[i] != Actor.Parameter.notEquipValue)
+                    {
+                        if (textList[equipInventoryID[i]].color != Color.clear)
+                        {
+                            UI_MGR.instance.Ui_Inventory.SetEquipIcon(equipInventoryID[i], (EquipType)i);
+                        }
+                        else
+                        {
+                            equipIcon[i].color = Color.clear;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -610,9 +648,11 @@ public class UI_Inventory : UI_Base
         ++crntPageNum;
 
         // 最大アイテム数を基に最大ページ数矯正
-        if((textList.Count / ShowItemNum) < crntPageNum)
+        this.UpdateMaxPage();
+
+        if(maxPageNum < crntPageNum)
         {
-            crntPageNum = (textList.Count / ShowItemNum);
+            --crntPageNum;
         }
 
         // ページ数が変わっていたら
@@ -624,20 +664,16 @@ public class UI_Inventory : UI_Base
                 textList[i].color = Color.clear;
             }
 
-            int d = 0;
-            if ((textList.Count % ShowItemNum) != 0)
+            for (int j = crntPageNum * ShowItemNum; j < (crntPageNum + 1) * ShowItemNum; ++j)
             {
-                d = (crntPageNum * ShowItemNum + (textList.Count % ShowItemNum));
+                if (j < textList.Count)
+                {
+                    textList[j].color = Color.white;
+                }
             }
-            else
-            {
-                d = (crntPageNum * ShowItemNum + ShowItemNum);
-            }
-            
-            for (int j = crntPageNum * ShowItemNum; j < d; ++j)
-            {
-                textList[j].color = Color.white;
-            }
+
+            // 装備アイコン更新
+            this.UpdateEquipIcon();
 
             rightArrow.Light();
             pageNumText.text = $"{crntPageNum + 1} / {maxPageNum + 1}";
@@ -678,6 +714,9 @@ public class UI_Inventory : UI_Base
             {
                 textList[j].color = Color.white;
             }
+
+            // 装備アイコン更新
+            this.UpdateEquipIcon();
 
             leftArrow.Light();
             pageNumText.text = $"{crntPageNum + 1} / {maxPageNum + 1}";

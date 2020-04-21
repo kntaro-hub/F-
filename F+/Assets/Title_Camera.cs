@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using System.Diagnostics;
 
 public class Title_Camera : MonoBehaviour
 {
@@ -24,7 +25,6 @@ public class Title_Camera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
     }
 
     public void MoveStart(float moveTime)

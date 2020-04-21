@@ -11,6 +11,7 @@ public class UI_MGR : MonoBehaviour
         infomation,
         inventory,
         itemMenu,
+        Interruption,
         max
     }
 
@@ -21,6 +22,7 @@ public class UI_MGR : MonoBehaviour
     [SerializeField] private UI_Information  ui_Infomation;
     [SerializeField] private UI_Inventory    ui_Inventory;
     [SerializeField] private UI_ItemMenu     ui_ItemMenu;
+    [SerializeField] private UI_Interruption ui_Interruption;
 
     private List<UIType> uiList = new List<UIType>();
     private UI_Base[] ui_Array = new UI_Base[(int)UIType.max];
@@ -144,6 +146,7 @@ public class UI_MGR : MonoBehaviour
         ui_Array[(int)UIType.infomation]    = ui_Infomation;
         ui_Array[(int)UIType.inventory]     = ui_Inventory;
         ui_Array[(int)UIType.itemMenu]      = ui_ItemMenu;
+        ui_Array[(int)UIType.Interruption] = ui_Interruption;
     }
 
     // Update is called once per frame

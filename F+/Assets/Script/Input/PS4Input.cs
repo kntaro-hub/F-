@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// PS4のボタンコード
 public enum PS4ButtonCode
 {
     Square = 0,

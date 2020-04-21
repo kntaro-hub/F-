@@ -15,6 +15,8 @@ public class EnemyMGR : MonoBehaviour
         Around,
         Around_2X,
         Random,
+        Loitering,
+        Escape,
         max
     }
 
@@ -75,14 +77,46 @@ public class EnemyMGR : MonoBehaviour
 
     public void CreateEnemy(EnemyType enemyType)
     {
-        Point point = MapGenerator.instance.RandomPointInRoom();
-
-        StartCoroutine(this.LoadEnemy(enemyType, point));
+        Point point;
+        while (true)
+        {
+            point = MapGenerator.instance.RandomPointInRoom();
+            if(MapData.instance.GetRoom(SequenceMGR.instance.Player.status.point) !=
+                MapData.instance.GetRoom(point))
+            {
+                break;
+            }
+        }
+        this.CreateEnemy(point, enemyType);
     }
 
     public void CreateEnemy(Point point, EnemyType enemyType)
     {
-        StartCoroutine(this.LoadEnemy(enemyType, point));
+        EnemyBase enemy = null;
+
+        enemy = Instantiate(LoadAssets.instance.GetEnemyPrefab(enemyType)).GetComponent<EnemyBase>();
+
+        // ID設定
+        enemy.SetID(this.SetUniqueID());
+
+        // 敵座標設定
+        enemy.SetPoint(point);
+        enemy.transform.position = MapData.GridToWorld(point);
+
+        // 途中で出現した敵はターンエンド状態からスタート
+        enemy.status.actType = Actor.ActType.TurnEnd;
+
+        // マップUI上の敵生成
+        UI_MGR.instance.Ui_Map.CreateMapEnemy(point);
+
+        // リストに登録
+        this.AddEnemyList(enemy);
+
+        // マップ情報に登録
+        MapData.instance.SetMapObject(point, MapData.MapObjType.enemy, enemy.GetID());
+
+        // 敵出現エフェクト
+        EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Hit_White, point);
     }
 
     public void CreateEnemy_Random()
@@ -153,61 +187,6 @@ public class EnemyMGR : MonoBehaviour
         }
     }
 
-    private IEnumerator LoadEnemy(EnemyType type, Point point)
-    {
-        foreach(var itr in enemyList)
-        {
-            // すでに出現予定の場所に敵がいた場合
-            if(itr.status.point == point)
-            {
-                yield break;
-            }
-        }
-
-        //Alchemist_ManというAddressのSpriteを非同期でロードの開始
-        var handle = Addressables.InstantiateAsync($"Enemy_{type.ToString()}", MapData.GridToWorld(point, -0.5f), Quaternion.identity, this.transform);
-
-        //ロードが完了するまで待機
-        yield return new WaitUntil(() => handle.IsDone);
-
-        EnemyBase enemy = null;
-        // エラーがなければロードしたSpriteの名前表示
-        if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
-        {
-            {
-                // 生成したオブジェクトからトラップを取得
-                enemy = handle.Result.GetComponent<EnemyBase>();
-            };
-
-            // ID設定
-            enemy.SetID(this.SetUniqueID());
-
-            // 敵座標設定
-            enemy.SetPoint(point);
-
-            // 途中で出現した敵はターンエンド状態からスタート
-            enemy.status.actType = Actor.ActType.TurnEnd;
-
-            // マップUI上の敵生成
-            UI_MGR.instance.Ui_Map.CreateMapEnemy(point);
-
-            // リストに登録
-            this.AddEnemyList(enemy);
-
-            // マップ情報に登録
-            MapData.instance.SetMapObject(point, MapData.MapObjType.enemy, enemy.GetID());
-
-            // 敵出現エフェクト
-            EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Hit_White, point);
-
-        }
-        //エラー表示
-        else
-        {
-            Debug.LogError(handle.Status);
-        }
-    }
-
     private void AddEnemyList(EnemyBase enemy)
     {
         // リストに登録
@@ -273,7 +252,6 @@ public class EnemyMGR : MonoBehaviour
             {
                 enemyList[i].DestroyObject(isXp);
                 enemyList.RemoveAt(i);
-                UI_MGR.instance.Ui_Map.UpdateMap();
                 return true;
             }
         }

@@ -19,7 +19,7 @@ public class Enemy_Around_2X : EnemyBase
     void Start()
     {
         aStar = GetComponent<AStarSys>();
-        status.point = aStar.StartPoint;
+        aStar.SetStartPoint(this.status.point);
 
         base.Init();
     }

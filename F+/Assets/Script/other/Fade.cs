@@ -24,7 +24,7 @@ public class Fade : MonoBehaviour
 
         fadeTrans = FindObjectOfType<FadeTrans>();
 
-        this.FadeIn();
+        fadeImage.color = Color.black;
     }
 
     // Update is called once per frame

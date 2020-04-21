@@ -17,10 +17,10 @@ public class Title_MenuUI : UI_Base
 
     // =--------- プレハブ ---------= //
 
-    [SerializeField] private TextMeshProUGUI text_Start;   // Startテキスト
-    [SerializeField] private TextMeshProUGUI text_End;   // Endテキスト
-    [SerializeField] private Image panel;
-    [SerializeField] private Image cursorPrefab;                // カーソルプレハブ
+    [SerializeField] private Title_UI text_Start;   // Startテキスト
+    [SerializeField] private Title_UI text_End;   // Endテキスト
+    [SerializeField] private Title_UI panel;
+    [SerializeField] private Title_UI cursor;                // カーソルプレハブ
     [SerializeField] private Fade fadeImage;                      // フェード画像
             
     // =--------- パラメータ ---------= //
@@ -30,9 +30,10 @@ public class Title_MenuUI : UI_Base
     // =--------- 変数宣言 ---------= //
 
     private int buttonNum = 0;        // 選択しているボタン番号
-    private Image cursor = null;     // 選択カーソル
 
-    private List<TextMeshProUGUI> textList = new List<TextMeshProUGUI>();   // 生成したテキストリスト
+    private SpriteRenderer panelSprite;
+    private SpriteRenderer cursorSprite;                // カーソルプレハブ
+    private List<SpriteRenderer> textList = new List<SpriteRenderer>();   // 生成したテキストリスト
 
     // =--------- // =--------- ---------= // ---------= //
 
@@ -44,10 +45,8 @@ public class Title_MenuUI : UI_Base
 
     private void CreateUI()
     {
-        cursor = Instantiate(cursorPrefab, this.transform);
-
-        textList.Add(text_Start);
-        textList.Add(text_End);
+        textList.Add(text_Start.GetComponent<SpriteRenderer>());
+        textList.Add(text_End.GetComponent<SpriteRenderer>());
 
         int cnt = 0;
         foreach (var itr in textList)
@@ -57,9 +56,13 @@ public class Title_MenuUI : UI_Base
             ++cnt;
         }
 
-        cursor.color = Color.clear;
+        cursorSprite = cursor.GetComponent<SpriteRenderer>();
 
-        panel.color = Color.clear;
+        panelSprite = panel.GetComponent<SpriteRenderer>();
+
+        cursorSprite.color = Color.clear;
+
+        panelSprite.color = Color.clear;
 
         // 0番にカーソル位置合わせ
         this.CursorSet(0);
@@ -110,8 +113,8 @@ public class Title_MenuUI : UI_Base
         {
             itr.DOColor(Color.white, 0.4f);
         }
-        cursor.DOColor(Color.white, 0.4f);
-        panel.DOColor(new Color(1.0f, 1.0f, 1.0f, 0.5f), 0.4f);
+        cursorSprite.DOColor(Color.white, 0.4f);
+        panelSprite.DOColor(new Color(1.0f, 1.0f, 1.0f, 0.5f), 0.4f);
 
         // 0番にカーソル位置を合わせる
         buttonNum = 0;
@@ -156,10 +159,10 @@ public class Title_MenuUI : UI_Base
     /// <param name="i"></param>
     private void CursorSet(int i)
     {
-        cursor.rectTransform.localPosition =
+        cursor.transform.localPosition =
             new Vector3(
-                textList[i].rectTransform.localPosition.x - 400.0f,
-                textList[i].rectTransform.localPosition.y);
+                1.7f,
+                textList[i].transform.localPosition.y);
     }
 
     /// <summary>

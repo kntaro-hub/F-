@@ -154,8 +154,8 @@ public class UI_ItemMenu : UI_Base
     /// <param name="invID">インベントリID</param>
     public void SetItemID(int selectItemID, int invID)
     {
-        selectedItemID  = selectItemID;     // 選んだアイテムのIDを登録
-        inventoryID     = invID;            // インベントリIDを登録
+        selectedItemID  = selectItemID;   // 選んだアイテムのIDを登録
+        inventoryID     = invID;                // インベントリIDを登録
     }
 
     #region メニュー表示/非表示
@@ -184,9 +184,12 @@ public class UI_ItemMenu : UI_Base
         switch (type)
         {
             case ItemType.Consumables:
+            case ItemType.Magic:
+            case ItemType.Book:
                 textList[(int)TextType.use].text = "使う"; break;
             case ItemType.Weapon:
             case ItemType.Shield:
+            case ItemType.Arrow:
 
                 if(UI_MGR.instance.Ui_Inventory.GetEquipInventoryID(type) != inventoryID)
                 {
@@ -320,25 +323,10 @@ public class UI_ItemMenu : UI_Base
                 MapData.ObjectOnTheMap mapObject = MapData.instance.GetMapObject(hitedPoint);
                 if (mapObject.objType == MapData.MapObjType.enemy)
                 {// 敵に当たった場合
-                    StartCoroutine(this.ItemThrowTimer(throwTime, throwItem, selectedItemID, hitPoint, false));
-
                     // 敵にダメージを与える
                     EnemyBase enemy = SequenceMGR.instance.SearchEnemyFromID(mapObject.id);
 
-                    int damage = 0;
-                    ItemTableEntity item = DataBase.instance.GetItemTableEntity(selectedItemID);
-                    switch(item.Type)
-                    {
-                        case ItemType.Consumables:  damage = 1;
-                            break;
-
-                        case ItemType.Weapon:       damage = Mathf.Abs(item.Atk - enemy.Param.atk) * 2;
-                            break;
-
-                        case ItemType.Shield:       damage = item.Def / 3;
-                            break;
-                    }
-                    enemy.Damage(damage, true);
+                    StartCoroutine(this.ItemThrowTimer_Hit(throwTime, throwItem, selectedItemID, hitPoint, false, enemy));
                 }
                 else
                 {// 敵以外に当たった場合
@@ -420,8 +408,10 @@ public class UI_ItemMenu : UI_Base
             case ItemType.Shield:       this.UseEquip(EquipType.shield); break;
             case ItemType.Magic:        this.UseMagic((MagicType)DataBase.instance.GetItemTableEntity(selectedItemID).ExType); break;
             case ItemType.Book:         this.UseBook((BookType)DataBase.instance.GetItemTableEntity(selectedItemID).ExType); break;
+            case ItemType.Arrow:        this.UseEquip(EquipType.arrow); break;
         }
 
+        SequenceMGR.instance.Player.ChangeExpression();
         SequenceMGR.instance.CallAct( SequenceMGR.PlayerActType.Item);
         StartCoroutine(this.NextActTimer());
     }
@@ -503,8 +493,16 @@ public class UI_ItemMenu : UI_Base
         items.Erase(items.GetStockID(inventoryID));
         UI_MGR.instance.Ui_Inventory.EraseText(inventoryID);
     }
+    private void UseArrow(ArrowType arrowType)
+    {
+        ArrowMGR.instance.ActivateArrow(arrowType, selectedItemID);
+
+        //// インベントリから使ったアイテムを削除
+        //items.Erase(items.GetStockID(inventoryID));
+        //UI_MGR.instance.Ui_Inventory.EraseText(inventoryID);
+    }
     #endregion
-    
+
 
     #endregion
     // =--------- // =--------------------= // ---------= //
@@ -576,6 +574,41 @@ public class UI_ItemMenu : UI_Base
             ItemMGR.instance.CreateItem(point, ID);
 
         SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
+    }
+    private IEnumerator ItemThrowTimer_Hit(
+        float time,
+        ThrowObject throwObject,
+        int ID,
+        Point point,
+        bool isCreateItem,
+        Actor actor)
+    {
+        yield return new WaitForSeconds(time);
+
+        Destroy(throwObject.gameObject);
+
+        if (isCreateItem)
+            ItemMGR.instance.CreateItem(point, ID);
+
+        SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
+
+        int damage = 0;
+        ItemTableEntity item = DataBase.instance.GetItemTableEntity(selectedItemID);
+        switch (item.Type)
+        {
+            case ItemType.Consumables:
+                damage = 1;
+                break;
+
+            case ItemType.Weapon:
+                damage = Mathf.Abs(item.Atk - actor.Param.atk) * 2;
+                break;
+
+            case ItemType.Shield:
+                damage = item.Def / 3;
+                break;
+        }
+        actor.Damage(damage, true);
     }
     #endregion
     // =--------- // =--------------------= // ---------= //

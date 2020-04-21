@@ -50,7 +50,7 @@ public class MapGenerator : MonoBehaviour
 
     void Start()
     {
-        this.GenerateMap();
+
     }    
     
     // マップ生成
@@ -126,13 +126,8 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-
-        //// 11 トラップを確立で設置
-        //for(int i = 0; i < 5; ++i)
-        //{
-        //    if(Percent.Per(5))
-        //        TrapMGR.instance.CreateTrap((TrapMGR.TrapType)i);
-        //}
+        // 12.トラップ配置
+        TrapMGR.instance.CreateTrap();
     }
 
     private void FillWall()
@@ -150,10 +145,7 @@ public class MapGenerator : MonoBehaviour
 
                     mapData.CreateWall(i, j);
                 }
-                else
-                {
-                    mapData.CreateFloor(i, j);
-                }
+                mapData.CreateFloor(i, j);
             }
         }
 

@@ -14,42 +14,62 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Table:
   - TypeID: 0
-    Name: "\u4EEE\u65751"
+    Name: "\u30B9\u30E9\u30E4\u30DE"
     MaxHP: 5
     Atk: 2
     Def: 1
-    Xp: 1
-    DropPer: 100
+    Xp: 2
+    DropPer: 20
     MinFloor: 1
-    MaxFloor: 2
+    MaxFloor: 5
     Appearance: 100
   - TypeID: 1
-    Name: "\u4EEE\u65752"
+    Name: "\u30B9\u30E9\u30DE\u30EB"
     MaxHP: 10
     Atk: 2
     Def: 2
-    Xp: 1
-    DropPer: 10
+    Xp: 3
+    DropPer: 30
     MinFloor: 2
-    MaxFloor: 3
+    MaxFloor: 7
     Appearance: 50
   - TypeID: 2
-    Name: "\u4EEE\u65753"
-    MaxHP: 20
+    Name: "\u30B9\u30E9\u30BF\u30ED\u30A6"
+    MaxHP: 15
     Atk: 4
     Def: 3
-    Xp: 3
+    Xp: 4
     DropPer: 50
-    MinFloor: 3
-    MaxFloor: 4
+    MinFloor: 4
+    MaxFloor: 10
     Appearance: 100
   - TypeID: 3
-    Name: "\u4EEE\u65754"
+    Name: "\u30B9\u30E9\u30A8\u30E2\u30F3"
     MaxHP: 50
     Atk: 6
     Def: 4
     Xp: 6
     DropPer: 30
-    MinFloor: 4
-    MaxFloor: 5
-    Appearance: 30
+    MinFloor: 5
+    MaxFloor: 10
+    Appearance: 40
+  - TypeID: 4
+    Name: "\u30C8\u30B2\u30DE\u30EB"
+    MaxHP: 6
+    Atk: 3
+    Def: 1
+    Xp: 3
+    DropPer: 20
+    MinFloor: 1
+    MaxFloor: 10
+    Appearance: 50
+  - TypeID: 5
+    Name: "\u30BF\u30C3\u30AD\u30FC"
+    MaxHP: 5
+    Atk: 0
+    Def: 1
+    Xp: 50
+    DropPer: 0
+    MinFloor: 1
+    MaxFloor: 10
+    Appearance: 10

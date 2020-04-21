@@ -81,10 +81,6 @@ public class Magic_Tornado : MagicBase
 
         // ワープ後座標にキャラクターを登録
         MapData.instance.SetMapObject(actor.status.point, MapData.MapObjType.enemy, actor.Param.id);
-
-        // マップを更新
-        UI_MGR.instance.Ui_Map.UpdateMap();
-
         this.Destroy();
     }
 }

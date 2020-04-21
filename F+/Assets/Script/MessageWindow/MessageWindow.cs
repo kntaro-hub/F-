@@ -20,6 +20,7 @@ public class MessageWindow : MonoBehaviour
     [SerializeField] private float   TextSpace = 60.0f;     // テキスト同士の間隔
     [SerializeField] private int     MaxText = 4;           // 一度に表示されるテキストの最大数
     [SerializeField] private float fadeTime = 1.0f;
+    [SerializeField] private float offsetY = 30.0f;         // テキストのY座標ずれ
     [SerializeField] private Image panel;
 
     // =--------- 変数宣言 ---------= //
@@ -82,11 +83,11 @@ public class MessageWindow : MonoBehaviour
                 }
 
                 // 生成したテキストを初期位置の一行分下へ
-                textMesh.transform.localPosition = new Vector2(InitPos.x, InitPos.y - TextSpace);
+                textMesh.transform.localPosition = new Vector2(InitPos.x, InitPos.y - TextSpace - offsetY);
                 textMesh.mesh.color = Color.clear;
 
                 // 初期位置へ動かす&色を変化
-                textMesh.transform.DOLocalMoveY(InitPos.y, FallSpeed);
+                textMesh.transform.DOLocalMoveY(InitPos.y - offsetY, FallSpeed);
                 textMesh.mesh.DOColor(setColor, FallSpeed);
 
                 // 生成したテキストをリストへ追加

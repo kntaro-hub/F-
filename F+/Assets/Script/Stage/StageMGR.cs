@@ -22,7 +22,7 @@ public class FloorMGR : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        this.ChangeFloor();
     }
 
     public void AddFloorNum(int num)
@@ -34,6 +34,20 @@ public class FloorMGR : MonoBehaviour
         floorNum++;
         SequenceMGR.instance.Player.SaveStatus();
         SceneManager.LoadScene("Interval");
+    }
+
+    private void ChangeFloor()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            --this.FloorNum;
+            Fade.instance.FadeOut("Interval");
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            ++this.FloorNum;
+            Fade.instance.FadeOut("Interval");
+        }
     }
 
     #region singleton

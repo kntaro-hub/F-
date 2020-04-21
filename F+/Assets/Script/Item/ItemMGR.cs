@@ -4,8 +4,12 @@ using UnityEngine;
 
 public class ItemMGR : MonoBehaviour
 {
-    [SerializeField]
-    private ItemObject itemPrefab;
+    [SerializeField] private ItemObject consumablesItemPrefab;
+    [SerializeField] private ItemObject weaponItemPrefab;
+    [SerializeField] private ItemObject shieldItemPrefab;
+    [SerializeField] private ItemObject bookItemPrefab;
+    [SerializeField] private ItemObject magicItemPrefab;
+    [SerializeField] private ItemObject arrowItemPrefab;
 
     private List<ItemObject> items = new List<ItemObject>();
     public List<ItemObject> Items
@@ -16,7 +20,7 @@ public class ItemMGR : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        this.CreateItems();
+        
     }
 
     // Update is called once per frame
@@ -26,25 +30,45 @@ public class ItemMGR : MonoBehaviour
     }
 
     /// <summary>
-    /// マップの部屋のどこかにランダムで4～7個のアイテムを配置する
+    /// マップの部屋のどこかにランダムで1~3個のアイテムを配置する
     /// </summary>
-    private void CreateItems()
+    public void CreateItems()
     {
-        int cnt = Random.Range(4, 7);
+        int cnt = Random.Range(1, 3);
         for (int i = 0; i < cnt; ++i)
         {
-            ItemObject item = Instantiate(itemPrefab);
-            item.Point = MapGenerator.instance.RandomPointInRoom();
-            item.transform.position = MapData.GridToWorld(item.Point);
+            int itemID = Random.Range(0, DataBase.instance.GetItemTableCount() - 1);
+            ItemObject item = null;
+            switch (DataBase.instance.GetItemTableEntity(itemID).Type)
+            {
+                case ItemType.Consumables: 
+                    item = Instantiate(consumablesItemPrefab); break;
+                case ItemType.Weapon:
+                    item = Instantiate(weaponItemPrefab); break;
+                case ItemType.Shield:
+                    item = Instantiate(shieldItemPrefab); break;
+                case ItemType.Book:
+                    item = Instantiate(bookItemPrefab); break;
+                case ItemType.Magic:
+                    item = Instantiate(magicItemPrefab); break;
+                case ItemType.Arrow:
+                    item = Instantiate(arrowItemPrefab); break;
+            }
 
-            // ここでアイテムIDを設定する
-            item.ItemID = Random.Range(0, DataBase.instance.GetItemTableCount()- 1);
+            if (item != null)
+            {// 正常にアイテムが生成されていた場合
+                item.Point = MapGenerator.instance.RandomPointInRoom();
+                item.transform.position = MapData.GridToWorld(item.Point, -(MapData.GridSize * 0.35f));
 
-            UI_MGR.instance.Ui_Map.CreateMapItem(item.Point);
+                // ここでアイテムIDを設定する
+                item.ItemID = itemID;
 
-            items.Add(item);
-            item.transform.parent = this.transform;
-            MapData.instance.SetMapObject(item.Point, MapData.MapObjType.item, item.ItemID);
+                UI_MGR.instance.Ui_Map.CreateMapItem(item.Point);
+
+                items.Add(item);
+                item.transform.parent = this.transform;
+                MapData.instance.SetMapObject(item.Point, MapData.MapObjType.item, item.ItemID);
+            }
         }
     }
 
@@ -53,16 +77,34 @@ public class ItemMGR : MonoBehaviour
     /// </summary>
     public ItemObject CreateItem(Point point, int itemID)
     {
-        ItemObject item = Instantiate(itemPrefab);
-        item.Point = point;
-        item.transform.position = MapData.GridToWorld(item.Point);
-        item.ItemID = itemID;
+        ItemObject item = null;
+        switch (DataBase.instance.GetItemTableEntity(itemID).Type)
+        {
+            case ItemType.Consumables:
+                item = Instantiate(consumablesItemPrefab); break;
+            case ItemType.Weapon:
+                item = Instantiate(weaponItemPrefab); break;
+            case ItemType.Shield:
+                item = Instantiate(shieldItemPrefab); break;
+            case ItemType.Book:
+                item = Instantiate(bookItemPrefab); break;
+            case ItemType.Magic:
+                item = Instantiate(magicItemPrefab); break;
+            case ItemType.Arrow:
+                item = Instantiate(arrowItemPrefab); break;
+        }
+        if (item != null)
+        {
+            item.Point = point;
+            item.transform.position = MapData.GridToWorld(item.Point, -(MapData.GridSize * 0.35f));
+            item.ItemID = itemID;
 
-        MapData.instance.SetMapObject(point, MapData.MapObjType.item, itemID);
+            MapData.instance.SetMapObject(point, MapData.MapObjType.item, itemID);
 
-        UI_MGR.instance.Ui_Map.CreateMapItem(item.Point);
+            UI_MGR.instance.Ui_Map.CreateMapItem(item.Point);
 
-        items.Add(item);
+            items.Add(item);
+        }
         return item;
     }
 

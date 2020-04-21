@@ -82,8 +82,6 @@ public class Trap_Warp : TrapBase
                 break;
         }
 
-        UI_MGR.instance.Ui_Map.UpdateMap();
-
         SequenceMGR.instance.ActProc();
     }
 }

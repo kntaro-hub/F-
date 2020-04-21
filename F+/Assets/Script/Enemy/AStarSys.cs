@@ -74,7 +74,11 @@ public struct Point
     public static Point operator -(Point point, Point point2)
     {
         return new Point(point.x - point2.x, point.y - point2.y);
-    } 
+    }
+    public static Point operator *(Point point, int num)
+    {
+        return new Point(point.x * num, point.y * num);
+    }
 }
 
 public class AStarSys : MonoBehaviour
@@ -430,8 +434,6 @@ public class AStarSys : MonoBehaviour
                         node.GetPath(pointList);
                         // 反転する
                         pointList.Reverse();
-
-                        //AdDebug.Log("経路探索終了", Color.cyan, 20, true);
 
                         nodeMGR.Reset();
 

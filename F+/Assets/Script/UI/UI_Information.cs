@@ -76,11 +76,19 @@ public class UI_Information : UI_Base
         textList[(int)TextType.hunger].text       = $"おなか　  　    : {player.Param.hunger.ToString()}";
         textList[(int)TextType.xp].text              = $"けいけん　 　 : {player.Param.exp.ToString()}";
         textList[(int)TextType.atk].text             = $"こうげき         : {player.Param.basicAtk.ToString()}";
+
+        this.UpdateProc_UI();
     }
 
     public override void UpdateProc_UI()
     {
-        
+        int cnt = 0;
+        foreach (var itr in textList)
+        {
+            itr.rectTransform.localPosition = new Vector3(TextInitPosX, TextInitPosY + cnt * offsetY);
+            itr.rectTransform.localScale = new Vector3(0.3f, 0.3f);
+            ++cnt;
+        }
     }
 
     /// <summary>

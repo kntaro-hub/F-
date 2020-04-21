@@ -35,8 +35,7 @@ public class Player_Items : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Alpha1)) stocks.Add(new StockItem(12, this.GetID()));
-        if (Input.GetKeyDown(KeyCode.Alpha1)) stocks.Add(new StockItem(13, this.GetID()));
+
     }
 
     public int StockCount()

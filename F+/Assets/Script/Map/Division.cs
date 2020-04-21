@@ -88,6 +88,11 @@ public class Division
             Right  = rect.Right;
             Bottom = rect.Bottom;
         }
+
+        public Point Center()
+        {
+            return new Point(Left + ((Right - Left) / 2), Top + ((Bottom - Top) / 2));
+        }
     }
 
     /// <summary>

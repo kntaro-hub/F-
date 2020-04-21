@@ -122,7 +122,7 @@ public class EnemyBase : Actor
         {
             if (SequenceMGR.instance.Player.Param.hp != 0)
             {
-                this.transform.LookAt(SequenceMGR.instance.Player.transform.position, Vector3.up);
+                this.transform.LookAt(SequenceMGR.instance.Player.transform.position, transform.up);
                 this.enemyAnimator.Play("Attack01");
                 return this.Act();
             }

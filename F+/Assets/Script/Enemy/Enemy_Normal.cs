@@ -19,9 +19,8 @@ public class Enemy_Normal : EnemyBase
     void Start()
     {
         aStar = GetComponent<AStarSys>();
-        status.point = aStar.StartPoint;
 
-        enemyType = EnemyMGR.EnemyType.Normal;
+        aStar.SetStartPoint(this.status.point);
 
         base.Init();
     }

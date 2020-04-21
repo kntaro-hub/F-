@@ -40,9 +40,9 @@ public class MapData : MonoBehaviour
 
     public static readonly Point[] DirectPoints =
                             new Point[(int)(Actor.Direct.max + 1)] {
-                           new Point(-1, -1) , new Point(0, -1), new Point(1, -1),
-                           new Point(-1, 0) , new Point(0, 0), new Point(1, 0),
-                           new Point(-1, 1) , new Point(0, 1), new Point(1, 1)};
+                           new Point(1, 0) , new Point(-1, 0), new Point(0, 1),
+                           new Point(0, -1) , new Point(1, 1), new Point(-1, 1),
+                           new Point(1, -1) , new Point(-1, -1), new Point(0,0)};
 
     // =--------- 変数宣言 ---------= //
     // グリッド座標→ワールド座標変換時のズレ
@@ -64,17 +64,12 @@ public class MapData : MonoBehaviour
     }
     MapValue[,] mapValue = null; // マップデータ
 
-    private List<EnemyBase> enemies = new List<EnemyBase>();
-
     // =--------- プレハブ ---------= //
     // 壁
     [SerializeField] private MapChip_Wall[] floorPrefab = new MapChip_Wall[5];
     [SerializeField] private MapChip_Wall[] wallPrefab = new MapChip_Wall[3];
     [SerializeField] private MapObject[] mapDecorations = new MapObject[6];
     [SerializeField] private MapChip_Goal goalPrefab;
-
-    // 敵（本来は敵テーブルから）
-    [SerializeField] private EnemyBase enemyPrefab;
 
     private void Awake()
     {
@@ -317,6 +312,20 @@ public class MapData : MonoBehaviour
         }
     }
 
+    public static Actor.Direct PointToDirect(Point directPoint)
+    {
+        if (directPoint == DirectPoints[(int)Actor.Direct.right]) return Actor.Direct.right;
+        if (directPoint == DirectPoints[(int)Actor.Direct.left]) return Actor.Direct.left;
+        if (directPoint == DirectPoints[(int)Actor.Direct.forward]) return Actor.Direct.forward;
+        if (directPoint == DirectPoints[(int)Actor.Direct.back]) return Actor.Direct.back;
+        if (directPoint == DirectPoints[(int)Actor.Direct.right_forward]) return Actor.Direct.right_forward;
+        if (directPoint == DirectPoints[(int)Actor.Direct.left_forward]) return Actor.Direct.left_forward;
+        if (directPoint == DirectPoints[(int)Actor.Direct.right_back]) return Actor.Direct.right_back;
+        if (directPoint == DirectPoints[(int)Actor.Direct.left_back]) return Actor.Direct.left_back;
+        return Actor.Direct.max;
+    }
+
+
     /// <summary>
     /// 矩形領域を指定の値で埋める
     /// </summary>
@@ -377,19 +386,6 @@ public class MapData : MonoBehaviour
                 float scale = Random.Range(1.0f, 4.0f);
                 deco.transform.localScale = new Vector3(scale, scale, scale);
             }
-            //else
-            //{
-            //    deco = Instantiate(
-            //        mapDecorations[decoNum],
-            //        new Vector3(mapValue[x, y].mapChip.transform.position.x,
-            //                    mapValue[x, y].mapChip.transform.position.y + (GridSize * 0.75f),
-            //                    mapValue[x, y].mapChip.transform.position.z),
-            //        Quaternion.identity,
-            //        this.transform);
-
-            //    float scale = 0.5f;
-            //    deco.transform.localScale = new Vector3(scale, scale, scale);
-            //}
         }
     }
 

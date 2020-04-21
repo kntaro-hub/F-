@@ -56,7 +56,7 @@ public class UI_BasicMenu : UI_Base
     // Start is called before the first frame update
     void Start()
     {
-        this.CreateUI();
+        
     }
 
     public void CreateUI()
@@ -183,21 +183,14 @@ public class UI_BasicMenu : UI_Base
     /// </summary>
     private void Com_Map()
     {// 2Dマップを表示する
-        UI_MGR.instance.Ui_Map.ShowMapUI();
-    }
-    /// <summary>
-    /// [調べる]コマンド
-    /// </summary>
-    private void Com_Inspect()
-    {
-
+        UI_MGR.instance.Ui_Map.ShowMap(true);
     }
     /// <summary>
     /// [中断]コマンド
     /// </summary>
     private void Com_Interruption()
     {
-
+        UI_MGR.instance.ShowUI( UI_MGR.UIType.Interruption);
     }
     /// <summary>
     /// [閉じる]コマンド

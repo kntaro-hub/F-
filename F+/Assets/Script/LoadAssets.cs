@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.SceneManagement;
 
 public class LoadAssets : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class LoadAssets : MonoBehaviour
     }
 
     private bool[] Progress = new bool[(int)AssetsType.max];
+    private bool isGameStart = false;
 
     private GameObject[] TrapPrefabs = new GameObject[(int)TrapMGR.TrapType.max];
     private GameObject[] EnemyPrefabs = new GameObject[(int)EnemyMGR.EnemyType.max];
@@ -37,21 +39,21 @@ public class LoadAssets : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // AddressableAssetSystemによるアセットのロード
-        this.AssetLoad();
+        this.LoadSound();
 
         DontDestroyOnLoad(this.gameObject);
     }
 
     private bool isDone = false;
-    private void AssetLoad()
+    // AddressableAssetSystemによるアセットのロード
+    public void AssetLoad()
     {
+        isGameStart = false;
         if (!isDone)
         {
             StartCoroutine(this.LoadEffectAsync()); // エフェクトの読み込み
             StartCoroutine(this.LoadEnemyAsync());  // 敵の読み込み
             StartCoroutine(this.LoadTrapAsync());   // 罠の読み込み
-            this.LoadSound();
             this.isDone = true;
         }
     }
@@ -59,9 +61,23 @@ public class LoadAssets : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (this.IsDone())
+        this.GameStart();
+    }
+
+    public void GameStart()
+    {
+        if (!isGameStart)
         {
-            // すべてロードしたらゲーム開始
+            if (this.IsDone())
+            {
+                MapGenerator.instance.GenerateMap();
+                UI_MGR.instance.Ui_BasicMenu.CreateUI();
+                ItemMGR.instance.CreateItems();
+                // すべてロードしたらゲーム開始
+                Fade.instance.FadeIn();
+                SequenceMGR.instance.seqType = SequenceMGR.SeqType.keyInput;
+                isGameStart = true;
+            }
         }
     }
 

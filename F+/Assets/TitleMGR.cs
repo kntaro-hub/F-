@@ -46,6 +46,8 @@ public class TitleMGR : MonoBehaviour
 
         // BGMを流す
         SoundMGR.PlayBgm("TitleBGM", 0.2f);
+
+        Fade.instance.FadeIn();
     }
 
     // Update is called once per frame
@@ -59,8 +61,7 @@ public class TitleMGR : MonoBehaviour
         if(PS4Input.GetButtonDown( PS4ButtonCode.Circle) ||
             PS4Input.GetButtonDown(PS4ButtonCode.Option) ||
             PS4Input.GetButtonDown(PS4ButtonCode.Cross) ||
-            PS4Input.GetButtonDown(PS4ButtonCode.TouchPad) ||
-            PS4Input.GetButtonDown(PS4ButtonCode.PS))
+            PS4Input.GetButtonDown(PS4ButtonCode.TouchPad))
         {
             SoundMGR.PlaySe("Decision");
 

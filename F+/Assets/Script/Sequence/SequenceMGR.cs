@@ -52,10 +52,11 @@ public class SequenceMGR : MonoBehaviour
 
     public enum PlayerActType
     {
-        move = 0,   // 移動
-        act,        // 行動
-        skip,       // 高速移動
-        Item,     // アイテム使用時
+        move = 0,  // 移動
+        act,           // 行動
+        skip,         // 高速移動
+        step,        // 足踏み
+        Item,       // アイテム使用時
         max
     }
 
@@ -64,12 +65,6 @@ public class SequenceMGR : MonoBehaviour
 
     // これがtrueの時、全員がターンエンド状態かを調べる
     private bool IsCheckTurnEnd = false;
-
-    // 自然回復
-    const int HealBorder = 150;
-
-    // 回復値
-    int cntHeal = 0;
 
     // デリゲート型宣言
     delegate void UpdateMode();
@@ -227,8 +222,6 @@ public class SequenceMGR : MonoBehaviour
                 EnemyMGR.instance.CreateEnemy_Random();
             }
         }
-
-        UI_MGR.instance.Ui_Map.UpdateMap();
     }
 
     /// <summary>
@@ -260,6 +253,14 @@ public class SequenceMGR : MonoBehaviour
                 seqList.Add(ActSeqType.turnEnd);
                 break;
 
+            case PlayerActType.step:
+                seqList.Add(ActSeqType.requestEnemy);
+                seqList.Add(ActSeqType.move_EnemyOnly);
+                seqList.Add(ActSeqType.requestEnemy2);
+                seqList.Add(ActSeqType.enemyAct);
+                seqList.Add(ActSeqType.turnEnd);
+                break;
+
             case PlayerActType.Item:
                 seqList.Add(ActSeqType.requestEnemy);
                 seqList.Add(ActSeqType.move_EnemyOnly);
@@ -285,7 +286,6 @@ public class SequenceMGR : MonoBehaviour
         {
             player = FindObjectOfType<PlayerControll>();
         }
-        cntHeal = 0;
 
         // 
         UpdateModes[(int)ActSeqType.enemyAct]       = EnemyActUpdate;
@@ -297,6 +297,11 @@ public class SequenceMGR : MonoBehaviour
         UpdateModes[(int)ActSeqType.skip]           = SkipUpdate;
         UpdateModes[(int)ActSeqType.move_EnemyOnly] = NotActUpdate;
         UpdateModes[(int)ActSeqType.turnEnd]        = TurnEndUpdate;
+
+        // 最初の一回だけBGMをかける
+        SoundMGR.PlayBgm("GameBGM", 0.3f);
+
+        LoadAssets.instance.AssetLoad();
     }
 
     // Update is called once per frame
@@ -392,14 +397,8 @@ public class SequenceMGR : MonoBehaviour
                 case ActSeqType.turnEnd:
                     // ターンエンド処理
                     seqList.RemoveAt(0);
-                    cntHeal += player.Param.maxHp;
-                    if (HealBorder < cntHeal)
-                    {
-                        cntHeal -= HealBorder;
-                        player.AddHP(1, false);
-                    }
+                    player.Heal_Step();
                     IsCheckTurnEnd = true;
-                    UI_MGR.instance.Ui_Map.UpdateMap();
                     break;
 
                 case ActSeqType.trap:

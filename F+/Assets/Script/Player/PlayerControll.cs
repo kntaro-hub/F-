@@ -55,6 +55,9 @@ public class PlayerControll : Actor
     // UIのプレイヤー体力ゲージ
     [SerializeField] private Slider HpGauge;
 
+    // ユニティちゃん背景
+    [SerializeField] private UI_Frame_Back frameBack;
+
     // =----------------------------= //
 
     /// <summary>
@@ -76,6 +79,12 @@ public class PlayerControll : Actor
     // 操作タイプ数分生成
     private ControllUpdate[] controllUpdate = new ControllUpdate[(int)ControllMode.max];
 
+    // 自然回復
+    const int HealBorder = 150;
+
+    // 回復値
+    int cntHeal = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -95,6 +104,9 @@ public class PlayerControll : Actor
         mainCamera = Camera.main;
 
         this.ChangeExpression();
+
+        // 操作不能に
+        SequenceMGR.instance.seqType = SequenceMGR.SeqType.moveImpossible;
     }
 
     public void Init()
@@ -112,14 +124,16 @@ public class PlayerControll : Actor
             this.param.exp           = 0;    // 今まで取得した経験値
             this.param.id            = 0;    // キャラクターID
             // 非装備にする
-            this.param.weaponId = DataBase.instance.GetItemTableCount() - 1;
-            this.param.shieldId = DataBase.instance.GetItemTableCount() - 1;
+            this.param.weaponId = Parameter.notEquipValue;
+            this.param.shieldId = Parameter.notEquipValue;
+            this.param.arrowId = Parameter.notEquipValue;
             UI_MGR.instance.Ui_Inventory.EquipInventoryID[0] = Actor.Parameter.notEquipValue;
             UI_MGR.instance.Ui_Inventory.EquipInventoryID[1] = Actor.Parameter.notEquipValue;
-            isInitialize = true;
+            UI_MGR.instance.Ui_Inventory.EquipInventoryID[2] = Actor.Parameter.notEquipValue;
 
-            // 最初の一回だけBGMをかける
-            SoundMGR.PlayBgm("GameBGM", 0.3f);
+            // 階層リセット
+            FloorMGR.instance.FloorNum = 1;
+            isInitialize = true;
         }
         else
         {// 2階層以上の場合は前階層のデータを読み込む
@@ -132,6 +146,11 @@ public class PlayerControll : Actor
         controllUpdate[(int)ControllMode.rot]               = this.Controll_Rot;
     }
 
+    public void ResetStatus()
+    {
+        isInitialize = false;
+    }
+
     public override void Damage(int damage)
     {
         int calcDamage = this.CalcDamage(damage);
@@ -140,6 +159,9 @@ public class PlayerControll : Actor
 
         // プレイヤー画像をダメージ表情に変更
         UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.damage, true);
+
+        // プレイヤー画像の背景を点滅させる
+        frameBack.PunchColor();
 
         // ダメージエフェクト
         EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Hit_White, this.transform.position);
@@ -203,13 +225,27 @@ public class PlayerControll : Actor
 
         this.CalcCameraPos();
 
+        if(Input.GetKeyDown( KeyCode.C))
+        {
+            AddHP(100, true);
+        }
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            AddHunger(100);
+        }
+        
 
-        // 体力ゲージ更新
-        this.HpGauge.value = ((float)this.param.hp / param.maxHp);
     }
 
     private void CalcCameraPos()
     {
+//#if UNITY_EDITOR
+        if(PS4Input.GetButtonDown( PS4ButtonCode.Share))
+        {
+            isCameraSet = !isCameraSet;
+        }
+//#endif
+
         if (isCameraSet)
         {
             mainCamera.transform.position = new Vector3(
@@ -233,6 +269,11 @@ public class PlayerControll : Actor
 
             #region 行動
             this.Controll_Act();
+
+            if (Input.GetKeyDown(KeyCode.Y))
+            {
+                ItemMGR.instance.CreateItem(this.status.point + MapData.DirectPoints[(int)this.status.direct], 14);
+            }
             #endregion
         }
     }
@@ -247,8 +288,14 @@ public class PlayerControll : Actor
            // 斜め移動on
            controllMode = ControllMode.diagonally;
        }
-     
-       if(PS4Input.GetButton(PS4ButtonCode.Square))
+
+        if (PS4Input.GetButtonDown(PS4ButtonCode.Square))
+        {
+            this.LookAt_SearchAroundEnemy();
+        }
+
+
+        if (PS4Input.GetButton(PS4ButtonCode.Square))
        {
            // 回転モードon
            controllMode = ControllMode.rot;
@@ -258,32 +305,48 @@ public class PlayerControll : Actor
        {
            // スキップフラグon
            isSkip = true;
-       }
+
+            UI_MGR.instance.Ui_Map.ShowMap();
+
+            //if(PS4Input.GetButton(PS4ButtonCode.Circle))
+            //{// 足踏み
+            //    SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.step);
+            //    SequenceMGR.instance.ActProc();
+            //}
+    }
+       else if(UI_MGR.instance.Ui_Map.IsShowBG)
+       {
+            UI_MGR.instance.Ui_Map.ShowMap(true);
+        }
+       else
+        {
+            UI_MGR.instance.Ui_Map.HideMap();
+        }
 
        // 操作モードごとの更新
-        controllUpdate[(int)controllMode]();
+       controllUpdate[(int)controllMode]();
     }
 
     #region 操作タイプごとの更新処理
 
     private void ControllMode_Normal()
     {
-        if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_R, isSkip))
+        if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_R, isSkip) || Input.GetKeyDown( KeyCode.RightArrow))
         {// 右
             status.direct = Direct.right;
             this.DecideMove();
         }
-        else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_L, isSkip))
+        else if (PS4Input.GetCrossKey(PS4KeyCodeLR.CrossKey_L, isSkip) || Input.GetKeyDown(KeyCode.LeftArrow))
         {// 左
             status.direct = Direct.left;
             this.DecideMove();
         }
-        else if (PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_U, isSkip))
+        else if (PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_U, isSkip) || Input.GetKeyDown(KeyCode.UpArrow))
         {// 奥
             status.direct = Direct.forward;
             this.DecideMove();
         }
-        else if (PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_D, isSkip))
+        else if (PS4Input.GetCrossKey(PS4KeyCodeUD.CrossKey_D, isSkip) || Input.GetKeyDown(KeyCode.DownArrow))
         {// 手前
             status.direct = Direct.back;
             this.DecideMove();
@@ -416,13 +479,31 @@ public class PlayerControll : Actor
     private void Controll_Act()
     {
         {// 移動していない場合
-            if(PS4Input.GetButtonDown(PS4ButtonCode.Circle))
-            {
-                // プレイヤーが行動した場合
-                SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.act);                
 
-                // 予約を一件実行
-                SequenceMGR.instance.ActProc();
+            // 攻撃
+            if(PS4Input.GetButtonDown(PS4ButtonCode.Circle) || Input.GetKeyDown( KeyCode.Space))
+            {
+                    SequenceMGR.instance.CallAct(SequenceMGR.PlayerActType.act);
+
+                    // 予約を一件実行
+                    SequenceMGR.instance.ActProc();
+            }
+
+            // 矢
+            this.ShotArrow();
+        }
+    }
+
+    private void ShotArrow()
+    {
+        if(PS4Input.GetButtonDown( PS4ButtonCode.L1) ||
+           PS4Input.GetButtonDown(PS4ButtonCode.L2))
+        {
+            // 矢を装備している場合のみ矢を撃てる
+            if (this.param.arrowId != Actor.Parameter.notEquipValue)
+            {
+                // 矢を放つ
+                ArrowMGR.instance.ActivateArrow(ArrowType.wood, this.param.arrowId);
             }
         }
     }
@@ -528,7 +609,7 @@ public class PlayerControll : Actor
             }
 
             // マップ情報上のプレイヤーを更新
-            UI_MGR.instance.Ui_Map.UpdateMap();
+            UI_MGR.instance.Ui_Map.UpdateMap(true);
 
             // 歩数加算
             ++cntSteps;
@@ -565,6 +646,8 @@ public class PlayerControll : Actor
 
                     this.ChangeExpression();
                 }
+                // 足踏み回復
+                this.Heal_Step();
             }
 
             return true;
@@ -574,6 +657,16 @@ public class PlayerControll : Actor
             // 移動失敗時処理
             this.MoveFailure();
             return false;
+        }
+    }
+
+    public void Heal_Step()
+    {
+        cntHeal += this.param.maxHp;
+        if (HealBorder < cntHeal)
+        {
+            cntHeal -= HealBorder;
+            this.AddHP(1, false);
         }
     }
 
@@ -608,59 +701,48 @@ public class PlayerControll : Actor
         MapData.instance.SetMapObject(this.status.point, MapData.MapObjType.player, param.id);
     }
 
-    struct SaveData
+    public void ChangeExpression()
     {
-        // =--------- パラメータ ---------= //
-        public Parameter parameter;
+        float per = this.Per_Hunger();
 
-        // =--------- 所持アイテム ---------= //
-
-        public Player_Items.StockItem[] StockItems;
-        public int[] equipInventoryID;
+        if (per <= 100.0f)
+        {
+            UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.laugh1, false, true);
+            if (per <= 80.0f)
+            {
+                UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.laugh2, false, true);
+                if (per <= 60.0f)
+                {
+                    UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.normal, false, true);
+                    if (per <= 40.0f)
+                    {
+                        UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.low, false, true);
+                        if (per <= 20.0f)
+                        {
+                            UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.down, false, true);
+                            if (per <= 0.0f)
+                            {
+                                UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.damage, false, true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    public void SaveStatus()
+    private void LookAt_SearchAroundEnemy()
     {
-        StreamWriter writer;
+        Point point = MapData.GetPointFromAround(status.point, MapData.MapObjType.enemy);
 
-        SaveData saveData = new SaveData();
-
-        saveData.parameter = this.param;
-
-        saveData.StockItems = this.GetComponent<Player_Items>().Stocks.ToArray();
-        
-        saveData.equipInventoryID = UI_MGR.instance.Ui_Inventory.EquipInventoryID;
-
-        writer = new StreamWriter(Application.dataPath + "/PlayerData.json", false);
-
-        string jsonstr = JsonUtility.ToJson(saveData);
-        jsonstr = jsonstr + "\n";
-        writer.Write(jsonstr);
-        writer.Flush();
-
-        writer.Close();
+        if (point != 0)
+        {
+            this.status.direct = MapData.PointToDirect(point);
+            this.ChangeRotate();
+        }
     }
 
-    private void LoadStatus()
-    {
-        string datastr = "";
-        StreamReader reader;
-        reader = new StreamReader(Application.dataPath + "/PlayerData.json");
-        datastr = reader.ReadToEnd();
-        reader.Close();
-
-        SaveData saveData;
-
-        saveData = JsonUtility.FromJson<SaveData>(datastr);
-
-        #region ステータス反映
-
-        param = saveData.parameter;
-        this.GetComponent<Player_Items>().Stocks.AddRange(saveData.StockItems);
-        UI_MGR.instance.Ui_Inventory.EquipInventoryID = saveData.equipInventoryID;
-
-        #endregion
-    }
+    #region コルーチン
 
     /// <summary>
     /// 指定の時間が経ったら入力を受け付けられるようにする
@@ -689,10 +771,13 @@ public class PlayerControll : Actor
 
             // アイテム取得音
             SoundMGR.PlaySe("CollectItem", 0.5f);
+
+            // アイテム取得時メッセージ
+            MessageWindow.instance.AddMessage($"{DataBase.instance.GetItemTableEntity(mapObject.id).Name}をひろった");
         }
 
         // マップ情報上のプレイヤーを更新
-        UI_MGR.instance.Ui_Map.UpdateMap();
+        UI_MGR.instance.Ui_Map.UpdateMapPlayer(false);
 
         // 歩数加算
         ++cntSteps;
@@ -732,6 +817,8 @@ public class PlayerControll : Actor
 
                 this.ChangeExpression();
             }
+            // 足踏み回復
+            //this.Heal_Step();
         }
 
         // ターンエンド 
@@ -805,35 +892,7 @@ public class PlayerControll : Actor
         this.ChangeRotate();
     }
 
-    public void ChangeExpression()
-    {
-        float per = this.Per_Hunger();
-
-        if(per <= 100.0f)
-        {
-            UIPlayerFace.ChangeExpression( UI_PlayerImage.Face.laugh1, false, true);
-            if(per <= 80.0f)
-            {
-                UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.laugh2, false, true);
-                if (per <= 60.0f)
-                {
-                    UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.normal, false, true);
-                    if (per <= 40.0f)
-                    {
-                        UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.low, false, true);
-                        if (per <= 20.0f)
-                        {
-                            UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.down, false, true);
-                            if (per <= 0.0f)
-                            {
-                                UIPlayerFace.ChangeExpression(UI_PlayerImage.Face.damage, false, true);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    #endregion
 
     #region ダメージ計算
 
@@ -888,6 +947,64 @@ public class PlayerControll : Actor
 
         // 計算結果を返す
         return Atk;
+    }
+
+    #endregion
+
+    #region データ保存
+
+    struct SaveData
+    {
+        // =--------- パラメータ ---------= //
+        public Parameter parameter;
+
+        // =--------- 所持アイテム ---------= //
+
+        public Player_Items.StockItem[] StockItems;
+        public int[] equipInventoryID;
+    }
+
+    public void SaveStatus()
+    {
+        StreamWriter writer;
+
+        SaveData saveData = new SaveData();
+
+        saveData.parameter = this.param;
+
+        saveData.StockItems = this.GetComponent<Player_Items>().Stocks.ToArray();
+
+        saveData.equipInventoryID = UI_MGR.instance.Ui_Inventory.EquipInventoryID;
+
+        writer = new StreamWriter(Application.dataPath + "/PlayerData.json", false);
+
+        string jsonstr = JsonUtility.ToJson(saveData);
+        jsonstr = jsonstr + "\n";
+        writer.Write(jsonstr);
+        writer.Flush();
+
+        writer.Close();
+    }
+
+    private void LoadStatus()
+    {
+        string datastr = "";
+        StreamReader reader;
+        reader = new StreamReader(Application.dataPath + "/PlayerData.json");
+        datastr = reader.ReadToEnd();
+        reader.Close();
+
+        SaveData saveData;
+
+        saveData = JsonUtility.FromJson<SaveData>(datastr);
+
+        #region ステータス反映
+
+        param = saveData.parameter;
+        this.GetComponent<Player_Items>().Stocks.AddRange(saveData.StockItems);
+        UI_MGR.instance.Ui_Inventory.EquipInventoryID = saveData.equipInventoryID;
+
+        #endregion
     }
 
     #endregion

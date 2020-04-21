@@ -27,5 +27,6 @@ public enum ItemType
     Shield,
     Magic,
     Book,
+    Arrow,
     max
 }

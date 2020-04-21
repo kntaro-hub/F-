@@ -68,6 +68,7 @@ public class Actor : MonoBehaviour
 
         public int weaponId;// 装備中武器アイテムID
         public int shieldId;// 装備中盾アイテムID
+        public int arrowId;// 装備中矢アイテムID
 
         public int hunger;      // 満腹度
         public int maxHunger;   // 満腹度（最大値）
@@ -138,6 +139,10 @@ public class Actor : MonoBehaviour
                 this.SetShieldID(itemID);
                 EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Player_EquipShield, this.status.point);
                 break;
+            case EquipType.arrow:
+                this.SetArrowID(itemID);
+                EffectMGR.instance.CreateEffect(EffectMGR.EffectType.Player_EquipShield, this.status.point);
+                break;
         }
 
         // 装備音
@@ -163,6 +168,8 @@ public class Actor : MonoBehaviour
         this.AddHP(item.HP, true);
         this.param.basicAtk += item.Atk;
         this.AddHunger(item.Hunger);
+
+        
     }
 
     public virtual void Damage(int damage){}
@@ -323,6 +330,10 @@ public class Actor : MonoBehaviour
     public void SetWeaponID(int itemID)
     {
         this.param.weaponId = itemID;
+    }
+    public void SetArrowID(int itemID)
+    {
+        this.param.arrowId = itemID;
     }
 
     public bool CheckDestroy()
